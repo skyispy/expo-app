@@ -1,2 +1,2 @@
-export * from './useSignupUser';
-export * from './useLoginUser';
+export * from './useUser';
+export * from './useAuth';
