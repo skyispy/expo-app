@@ -1,15 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from './models/user.entity';
+import { UserEntity } from './models';
 import { Repository } from 'typeorm';
-import { UserSignupDto } from './dto/user.schema';
+import type { UserSignupDto } from './dto/user.schema';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    private readonly jwtService: JwtService,
   ) {}
 
   async createUser(userSignupDto: UserSignupDto): Promise<UserEntity> {
@@ -22,7 +24,7 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
-  async findAll(): Promise<UserEntity[]> {
-    return await this.userRepository.query('SELECT * FROM USER');
+  async findUserByEmail(email: string): Promise<UserEntity | null> {
+    return await this.userRepository.findOneBy({ email });
   }
 }

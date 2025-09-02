@@ -1,9 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { RefreshTokensEntity } from '../../auth/models';
 
 @Entity('USER')
 export class UserEntity {
   @PrimaryGeneratedColumn()
-  id: string;
+  userId: number;
 
   @Column()
   username: string;
@@ -18,12 +19,16 @@ export class UserEntity {
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  createDate: Date;
+  createAt: Date;
 
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
     onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updateDate: Date;
+  updateAt: Date;
+
+  // RefreshTokensEntity와의 1:N 관계 설정
+  @OneToMany(() => RefreshTokensEntity, (refreshToken) => refreshToken.userId)
+  refreshTokens: RefreshTokensEntity[];
 }
