@@ -41,18 +41,6 @@ export class AuthController {
     }
     return { user, accessToken };
   }
-  // 소셜 로그인
-
-  // 로그아웃
-  @Post('/logout')
-  async logout(@Req() req: Request): Promise<{ message: string }> {
-    const { 'x-refresh-token': refreshToken, 'user-agent': userAgent } = req.headers;
-    if (typeof refreshToken === 'string' && userAgent) {
-      // 리프레시 토큰이 있을 때만 삭제
-      await this.authService.logout(refreshToken, userAgent);
-    }
-    return { message: '로그아웃 되었습니다.' };
-  }
 
   // 토큰 재발급
   @Post('/refresh')
@@ -78,5 +66,16 @@ export class AuthController {
       );
     }
     throw new ForbiddenException('User-Agent가 필요합니다.');
+  }
+
+  // 로그아웃
+  @Post('/logout')
+  async logout(@Req() req: Request): Promise<{ message: string }> {
+    const { 'x-refresh-token': refreshToken, 'user-agent': userAgent } = req.headers;
+    if (typeof refreshToken === 'string' && userAgent) {
+      // 리프레시 토큰이 있을 때만 삭제
+      await this.authService.logout(refreshToken, userAgent);
+    }
+    return { message: '로그아웃 되었습니다.' };
   }
 }

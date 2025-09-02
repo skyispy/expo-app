@@ -58,11 +58,6 @@ export class AuthService {
     return refreshToken;
   }
 
-  // 로그아웃
-  async logout(refreshToken: string, userAgent: string): Promise<void> {
-    await this.refreshTokensRepository.delete({ refreshToken, userAgent });
-  }
-
   // 토큰 재발급
   async renewTokensByRefreshToken(
     refreshToken: string,
@@ -97,7 +92,7 @@ export class AuthService {
   async renewTokensByAccessToken(
     payload: UserPayload,
     userAgent: string,
-  ): Promise<{ user: Partial<UserEntity>, accessToken: string; refreshToken: string }> {
+  ): Promise<{ user: Partial<UserEntity>; accessToken: string; refreshToken: string }> {
     const user = await this.userService.findUserByEmail(payload.email);
     if (!user) {
       throw new UnauthorizedException('유효하지 않은 사용자입니다.');
@@ -124,5 +119,10 @@ export class AuthService {
 
     const { password, createAt, updateAt, ...rest } = user;
     return { user: rest, accessToken: newAccessToken, refreshToken: newRefreshToken };
+  }
+
+  // 로그아웃
+  async logout(refreshToken: string, userAgent: string): Promise<void> {
+    await this.refreshTokensRepository.delete({ refreshToken, userAgent });
   }
 }
