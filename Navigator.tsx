@@ -5,7 +5,10 @@ import { HomeScreen } from './screens/home';
 import { ProfileScreen } from './screens/profile';
 import { Header } from './components/common';
 import { SignupScreen, LoginScreen } from './screens/sign';
-import { useState } from 'react';
+import { useAuthStore } from './store/useAuthStore';
+import { Ionicons } from '@expo/vector-icons';
+import { useTokenLoginUser } from './hooks';
+import { useEffect } from 'react';
 
 const SignStack = createStackNavigator();
 const SignStackScreen = () => {
@@ -15,10 +18,7 @@ const SignStackScreen = () => {
       header: (props) => <Header headerProps={props} />,
     }}>
       <SignStack.Screen name="Login" component={LoginScreen} />
-      <SignStack.Screen
-        name="Signup"
-        component={SignupScreen}
-      />
+      <SignStack.Screen name="Signup" component={SignupScreen} />
     </SignStack.Navigator>
   );
 };
@@ -28,7 +28,7 @@ const HomeStackScreen = () => (
   <HomeStack.Navigator screenOptions={{
       header: (props) => <Header headerProps={props} />,
     }}>
-    <HomeStack.Screen name="Main" component={HomeScreen} />
+    <HomeStack.Screen name="Home" component={HomeScreen} />
   </HomeStack.Navigator>
 );
 
@@ -37,20 +37,44 @@ const ProfileStackScreen = () => (
   <ProfileStack.Navigator screenOptions={{
       header: (props) => <Header headerProps={props} />,
     }}>
-    <ProfileStack.Screen name="Main" component={ProfileScreen} />
+    <ProfileStack.Screen name="Profile" component={ProfileScreen} />
   </ProfileStack.Navigator>
 );
 
 const BottomTab = createBottomTabNavigator();
 const Navigator = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const user = useAuthStore(state => state.user);
+  const { tokenLoginUser } = useTokenLoginUser();
+
+  useEffect(() => {
+    if(!user) {
+      tokenLoginUser();
+    }
+  }, []);
 
   return (
     <NavigationContainer>
-      {isAuthenticated ? (
-        <BottomTab.Navigator>
-          <BottomTab.Screen name="Home" component={HomeStackScreen} />
-          <BottomTab.Screen name="Profile" component={ProfileStackScreen} />
+      {user ? (
+        <BottomTab.Navigator screenOptions={{
+          headerShown: false,
+          tabBarStyle: { borderWidth: 1, marginTop: 5 },
+        }}>
+          <BottomTab.Screen name="HomeTab" component={HomeStackScreen} options={{
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="home" size={size} color={color} />
+            ),
+            tabBarLabel: '홈',
+            tabBarActiveTintColor: '#6A49E9',
+            tabBarInactiveTintColor: 'gray',
+          }} />
+          <BottomTab.Screen name="ProfileTab" component={ProfileStackScreen} options={{
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="person" size={size} color={color} />
+            ),
+            tabBarLabel: '프로필',
+            tabBarActiveTintColor: '#6A49E9',
+            tabBarInactiveTintColor: 'gray',
+          }} />
         </BottomTab.Navigator>
       ) : (
         <SignStackScreen />

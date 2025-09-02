@@ -1,6 +1,18 @@
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-  token: string;
+import { z } from 'zod';
+import { UserLoginSchema, UserSignupSchema } from '../schemas';
+import { User } from './model';
+
+export type ApiResponse<T> = {
+  data: T;
+  message: string;
+  status: number;
+}
+
+export type SignupRequest = Omit<z.infer<typeof UserSignupSchema>, 'confirmPassword'>;
+
+export type LoginRequest = z.infer<typeof UserLoginSchema>;
+export type LoginResponse = {
+  user: User,
+  accessToken: string,
+  refreshToken?: string,
 }

@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { SignStackScreenProps } from '../../types';
+import { SignStackScreenProps, SignupRequest } from '../../types';
 import { useSignupUser } from '../../hooks';
 import { UserSignupSchema } from '../../schemas';
 import type { UserSignupFields } from '../../schemas';
@@ -46,18 +46,20 @@ export const SignupScreen = () => {
 
   const hasError = Object.values(errors).some(v => !!v) || !username || !email || !password || !confirmPassword;
 
-  const { mutateAsync, isSuccess, isError, error } = useSignupUser();
+  const { signupUser } = useSignupUser();
   const handleSignup = async () => {
 
-    await mutateAsync({ username, email, password }, {
+    const param: SignupRequest = { username, email, password };
+
+    await signupUser(param, {
       onSuccess: () => {
         Alert.alert('회원가입 완료', '로그인 해주세요.');
         stackNav.navigate('Login');
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         Alert.alert('회원가입 실패', `${error.message}`);
       },
-    });
+    })
   }
 
   return (

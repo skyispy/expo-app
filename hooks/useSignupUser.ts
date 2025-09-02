@@ -1,11 +1,12 @@
 import { useMutation } from '@tanstack/react-query';
-import { signupUser } from '../api/user';
+import { signupUser } from '../api';
+import { SignupRequest } from '../types';
 
 export const useSignupUser = () => {
-  const { mutateAsync, isSuccess, isError, error } = useMutation({
-    mutationFn: ({ username, email, password }: { username: string; email: string; password: string }) =>
-      signupUser(username, email, password),
+  const { mutateAsync } = useMutation({
+    mutationFn: (param: SignupRequest) =>
+      signupUser(param),
   });
 
-  return { mutateAsync, isSuccess, isError, error };
+  return { signupUser: mutateAsync };
 };

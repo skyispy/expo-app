@@ -15,6 +15,14 @@ const headerConfig: Record<string, {
     title: '로그인',
     showBackButton: false,
   },
+  'Home': {
+    title: '홈',
+    showBackButton: false,
+  },
+  'Profile': {
+    title: '프로필',
+    showBackButton: false,
+  }
 }
 
 export const Header = ({ headerProps }: {
