@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { loginUser, loginWithToken } from '../api';
+import { loginUser, loginWithToken, logoutUser } from '../api';
 import { LoginRequest } from '../types';
 import * as SecureStore from 'expo-secure-store';
 import { useAuthStore } from '../store/useAuthStore';
@@ -19,32 +19,57 @@ export const useLoginUser = () => {
       }
       return { user };
     },
-    onSuccess: (data) => {
-      useAuthStore.getState().setUser(data.user);
-    }
   });
 
   return { loginUser: mutateAsync };
 }
 
 export const useTokenLoginUser = () => {
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async() => {
       // 토큰으로 로그인 API 호출
-      const data = await loginWithToken();
-      if (!data) throw new Error('토큰 로그인에 실패했습니다.');
-      // 로그인 성공 시, 토큰 저장
-      const { user, accessToken, refreshToken } = data;
-      await SecureStore.setItemAsync('accessToken', accessToken);
-      if (refreshToken) {
-        await SecureStore.setItemAsync('refreshToken', refreshToken);
+      const accessToken = await SecureStore.getItemAsync('accessToken');
+      if(accessToken) {
+        const data = await loginWithToken();
+        if (!data) throw new Error('토큰 로그인에 실패했습니다.');
+        // 로그인 성공 시, 토큰 저장
+        const { user, accessToken, refreshToken } = data;
+        await SecureStore.setItemAsync('accessToken', accessToken);
+        if (refreshToken) {
+          await SecureStore.setItemAsync('refreshToken', refreshToken);
+        }
+        return { user };
       }
-      return { user };
+      return { user: null };
     },
     onSuccess: (data) => {
       useAuthStore.getState().setUser(data.user);
     }
   });
 
-  return { tokenLoginUser: mutate };
+  return { tokenLoginUser: mutate, isTokenLoginPending: isPending };
+}
+
+export const useLogoutUser = () => {
+  const { mutateAsync } = useMutation({
+    mutationFn: async() => {
+      const refreshToken = await SecureStore.getItemAsync('refreshToken');
+      const data = await logoutUser(refreshToken);
+      // 로그아웃 API 호출
+      await Promise.all([
+        SecureStore.deleteItemAsync('accessToken'),
+        SecureStore.deleteItemAsync('refreshToken'),
+      ]);
+      return { message: data?.message ?? '로그아웃 되었습니다.' };
+    },
+    onError: async (err) => {
+      await Promise.all([
+        SecureStore.deleteItemAsync('accessToken'),
+        SecureStore.deleteItemAsync('refreshToken'),
+      ]);
+      return { message: '로그아웃 되었습니다.'};
+    },
+  });
+
+  return { logoutUser: mutateAsync };
 }

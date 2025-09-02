@@ -12,6 +12,7 @@ import type { SignStackScreenProps, } from '../../types';
 import { useLoginUser } from '../../hooks';
 import { UserLoginSchema } from '../../schemas';
 import CheckBox from 'expo-checkbox'
+import { useAuthStore } from '../../store/useAuthStore';
 
 export const LoginScreen = () => {
   const stackNav = useNavigation<SignStackScreenProps>();
@@ -21,6 +22,8 @@ export const LoginScreen = () => {
   const [keepLogin, setKeepLogin] = useState<boolean>(false);
 
   const { loginUser } = useLoginUser();
+  const setUser = useAuthStore(state => state.setUser);
+
   const handleLogin = async () => {
     const param = { email, password, keepLogin };
     const result = UserLoginSchema.safeParse(param);
@@ -32,11 +35,11 @@ export const LoginScreen = () => {
     await loginUser(result.data, {
       onSuccess: (data) => {
         Alert.alert('로그인 성공', `${data?.user.username}님 환영합니다!`);
-        // stackNav.navigate('Main');
+        setUser(data.user);
       },
       onError: (error: Error) => {
         Alert.alert('로그인 실패', `${error.message}`);
-      },
+      }
     });
   }
 

@@ -1,4 +1,4 @@
-import { ApiResponse, LoginRequest, LoginResponse } from '../types';
+import { ApiResponse, LoginRequest, LoginResponse, LogoutResponse } from '../types';
 import apiClient from './config';
 import { AxiosError } from 'axios';
 
@@ -26,6 +26,21 @@ export const loginWithToken = async () => {
   } catch(error) {
     if(error instanceof AxiosError) {
       console.error("api/user -> Failed to login with token");
+      throw new Error("잘못된 요청입니다.");
+    }
+  }
+}
+
+// 로그아웃
+export const logoutUser = async (refreshToken?: string) => {
+  try {
+    const response: ApiResponse<LogoutResponse> = await apiClient.post('/auth/logout', {}, {
+      headers: refreshToken ? { 'x-refresh-token': refreshToken } : {}
+    });
+    return response.data;
+  } catch(error) {
+    if(error instanceof AxiosError) {
+      console.error("api/user -> Failed to logout user");
       throw new Error("잘못된 요청입니다.");
     }
   }

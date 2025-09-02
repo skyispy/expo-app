@@ -8,7 +8,7 @@ import { SignupScreen, LoginScreen } from './screens/sign';
 import { useAuthStore } from './store/useAuthStore';
 import { Ionicons } from '@expo/vector-icons';
 import { useTokenLoginUser } from './hooks';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const SignStack = createStackNavigator();
 const SignStackScreen = () => {
@@ -44,13 +44,30 @@ const ProfileStackScreen = () => (
 const BottomTab = createBottomTabNavigator();
 const Navigator = () => {
   const user = useAuthStore(state => state.user);
-  const { tokenLoginUser } = useTokenLoginUser();
+  const { tokenLoginUser, isTokenLoginPending } = useTokenLoginUser();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if(!user) {
+      // 자동 로그인 시도
       tokenLoginUser();
     }
   }, []);
+
+  useEffect(() => {
+    if (isTokenLoginPending) {
+      setIsLoading(true);
+    } else {
+      // 토큰 검증이 끝나면 0.5초 후에 로딩 해제
+      const timer = setTimeout(() => setIsLoading(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isTokenLoginPending]);
+
+  // 로딩 화면
+  if(isLoading) {
+    return null;
+  }
 
   return (
     <NavigationContainer>
