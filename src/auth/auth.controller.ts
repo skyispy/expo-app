@@ -7,6 +7,7 @@ import {
   ForbiddenException,
   UseGuards,
   UsePipes,
+  Logger,
 } from '@nestjs/common';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { type UserLoginDto, UserLoginSchema } from '../user/dto/user.schema';
@@ -18,6 +19,7 @@ import { JwtAuthGuard, UserPayload } from './guards';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+  private readonly logger = new Logger(AuthController.name);
 
   // 일반 로그인
   @Post('/login')
@@ -26,7 +28,7 @@ export class AuthController {
     @Body() userLoginDto: UserLoginDto,
     @Req() req: Request,
   ): Promise<{ user: Partial<UserEntity>; accessToken: string; refreshToken?: string }> {
-    console.log('로그인 유저 정보 : ', userLoginDto);
+    this.logger.log('로그인 유저 정보', userLoginDto);
     // 사용자 인증
     const user = await this.authService.validateUser(userLoginDto);
     const { userId, username, email } = user;

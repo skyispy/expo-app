@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ForbiddenException, Logger } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -17,6 +17,7 @@ export class AuthService {
     @InjectRepository(RefreshTokensEntity)
     private readonly refreshTokensRepository: Repository<RefreshTokensEntity>,
   ) {}
+  private readonly logger = new Logger(AuthService.name);
 
   // 사용자 인증
   async validateUser(userLoginDto: UserLoginDto): Promise<Partial<UserEntity>> {
