@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './models';
 import { Repository } from 'typeorm';
@@ -11,10 +11,13 @@ export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
-    private readonly jwtService: JwtService,
   ) {}
 
   async createUser(userSignupDto: UserSignupDto): Promise<UserEntity> {
+    const existingUser = await this.findUserByEmail(userSignupDto.email);
+    if (existingUser) {
+      throw new ConflictException('이미 존재하는 이메일입니다.');
+    }
     // 비밀번호 해시화
     const hashedPassword = await bcrypt.hash(userSignupDto.password, 10);
     const user = this.userRepository.create({
