@@ -1,27 +1,36 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import * as mysql from 'mysql2/promise';
-
-const DBProvider = {
-  provide: 'MYSQL_POOL',
-  useFactory: () => {
-    return mysql.createPool({
-      host: 'localhost',
-      user: '',
-      port: 3306,
-      password: '',
-      database: '',
-      connectionLimit: 10,
-      waitForConnections: true,
-    });
-  },
-};
+import { UserModule } from './user/user.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthController } from './auth/auth.controller';
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService, DBProvider],
-  exports: [DBProvider],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'mysql',
+        host: configService.get<string>('DB_HOST'),
+        port: configService.get<number>('DB_PORT'),
+        username: configService.get<string>('DB_USERNAME'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_NAME'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true, // 개발용
+      }),
+      inject: [ConfigService],
+    }),
+    UserModule,
+    AuthModule,
+  ],
+  controllers: [AppController, AuthController],
+  providers: [AppService],
+  exports: [],
 })
 export class AppModule {}
