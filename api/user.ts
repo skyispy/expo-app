@@ -8,7 +8,7 @@ export const signupUser = async(param: SignupRequest) => {
     return response.data;
   } catch(error) {
     if(error instanceof AxiosError) {
-      if(error.status === 400 && error.response) {
+      if(error.status === 409 && error.response) {
         throw new Error(error.response.data.message);
       }
       console.error("api/user -> Failed to signup user");
