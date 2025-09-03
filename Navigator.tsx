@@ -10,9 +10,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTokenLoginUser } from './hooks';
 import { useEffect, useState } from 'react';
 
+// 로그인, 회원가입
 const SignStack = createStackNavigator();
 const SignStackScreen = () => {
-
   return (
     <SignStack.Navigator screenOptions={{
       header: (props) => <Header headerProps={props} />,
@@ -23,6 +23,7 @@ const SignStackScreen = () => {
   );
 };
 
+// 홈
 const HomeStack = createStackNavigator();
 const HomeStackScreen = () => (
   <HomeStack.Navigator screenOptions={{
@@ -32,6 +33,7 @@ const HomeStackScreen = () => (
   </HomeStack.Navigator>
 );
 
+// 프로필
 const ProfileStack = createStackNavigator();
 const ProfileStackScreen = () => (
   <ProfileStack.Navigator screenOptions={{
@@ -43,14 +45,23 @@ const ProfileStackScreen = () => (
 
 const BottomTab = createBottomTabNavigator();
 const Navigator = () => {
-  const user = useAuthStore(state => state.user);
+  const { user, setUser, clearUser } = useAuthStore((state) => state);
   const { tokenLoginUser, isTokenLoginPending } = useTokenLoginUser();
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if(!user) {
       // 자동 로그인 시도
-      tokenLoginUser();
+      tokenLoginUser(undefined, {
+        onSuccess: (data) => {
+          if(data?.user) {
+            setUser(data.user);
+          } else {
+            clearUser();
+          }
+        },
+        onError: () => clearUser()
+      });
     }
   }, []);
 

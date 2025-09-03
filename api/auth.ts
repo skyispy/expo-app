@@ -25,6 +25,9 @@ export const loginWithToken = async () => {
     return response.data;
   } catch(error) {
     if(error instanceof AxiosError) {
+      if(error.status === 403 && error.response) {
+        throw new Error(error.response.data.message);
+      }
       console.error("api/user -> Failed to login with token");
       throw new Error("잘못된 요청입니다.");
     }
@@ -32,10 +35,10 @@ export const loginWithToken = async () => {
 }
 
 // 로그아웃
-export const logoutUser = async (refreshToken?: string) => {
+export const logoutUser = async (refreshToken: string) => {
   try {
     const response: ApiResponse<LogoutResponse> = await apiClient.post('/auth/logout', {}, {
-      headers: refreshToken ? { 'x-refresh-token': refreshToken } : {}
+      headers: { 'x-refresh-token': refreshToken }
     });
     return response.data;
   } catch(error) {

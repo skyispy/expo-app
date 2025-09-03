@@ -26,7 +26,7 @@ export const useLoginUser = () => {
 
 export const useTokenLoginUser = () => {
   const { mutate, isPending } = useMutation({
-    mutationFn: async() => {
+    mutationFn: async () => {
       // 토큰으로 로그인 API 호출
       const accessToken = await SecureStore.getItemAsync('accessToken');
       if(accessToken) {
@@ -42,9 +42,6 @@ export const useTokenLoginUser = () => {
       }
       return { user: null };
     },
-    onSuccess: (data) => {
-      useAuthStore.getState().setUser(data.user);
-    }
   });
 
   return { tokenLoginUser: mutate, isTokenLoginPending: isPending };
@@ -52,15 +49,19 @@ export const useTokenLoginUser = () => {
 
 export const useLogoutUser = () => {
   const { mutateAsync } = useMutation({
-    mutationFn: async() => {
+    mutationFn: async () => {
       const refreshToken = await SecureStore.getItemAsync('refreshToken');
-      const data = await logoutUser(refreshToken);
-      // 로그아웃 API 호출
-      await Promise.all([
-        SecureStore.deleteItemAsync('accessToken'),
-        SecureStore.deleteItemAsync('refreshToken'),
-      ]);
-      return { message: data?.message ?? '로그아웃 되었습니다.' };
+      if(refreshToken) {
+        const data = await logoutUser(refreshToken);
+        // 로그아웃 API 호출
+        await Promise.all([
+          SecureStore.deleteItemAsync('accessToken'),
+          SecureStore.deleteItemAsync('refreshToken'),
+        ]);
+        return { message: data?.message ?? '로그아웃 되었습니다.' };
+      }
+      await SecureStore.deleteItemAsync('accessToken');
+      return { message: '로그아웃 되었습니다.' };
     },
     onError: async (err) => {
       await Promise.all([
