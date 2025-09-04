@@ -14,7 +14,9 @@ interface FormInputProps extends TextInputProps {
   error?: string;
 }
 
-export const FormInput = ({ label, value, onChangeText, error }: FormInputProps) => (
+export const FormInput = ({
+  label, value, onChangeText, error, secureTextEntry = false
+}: FormInputProps) => (
   <>
     <Text style={styles.label}>{label}</Text>
     <View style={[styles.inputContainer]}>
@@ -22,6 +24,7 @@ export const FormInput = ({ label, value, onChangeText, error }: FormInputProps)
         style={styles.input}
         value={value}
         onChangeText={text => onChangeText(text)}
+        secureTextEntry={secureTextEntry}
       />
     </View>
     <View style={styles.errorContainer}>

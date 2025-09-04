@@ -129,6 +129,7 @@ export const SignupScreen = () => {
           validate('password', text);
         }}
         error={errors.password}
+        secureTextEntry={true}
       />
       <FormInput
         label="비밀번호 확인"
@@ -138,6 +139,7 @@ export const SignupScreen = () => {
           validate('confirmPassword', text);
         }}
         error={errors.confirmPassword}
+        secureTextEntry={true}
       />
       <TouchableOpacity
         style={hasError ? [styles.button, { backgroundColor: 'gray' }] : styles.button}
