@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export const UserSignupSchema = z.object({
-  username: z.string()
-    .min(1, '이름을 입력해주세요.')
-    .max(10, '이름은 10자 이내로 입력해주세요.'),
+  nickname: z.string()
+    .min(1, '닉네을 입력해주세요.')
+    .max(12, '닉네임은 12자 이내로 입력해주세요.'),
   email: z.string().regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, '이메일 형식이 올바르지 않습니다.'),
   password: z.string()
   .min(8, '비밀번호는 8자 이상 입력해주세요.')

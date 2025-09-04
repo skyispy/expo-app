@@ -2,11 +2,16 @@ import type { StackNavigationProp } from '@react-navigation/stack';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
 type TabParamList = {
-  Home: undefined;
-  Profile: undefined;
+  HomeTab: undefined;
+  ProfileTab: undefined;
 }
 
 export type TabNavigationProps = BottomTabNavigationProp<TabParamList>
+
+type StackScreenProps<
+  ParamList extends Record<string, object | undefined>,
+  RouteName extends keyof ParamList = keyof ParamList
+> = StackNavigationProp<ParamList, RouteName>;
 
 
 type SignStackParamList = {
@@ -14,16 +19,17 @@ type SignStackParamList = {
   Signup: undefined;
 };
 
-export type SignStackScreenProps = StackNavigationProp<SignStackParamList>;
+export type SignStackScreenProps = StackScreenProps<SignStackParamList>
 
 type HomeStackParamList = {
-  Main: undefined;
+  Home: undefined;
 };
 
-export type HomeStackScreenProps = StackNavigationProp<HomeStackParamList>;
+export type HomeStackScreenProps = StackScreenProps<HomeStackParamList>;
 
 type ProfileStackParamList = {
-  Main: undefined;
+  Profile: undefined;
+  ProfileEdit: undefined;
 };
 
-export type ProfileStackScreenProps = StackNavigationProp<ProfileStackParamList>;
+export type ProfileStackScreenProps = StackScreenProps<ProfileStackParamList>;

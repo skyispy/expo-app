@@ -2,7 +2,6 @@ import { useMutation } from '@tanstack/react-query';
 import { loginUser, loginWithToken, logoutUser } from '../api';
 import { LoginRequest } from '../types';
 import * as SecureStore from 'expo-secure-store';
-import { useAuthStore } from '../store/useAuthStore';
 
 export const useLoginUser = () => {
   const { mutateAsync } = useMutation({
@@ -63,7 +62,7 @@ export const useLogoutUser = () => {
       await SecureStore.deleteItemAsync('accessToken');
       return { message: '로그아웃 되었습니다.' };
     },
-    onError: async (err) => {
+    onError: async () => {
       await Promise.all([
         SecureStore.deleteItemAsync('accessToken'),
         SecureStore.deleteItemAsync('refreshToken'),

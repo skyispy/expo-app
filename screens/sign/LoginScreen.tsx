@@ -34,7 +34,7 @@ export const LoginScreen = () => {
 
     await loginUser(result.data, {
       onSuccess: (data) => {
-        Alert.alert('로그인 성공', `${data?.user.username}님 환영합니다!`);
+        Alert.alert('로그인 성공', `${data?.user.nickname}님 환영합니다!`);
         setUser(data.user);
       },
       onError: (error: Error) => {
