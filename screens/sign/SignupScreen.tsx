@@ -73,29 +73,31 @@ export const SignupScreen = () => {
     })
   }
 
-  // 낙내암 중복확인
-  const { checkDuplicateNickname } = useCheckDuplicateNickname();
+  const { refetch: checkDuplicateNickname } = useCheckDuplicateNickname(nickname);
+
   const handleCheckDuplicateNickname = async () => {
-    const isValid = validate('nickname', nickname);
-    if(!isValid) {
+    const isValidNickName = validate('nickname', nickname);
+    if(!isValidNickName) {
       Alert.alert('닉네임 오류', '닉네임을 올바르게 입력해주세요.');
       return;
     }
+    const { data, error, isError } = await checkDuplicateNickname();
+    if(isError) {
+      Alert.alert('중복확인 실패', error.message);
+      return
+    }
+    if(!data) {
+      Alert.alert('중복확인 실패', '데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+    if(data.isDuplicate) {
+      Alert.alert('중복확인 완료', '이미 사용중인 닉네임입니다.');
+      setIsNicknameChecked(false);
+    } else {
+      Alert.alert('중복확인 완료', '사용 가능한 닉네임입니다.');
+      setIsNicknameChecked(true);
+    }
 
-    await checkDuplicateNickname(nickname, {
-      onSuccess: (data) => {
-        if(data.isDuplicate) {
-          Alert.alert('중복확인 완료', '이미 사용중인 닉네임입니다.');
-          setIsNicknameChecked(false);
-        } else {
-          Alert.alert('중복확인 완료', '사용 가능한 닉네임입니다.');
-          setIsNicknameChecked(true);
-        }
-      },
-      onError: (error) => {
-        Alert.alert('중복확인 실패', error.message);
-      },
-    });
   }
 
   return (
