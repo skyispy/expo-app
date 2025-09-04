@@ -31,8 +31,8 @@ export class AuthController {
     this.logger.log('로그인 유저 정보', userLoginDto);
     // 사용자 인증
     const user = await this.authService.validateUser(userLoginDto);
-    const { userId, username, email } = user;
-    const payload = { userId, username, email };
+    const { userId, nickname, email } = user;
+    const payload = { userId, nickname, email };
     // 액세스 토큰 생성
     const accessToken = this.authService.signAccessToken(payload);
     // 리프레시 토큰 생성

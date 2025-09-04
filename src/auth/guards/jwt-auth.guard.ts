@@ -9,7 +9,7 @@ import { Request } from 'express';
 
 export interface UserPayload {
   userId: number; // 사용자 ID
-  username: string; // 사용자 이름
+  nickname: string; // 사용자 이름
   email: string; // 사용자 이메일
   iat: number; // 발급 시간
   exp: number; // 만료 시간

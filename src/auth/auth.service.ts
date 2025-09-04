@@ -77,8 +77,8 @@ export class AuthService {
       throw new ForbiddenException('유효하지 않은 리프레시 토큰입니다.');
     }
     // 새로운 액세스 토큰 발급
-    const { userId, username, email } = payload;
-    const newPayload = { userId, username, email };
+    const { userId, nickname, email } = payload;
+    const newPayload = { userId, nickname, email };
     const newAccessToken = this.signAccessToken(newPayload);
     // 새로운 리프레시 토큰 발급
     const newRefreshToken = await this.signRefreshToken(newPayload, userAgent);
@@ -107,8 +107,8 @@ export class AuthService {
       throw new ForbiddenException('유효하지 않은 리프레시 토큰입니다.');
     }
     // 새로운 액세스 토큰 발급
-    const { userId, username, email } = payload;
-    const newPayload = { userId, username, email };
+    const { userId, nickname, email } = payload;
+    const newPayload = { userId, nickname, email };
     const newAccessToken = this.signAccessToken(newPayload);
     // 새로운 리프레시 토큰 발급
     const newRefreshToken = await this.signRefreshToken(newPayload, userAgent);

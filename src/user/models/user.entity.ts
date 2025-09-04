@@ -6,21 +6,30 @@ export class UserEntity {
   @PrimaryGeneratedColumn()
   userId: number;
 
-  @Column()
-  username: string;
-
+  // 이메일
   @Column()
   email: string;
 
+  // 비밀번호
   @Column()
   password: string;
 
+  // 닉네임
+  @Column()
+  nickname: string;
+
+  // 프로필 이미지
+  @Column({ nullable: true })
+  profileImage: string;
+
+  // 생성일시
   @Column({
     type: 'datetime',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createAt: Date;
 
+  // 수정일시
   @Column({
     type: 'datetime',
     default: () => 'CURRENT_TIMESTAMP',

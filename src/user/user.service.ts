@@ -27,7 +27,13 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
+  // 이메일로 사용자 조회
   async findUserByEmail(email: string): Promise<UserEntity | null> {
     return await this.userRepository.findOneBy({ email });
+  }
+
+  // 닉네임으로 사용자 조회
+  async findUserByNickname(nickname: string): Promise<UserEntity | null> {
+    return await this.userRepository.findOneBy({ nickname });
   }
 }

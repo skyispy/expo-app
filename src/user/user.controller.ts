@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UsePipes } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ZodValidationPipe } from 'src/common/pipes/zod-validation.pipe';
 import { UserSignupSchema } from './dto/user.schema';
@@ -15,5 +15,11 @@ export class UserController {
   async signup(@Body() userSignupDto: UserSignupDto): Promise<UserEntity> {
     console.log('회원가입 유저 정보 : ', userSignupDto);
     return await this.userService.createUser(userSignupDto);
+  }
+
+  @Get('/check-nickname')
+  async checkNickname(@Query('nickname') nickname: string): Promise<{ isDuplicate: boolean }> {
+    const existingUser = await this.userService.findUserByNickname(nickname);
+    return { isDuplicate: !!existingUser };
   }
 }
