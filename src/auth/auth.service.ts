@@ -48,6 +48,20 @@ export class AuthService {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 30); // 30일
 
+    // 리프레시 토큰이 존재하는지 조회
+    const existingToken = await this.refreshTokensRepository.findOneBy({
+      userId: payload.userId,
+      userAgent,
+    });
+    if (existingToken) {
+      // 기존 토큰이 있으면 업데이트
+      await this.refreshTokensRepository.update(
+        { tokenId: existingToken.tokenId, userAgent },
+        { refreshToken, expiresAt },
+      );
+      return refreshToken;
+    }
+
     const refreshTokenEntity = this.refreshTokensRepository.create({
       userId: payload.userId,
       refreshToken,
@@ -82,11 +96,6 @@ export class AuthService {
     const newAccessToken = this.signAccessToken(newPayload);
     // 새로운 리프레시 토큰 발급
     const newRefreshToken = await this.signRefreshToken(newPayload, userAgent);
-    // 기존 리프레시 토큰 삭제
-    await this.refreshTokensRepository.update(
-      { tokenId: storedToken.tokenId },
-      { refreshToken: newRefreshToken },
-    );
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   }
 
@@ -112,11 +121,6 @@ export class AuthService {
     const newAccessToken = this.signAccessToken(newPayload);
     // 새로운 리프레시 토큰 발급
     const newRefreshToken = await this.signRefreshToken(newPayload, userAgent);
-    // 리프레시 토큰 업데이트
-    await this.refreshTokensRepository.update(
-      { tokenId: storedToken.tokenId },
-      { refreshToken: newRefreshToken },
-    );
 
     const { password, createAt, updateAt, ...rest } = user;
     return { user: rest, accessToken: newAccessToken, refreshToken: newRefreshToken };
