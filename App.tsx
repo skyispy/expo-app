@@ -1,6 +1,5 @@
-import { StatusBar } from 'expo-status-bar';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
-import Navigator from './Navigator';
+import Navigator from './src/Navigator';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export default function App() {
