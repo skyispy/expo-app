@@ -28,3 +28,14 @@ export type LoginResponse = {
 export type LogoutResponse = {
   message: string;
 };
+
+// 토큰 갱신 응답
+export type TokenRefreshResponse = {
+  accessToken: string;
+  refreshToken?: string;
+}
+
+// 프로필 수정 응답
+export type UpdateProfileResponse = {
+  user: User;
+}

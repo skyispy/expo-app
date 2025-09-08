@@ -13,7 +13,6 @@ export const loginUser = async (param: LoginRequest) => {
         throw new Error(error.response.data.message);
       }
       console.error('api/user -> Failed to login user');
-      throw new Error('잘못된 요청입니다.');
     }
   }
 };
@@ -25,12 +24,12 @@ export const loginWithToken = async () => {
     return response.data;
   } catch (error) {
     if (error instanceof AxiosError) {
-      if (error.status === 403 && error.response) {
+      if (error.response?.status === 403) {
         throw new Error(error.response.data.message);
       }
-      console.error('api/user -> Failed to login with token');
-      throw new Error('잘못된 요청입니다.');
+      console.error('api/user -> Failed to login with token', error.message);
     }
+    throw error;
   }
 };
 
@@ -48,7 +47,7 @@ export const logoutUser = async (refreshToken: string) => {
   } catch (error) {
     if (error instanceof AxiosError) {
       console.error('api/user -> Failed to logout user');
-      throw new Error('잘못된 요청입니다.');
     }
+    throw error;
   }
 };
