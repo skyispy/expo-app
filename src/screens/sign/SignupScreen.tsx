@@ -43,17 +43,21 @@ export const SignupScreen = () => {
   };
 
   const hasError =
-    Object.values(errors).some((v) => !!v) || !nickname || !email || !password || !confirmPassword;
+    Object.values(errors).some((v) => !!v) || !nickname || !email || !password || !confirmPassword || !isNicknameChecked;
 
   // 회원가입
   const { signupUser } = useSignupUser();
   const handleSignup = async () => {
-    if (hasError) {
-      Alert.alert('회원가입 오류', '입력한 내용을 다시 확인해주세요.');
-      return;
-    }
-    if (!isNicknameChecked) {
-      Alert.alert('닉네임 오류', '닉네임 중복확인을 해주세요.');
+    // 최종 검증
+    const result = UserSignupSchema.safeParse({ nickname, email, password, confirmPassword });
+    if (!result.success) {
+      const fieldErrors: UserSignupFields = {};
+      result.error.issues.forEach((issue) => {
+        const fieldName = issue.path[0] as keyof UserSignupFields;
+        fieldErrors[fieldName] = issue.message;
+      });
+      setErrors(fieldErrors);
+      Alert.alert('회원가입 실패', '입력한 정보를 다시 확인해주세요.');
       return;
     }
     const param: SignupRequest = { nickname, email, password };
@@ -108,6 +112,7 @@ export const SignupScreen = () => {
         onChangeText={(text: string) => {
           setNickname(text);
           validate('nickname', text);
+          setIsNicknameChecked(false);
         }}
         error={errors.nickname}
         buttonLabel={isNicknameChecked ? '완료' : '중복확인'}
@@ -137,6 +142,7 @@ export const SignupScreen = () => {
       <TouchableOpacity
         style={hasError ? [styles.button, { backgroundColor: 'gray' }] : styles.button}
         onPress={handleSignup}
+        disabled={hasError}
       >
         <Text style={styles.buttonText}>회원가입</Text>
       </TouchableOpacity>
@@ -149,14 +155,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingHorizontal: 40,
-    paddingTop: 80,
+    paddingTop: 40,
+    gap: 16,
   },
   button: {
     backgroundColor: '#6A49E9',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
-    marginTop: 14,
+    marginTop: 16,
   },
   buttonText: {
     color: '#fff',

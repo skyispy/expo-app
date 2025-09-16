@@ -1,14 +1,13 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useAuthStore } from '../../store';
 import { useEffect, useState } from 'react';
 import type { UserProfileUpdateFields } from '../../schemas';
 import { UserProfileUpdateSchema } from '../../schemas';
 import * as ImagePicker from 'expo-image-picker';
 import { useCheckDuplicateNickname, useUpdateProfile } from '../../hooks';
-import { ProfileStackScreenProps, User } from '../../types';
+import { User } from '../../types';
 import { ProfileImage } from '@components/common';
 import { FormInput, FormInputWithButton } from '@components/sign';
-import { useNavigation } from '@react-navigation/native';
 
 export const ProfileEditScreen = () => {
   const { user, setUser } = useAuthStore((state) => state);
@@ -18,8 +17,6 @@ export const ProfileEditScreen = () => {
   const [isNicknameChecked, setIsNicknameChecked] = useState<boolean>(true);
   // 각 필드별 에러 상태
   const [errors, setErrors] = useState<UserProfileUpdateFields>({});
-
-  const navigation = useNavigation<ProfileStackScreenProps>();
 
   useEffect(() => {
     if (user) {
@@ -89,7 +86,8 @@ export const ProfileEditScreen = () => {
         if(data) {
           setUser(data.user);
           Alert.alert('프로필 수정 완료', '프로필이 성공적으로 수정되었습니다.');
-          navigation.navigate('ProfileEdit');
+          // 이미지 선택 초기화 -> 버튼 비활성화
+          setSelectedImage(null);
         } else throw new Error('프로필 수정에 실패했습니다.');
       },
       onError: (error) => {
@@ -132,9 +130,9 @@ export const ProfileEditScreen = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.profileImageContainer} onPress={pickImage}>
+      <TouchableOpacity style={styles.profileImageButton} onPress={pickImage}>
         <ProfileImage
-          style={styles.profileImage}
+          size={80}
           uri={selectedImage ?? user?.profileImageUrl}
         />
       </TouchableOpacity>
@@ -151,7 +149,6 @@ export const ProfileEditScreen = () => {
         onButtonPress={handleCheckDuplicateNickname}
         disabled={isNicknameChecked}
         style={[styles.textarea, { flex: 1 }]}
-        readOnly={false}
       />
       <FormInput
         label="자기소개"
@@ -165,8 +162,8 @@ export const ProfileEditScreen = () => {
         multiline={true}
         placeholder="자신을 알릴 수 있는 소개글을 작성해 주세요."
         placeholderTextColor="#999999"
+        maxLength={35}
       />
-      <Text style={styles.charCountText}>{introduction.length} / 35자</Text>
       <TouchableOpacity
         style={isSaveEnabled ? styles.button : [styles.button, { backgroundColor: 'gray' }]}
         onPress={handleUpdateProfile}
@@ -183,23 +180,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 40,
     backgroundColor: '#fff',
+    gap: 12,
   },
-  profileImageContainer: {
-    width: 88,
-    height: 88,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 44,
-    backgroundColor: '#eee',
-    overflow: 'hidden',
+  profileImageButton: {
     alignSelf: 'center',
     marginBottom: 20,
-  },
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#ccc',
   },
   inputGroup: {
     marginTop: 20

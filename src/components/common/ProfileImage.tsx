@@ -1,13 +1,43 @@
-import { Image, ImageStyle } from 'react-native';
+import { View, StyleSheet, ViewStyle } from 'react-native';
+import { Image, ImageProps } from 'expo-image';
 
-type Props = {
+interface ProfileImageProps extends ImageProps {
   uri: string | null | undefined;
-  style?: ImageStyle;
+  size: number;
+  wrapperStyle?: ViewStyle;
 }
 
-export const ProfileImage = ({ uri, style }: Props) => (
-  <Image
-    style={style}
-    source={uri ? { uri } : require('@assets/user.png')}
-  />
-)
+export const ProfileImage = ({
+  uri,
+  size,
+  wrapperStyle,
+  ...props
+}: ProfileImageProps) => {
+  const defaultUserImage = require('@assets/user.png');
+  return (
+    <View
+      style={[
+        styles.container,
+        { width: size, height: size, borderRadius: size / 2 },
+        wrapperStyle
+      ]}>
+      <Image
+        style={styles.profileImage}
+        source={uri ? { uri: `${uri}?t=${Date.now()}` } : defaultUserImage}
+        cachePolicy={"none"}
+        placeholder={defaultUserImage}
+        {...props}
+      />
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  container: {
+    overflow: 'hidden',
+  },
+  profileImage: {
+    width: '100%',
+    height: '100%',
+  }
+})

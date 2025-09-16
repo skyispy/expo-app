@@ -76,9 +76,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingHorizontal: 40,
-    paddingTop: 80,
+    paddingTop: 40,
+    gap: 16,
   },
-  inputContainer: {},
   label: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   keepLoginContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8,
+    // marginTop: 8,
   },
   checkBox: {
     marginRight: 8,
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
-    marginTop: 18,
+    marginTop: 8,
   },
   buttonText: {
     color: '#fff',
@@ -119,11 +119,9 @@ const styles = StyleSheet.create({
   linkContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
     paddingHorizontal: 20,
   },
   linkText: {
-    // color: '#6A49E9',
     color: 'gray',
     fontWeight: 'bold',
   },

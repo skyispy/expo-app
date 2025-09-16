@@ -5,6 +5,7 @@ interface FormInputProps extends TextInputProps {
   value: string;
   onChangeText: (text: string) => void;
   error?: string;
+  maxLength?: number;
 }
 
 export const FormInput = ({
@@ -13,6 +14,7 @@ export const FormInput = ({
   onChangeText,
   error,
   secureTextEntry = false,
+  maxLength,
   ...props
 }: FormInputProps) => (
   <View style={styles.container}>
@@ -23,6 +25,7 @@ export const FormInput = ({
         value={value}
         onChangeText={(text) => onChangeText(text)}
         secureTextEntry={secureTextEntry}
+        autoCapitalize="none"
         {...props}
       />
     </View>
@@ -31,6 +34,7 @@ export const FormInput = ({
         <Text style={styles.errorText}>{error}</Text>
       </View>
     )}
+    {maxLength && <Text style={styles.charCountText}>{value.length} / {maxLength}자</Text>}
   </View>
 );
 
@@ -57,7 +61,7 @@ export const FormInputWithButton = ({
         style={[styles.input, { flex: 1 }]}
         value={value}
         onChangeText={(text) => onChangeText(text)}
-        editable={!disabled}
+        autoCapitalize="none"
         {...props}
       />
       <TouchableOpacity
@@ -80,7 +84,6 @@ export const FormInputWithButton = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 16,
   },
   label: {
     fontSize: 14,
@@ -122,5 +125,11 @@ const styles = StyleSheet.create({
     color: '#6A49E9',
     fontWeight: 'bold',
     fontSize: 14,
+  },
+  charCountText: {
+    alignSelf: 'flex-end',
+    color: '#999',
+    fontSize: 12,
+    marginTop: 8,
   },
 });

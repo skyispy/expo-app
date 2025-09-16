@@ -6,18 +6,17 @@ export const ProfileBox = ({ user, navigation }: { user: User; navigation: any }
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
-        <View style={styles.profileImageContainer}>
-          <ProfileImage
-            style={styles.profileImage}
-            uri={user.profileImageUrl}
-          />
-        </View>
+        <ProfileImage
+          size={80}
+          uri={user.profileImageUrl}
+        />
         <View style={styles.profileDetailsContainer}>
           <View style={styles.userInfoContainer}>
-            <Text style={styles.nickname}>{user?.nickname}</Text>
+            <Text style={styles.nickname}>{user.nickname}</Text>
+            <Text style={styles.email}>{user.email}</Text>
           </View>
-          <View style={styles.userInfoContainer}>
-            <Text style={styles.email}>{user?.email}</Text>
+          <View style={styles.introductionContainer}>
+            <Text style={styles.introduction}>{user.introduction}</Text>
           </View>
         </View>
       </View>
@@ -38,7 +37,6 @@ export const ProfileBox = ({ user, navigation }: { user: User; navigation: any }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
     backgroundColor: '#fff',
     borderRadius: 10,
     shadowColor: '#000',
@@ -47,10 +45,14 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 3,
     marginBottom: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    gap: 10,
   },
   profileContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 10,
   },
   profileImageContainer: {
     width: 88,
@@ -58,26 +60,32 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-  },
   profileDetailsContainer: {
-    marginLeft: 20,
+    flex: 1,
+    marginLeft: 24,
     justifyContent: 'center',
   },
   userInfoContainer: {
-    marginBottom: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   nickname: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 5,
   },
   email: {
     fontSize: 14,
     color: '#666',
+    marginLeft: 8,
+  },
+  introductionContainer: {
+    marginTop: 4,
+    maxWidth: '80%',
+  },
+  introduction: {
+    fontSize: 14,
+    color: '#333',
+    lineHeight: 20,
   },
   actionsContainer: {
     flexDirection: 'row',
@@ -85,8 +93,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     paddingVertical: 8,
-    paddingHorizontal: 30,
-    marginTop: 15,
+    paddingHorizontal: 40,
     alignItems: 'center',
     borderWidth: 1,
     borderRadius: 5,
