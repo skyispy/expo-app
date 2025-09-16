@@ -20,15 +20,14 @@ export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
   // 사용자 인증
-  async validateUser(userLoginDto: UserLoginDto): Promise<Partial<UserEntity>> {
+  async validateUser(userLoginDto: UserLoginDto): Promise<UserEntity> {
     const user = await this.userService.findUserByEmail(userLoginDto.email);
     if (!user) {
       throw new UnauthorizedException('존재하지 않는 계정입니다.');
     }
     // 비밀번호 검증
     if (await bcrypt.compare(userLoginDto.password, user.password)) {
-      const { password, createAt, updateAt, ...rest } = user;
-      return rest;
+      return user;
     } else {
       throw new UnauthorizedException('아이디 또는 비밀번호가 일치하지 않습니다.');
     }
@@ -102,7 +101,7 @@ export class AuthService {
   async renewTokensByAccessToken(
     payload: UserPayload,
     userAgent: string,
-  ): Promise<{ user: Partial<UserEntity>; accessToken: string; refreshToken: string }> {
+  ): Promise<{ user: UserEntity; accessToken: string; refreshToken: string }> {
     const user = await this.userService.findUserByEmail(payload.email);
     if (!user) {
       throw new UnauthorizedException('유효하지 않은 사용자입니다.');
@@ -121,9 +120,7 @@ export class AuthService {
     const newAccessToken = this.signAccessToken(newPayload);
     // 새로운 리프레시 토큰 발급
     const newRefreshToken = await this.signRefreshToken(newPayload, userAgent);
-
-    const { password, createAt, updateAt, ...rest } = user;
-    return { user: rest, accessToken: newAccessToken, refreshToken: newRefreshToken };
+    return { user, accessToken: newAccessToken, refreshToken: newRefreshToken };
   }
 
   // 로그아웃

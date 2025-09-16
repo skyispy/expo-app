@@ -9,12 +9,14 @@ import {
   UsePipes,
   Logger,
 } from '@nestjs/common';
-import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
-import { type UserLoginDto, UserLoginSchema } from '../user/dto/user.schema';
+import { ZodValidationPipe } from '../common/pipes';
+import { type UserLoginDto, UserLoginSchema } from '../user/dto';
 import type { Request } from 'express';
 import { AuthService } from './auth.service';
 import { UserEntity } from '../user/models';
 import { JwtAuthGuard, UserPayload } from './guards';
+import { UserResponseDto } from '../user/dto';
+import { plainToInstance } from 'class-transformer';
 
 @Controller('auth')
 export class AuthController {
@@ -27,7 +29,7 @@ export class AuthController {
   async login(
     @Body() userLoginDto: UserLoginDto,
     @Req() req: Request,
-  ): Promise<{ user: Partial<UserEntity>; accessToken: string; refreshToken?: string }> {
+  ): Promise<{ user: UserResponseDto; accessToken: string; refreshToken?: string }> {
     this.logger.log('로그인 유저 정보', userLoginDto);
     // 사용자 인증
     const user = await this.authService.validateUser(userLoginDto);
@@ -37,11 +39,12 @@ export class AuthController {
     const accessToken = this.authService.signAccessToken(payload);
     // 리프레시 토큰 생성
     const { 'user-agent': userAgent } = req.headers;
+    const userResponse = plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true });
     if (userLoginDto.keepLogin && userAgent) {
       const refreshToken = await this.authService.signRefreshToken(payload, userAgent);
-      return { user, accessToken, refreshToken };
+      return { user: userResponse, accessToken, refreshToken };
     }
-    return { user, accessToken };
+    return { user: userResponse, accessToken };
   }
 
   // 토큰 재발급
@@ -58,14 +61,17 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   async tokenLogin(
     @Req() req: Request,
-  ): Promise<{ user: Partial<UserEntity>; accessToken: string; refreshToken: string }> {
+  ): Promise<{ user: UserResponseDto; accessToken: string; refreshToken: string }> {
+    this.logger.log('토큰 로그인 시도', req.user);
     // req.user는 JwtAuthGuard에서 설정한 값
     const { user: payload, headers } = req;
     if (headers['user-agent']) {
-      return await this.authService.renewTokensByAccessToken(
+      const { user, accessToken, refreshToken} = await this.authService.renewTokensByAccessToken(
         payload as UserPayload,
         headers['user-agent'],
       );
+      const userResponse = plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true });
+      return { user: userResponse, accessToken, refreshToken };
     }
     throw new ForbiddenException('User-Agent가 필요합니다.');
   }

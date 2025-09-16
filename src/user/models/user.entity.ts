@@ -20,7 +20,11 @@ export class UserEntity {
 
   // 프로필 이미지
   @Column({ nullable: true })
-  profileImage: string;
+  profileImageUrl: string;
+
+  // 자기소개
+  @Column({ nullable: true })
+  introduction: string;
 
   // 생성일시
   @Column({
