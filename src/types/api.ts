@@ -32,7 +32,7 @@ export type LogoutResponse = {
 // 토큰 갱신 응답
 export type TokenRefreshResponse = {
   accessToken: string;
-  refreshToken?: string;
+  refreshToken: string;
 }
 
 // 프로필 수정 응답
