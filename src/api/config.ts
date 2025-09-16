@@ -2,7 +2,7 @@ import axios from 'axios';
 import { addAccessTokenHeader, addUserAgentHeader, refreshAccessToken } from './interceptors';
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -26,7 +26,11 @@ apiClient.interceptors.request.use(
 // 응답 인터셉터
 apiClient.interceptors.response.use(
   (response) => response,
-  (error: unknown) => refreshAccessToken(error, apiClient),
+  (error: unknown) => {
+    if (error instanceof axios.AxiosError) {
+      return refreshAccessToken(error, apiClient);
+    }
+  },
 );
 
 export default apiClient;
