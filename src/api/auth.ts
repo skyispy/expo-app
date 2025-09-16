@@ -25,7 +25,8 @@ export const loginWithToken = async () => {
   } catch (error) {
     if (error instanceof AxiosError) {
       if (error.response?.status === 403) {
-        throw new Error(error.response.data.message);
+        // 리프레시 토큰이 없을 경우 === 로그인 상태 유지 체크 안했을 경우
+        return null;
       }
       console.error('api/user -> Failed to login with token', error.message);
     }

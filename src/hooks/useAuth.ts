@@ -31,7 +31,7 @@ export const useTokenLoginUser = () => {
       const refreshToken = await SecureStore.getItemAsync('refreshToken');
       if (accessToken || refreshToken) {
         const data = await loginWithToken();
-        if (!data) throw new Error('토큰 로그인에 실패했습니다.');
+        if (!data) throw new Error('로그아웃 되었습니다.');
         // 로그인 성공 시, 토큰 저장
         const { user, accessToken: newAccessToken, refreshToken: newRefreshToken } = data;
         await SecureStore.setItemAsync('accessToken', newAccessToken);
@@ -42,8 +42,8 @@ export const useTokenLoginUser = () => {
       }
       return { user: null };
     },
-    onError: async (error: Error) => {
-      console.error('Token login error:', error.message);
+    onError: async () => {
+      // 토큰이 유효하지 않거나, 기타 오류 시 토큰 삭제
       await SecureStore.deleteItemAsync('accessToken');
       return { user: null };
     }
