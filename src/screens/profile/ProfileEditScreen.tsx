@@ -158,8 +158,9 @@ export const ProfileEditScreen = () => {
             setIntroduction(text);
           }
         }}
-        style={[styles.textarea, { height: 100 }]}
+        style={[styles.textarea, { height: 100, textAlignVertical: 'top' }]}
         multiline={true}
+        numberOfLines={4}
         placeholder="자신을 알릴 수 있는 소개글을 작성해 주세요."
         placeholderTextColor="#999999"
         maxLength={35}
