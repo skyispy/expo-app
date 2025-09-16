@@ -1,14 +1,15 @@
-import { View, Image, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import type { User } from '../../types';
+import { ProfileImage } from '../common';
 
 export const ProfileBox = ({ user, navigation }: { user: User; navigation: any }) => {
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
         <View style={styles.profileImageContainer}>
-          <Image
+          <ProfileImage
             style={styles.profileImage}
-            source={user.profileImageUrl ?? require('@assets/user.png')}
+            uri={user.profileImageUrl}
           />
         </View>
         <View style={styles.profileDetailsContainer}>

@@ -71,8 +71,7 @@ export const SignupScreen = () => {
   // 닉네임 중복확인
   const { refetch: checkDuplicateNickname } = useCheckDuplicateNickname(nickname);
   const handleCheckDuplicateNickname = async () => {
-    const isValidNickName = validate('nickname', nickname);
-    if (!isValidNickName) {
+    if (!validate('nickname', nickname)) {
       Alert.alert('닉네임 오류', '닉네임을 올바르게 입력해주세요.');
       return;
     }
@@ -85,13 +84,11 @@ export const SignupScreen = () => {
       Alert.alert('중복확인 실패', '데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
       return;
     }
-    if (data.isDuplicate) {
-      Alert.alert('중복확인 완료', '이미 사용중인 닉네임입니다.');
-      setIsNicknameChecked(false);
-    } else {
-      Alert.alert('중복확인 완료', '사용 가능한 닉네임입니다.');
-      setIsNicknameChecked(true);
-    }
+    Alert.alert(
+      '중복확인 완료',
+      data.isDuplicate ? '이미 사용중인 닉네임입니다.' : '사용 가능한 닉네임입니다.'
+    );
+    setIsNicknameChecked(!data.isDuplicate);
   };
 
   return (

@@ -13,8 +13,9 @@ export const FormInput = ({
   onChangeText,
   error,
   secureTextEntry = false,
+  ...props
 }: FormInputProps) => (
-  <>
+  <View style={styles.container}>
     <Text style={styles.label}>{label}</Text>
     <View style={[styles.inputContainer]}>
       <TextInput
@@ -22,6 +23,7 @@ export const FormInput = ({
         value={value}
         onChangeText={(text) => onChangeText(text)}
         secureTextEntry={secureTextEntry}
+        {...props}
       />
     </View>
     {error && (
@@ -29,7 +31,7 @@ export const FormInput = ({
         <Text style={styles.errorText}>{error}</Text>
       </View>
     )}
-  </>
+  </View>
 );
 
 interface FormInputWithButtonProps extends FormInputProps {
@@ -46,8 +48,9 @@ export const FormInputWithButton = ({
   buttonLabel,
   onButtonPress,
   disabled = false,
+  ...props
 }: FormInputWithButtonProps) => (
-  <>
+  <View style={styles.container}>
     <Text style={styles.label}>{label}</Text>
     <View style={[styles.inputContainer, { flexDirection: 'row', alignItems: 'center' }]}>
       <TextInput
@@ -55,9 +58,10 @@ export const FormInputWithButton = ({
         value={value}
         onChangeText={(text) => onChangeText(text)}
         editable={!disabled}
+        {...props}
       />
       <TouchableOpacity
-        style={disabled ? [styles.button, { backgroundColor: 'gray' }] : styles.button}
+        style={disabled ? [styles.button, { backgroundColor: 'gray', borderColor: 'gray' }] : styles.button}
         onPress={onButtonPress}
         disabled={disabled}
       >
@@ -71,14 +75,18 @@ export const FormInputWithButton = ({
         <Text style={styles.errorText}>{error}</Text>
       </View>
     )}
-  </>
+  </View>
 );
 
 const styles = StyleSheet.create({
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
+  container: {
     marginTop: 16,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#666',
+    marginBottom: 10,
   },
   inputContainer: {
     width: '100%',
@@ -89,8 +97,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 10,
-    marginVertical: 5,
-    marginTop: 8,
+    borderRadius: 5,
   },
   errorContainer: {
     minHeight: 20,
@@ -101,6 +108,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   button: {
+    minWidth: '20%',
+    alignItems: 'center',
     marginLeft: 8,
     paddingVertical: 10,
     paddingHorizontal: 12,

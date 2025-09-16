@@ -1,4 +1,4 @@
-import { NavigationContainer } from '@react-navigation/native';
+import { getFocusedRouteNameFromRoute, NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { HomeScreen } from '@screens/home';
@@ -87,14 +87,23 @@ const Navigator = () => {
     return null;
   }
 
+  // 바텀 탭 안보여줄 화면들
+  const hideOnScreens = ['ProfileEdit'];
+
   return (
     <NavigationContainer>
       {user ? (
         <BottomTab.Navigator
-          screenOptions={{
-            headerShown: false,
-            tabBarStyle: { borderWidth: 1, marginTop: 5 },
-          }}
+          screenOptions={({ route }) => {
+            const routeName = getFocusedRouteNameFromRoute(route)
+            const tabBarStyle = { borderWidth: 1, marginTop: 5, display: 'flex' as 'flex' | 'none' };
+            if(routeName && hideOnScreens.includes(routeName)) {
+              tabBarStyle.display = 'none';
+            }
+            return {
+              headerShown: false,
+              tabBarStyle,
+          }}}
         >
           <BottomTab.Screen
             name="HomeTab"
