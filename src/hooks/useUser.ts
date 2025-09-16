@@ -16,7 +16,8 @@ export const useCheckDuplicateNickname = (nickname: string) => {
   const { refetch } = useQuery({
     queryKey: ['checkDuplicateNickname', nickname],
     queryFn: () => checkDuplicateNickname(nickname),
-    enabled: !!nickname, // nickname이 있을 때만 실행
+    enabled: false, // 자동 실행 방지, 수동으로 refetch 호출
+    retry: false,
   });
 
   return { refetch };
