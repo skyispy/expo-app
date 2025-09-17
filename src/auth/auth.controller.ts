@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Get,
   Post,
   Req,
   ForbiddenException,
@@ -10,13 +9,11 @@ import {
   Logger,
 } from '@nestjs/common';
 import { ZodValidationPipe } from '../common/pipes';
-import { type UserLoginDto, UserLoginSchema } from '../user/dto';
+import { UserLoginSchema, UserResponseSchema } from '../user/dto/user.schema';
+import type { UserLoginDto, UserResponseDto } from '../user/dto/user.dto';
 import type { Request } from 'express';
 import { AuthService } from './auth.service';
-import { UserEntity } from '../user/models';
 import { JwtAuthGuard, UserPayload } from './guards';
-import { UserResponseDto } from '../user/dto';
-import { plainToInstance } from 'class-transformer';
 
 @Controller('auth')
 export class AuthController {
@@ -39,7 +36,7 @@ export class AuthController {
     const accessToken = this.authService.signAccessToken(payload);
     // 리프레시 토큰 생성
     const { 'user-agent': userAgent } = req.headers;
-    const userResponse = plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true });
+    const userResponse = UserResponseSchema.parse(user);
     if (userLoginDto.keepLogin && userAgent) {
       const refreshToken = await this.authService.signRefreshToken(payload, userAgent);
       return { user: userResponse, accessToken, refreshToken };
@@ -66,11 +63,11 @@ export class AuthController {
     // req.user는 JwtAuthGuard에서 설정한 값
     const { user: payload, headers } = req;
     if (headers['user-agent']) {
-      const { user, accessToken, refreshToken} = await this.authService.renewTokensByAccessToken(
+      const { user, accessToken, refreshToken } = await this.authService.renewTokensByAccessToken(
         payload as UserPayload,
         headers['user-agent'],
       );
-      const userResponse = plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true });
+      const userResponse = UserResponseSchema.parse(user);
       return { user: userResponse, accessToken, refreshToken };
     }
     throw new ForbiddenException('User-Agent가 필요합니다.');

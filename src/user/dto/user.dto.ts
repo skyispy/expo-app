@@ -1,35 +1,19 @@
-// user 요청 dto
-import { RefreshTokensEntity, UserEntity } from '../models';
-import { Expose } from 'class-transformer';
-import { IsNotEmpty } from 'class-validator';
-
-export class UserRequestDto {
-  userId: number;
-  email: string;
-  password: string;
-  nickname: string;
-  keepLogin: boolean;
-  profileImageUrl: string;
-  introduction: string;
-}
+import { z } from 'zod';
+import {
+  UserLoginSchema,
+  UserProfileUpdateSchema,
+  UserResponseSchema,
+  UserSignupSchema,
+} from './user.schema';
 
 // user 응답 dto
-export class UserResponseDto implements Omit<UserEntity, 'password' | 'createAt' | 'updateAt'> {
-  @Expose()
-  @IsNotEmpty()
-  userId: number;
+export type UserResponseDto = z.infer<typeof UserResponseSchema>;
 
-  @Expose()
-  email: string;
+// user 회원가입 dto
+export type UserSignupDto = z.infer<typeof UserSignupSchema>;
 
-  @Expose()
-  nickname: string;
+// user 로그인 dto
+export type UserLoginDto = z.infer<typeof UserLoginSchema>;
 
-  @Expose()
-  profileImageUrl: string;
-
-  @Expose()
-  introduction: string;
-
-  refreshTokens: RefreshTokensEntity[];
-}
+// user 프로필 수정 dto
+export type UserProfileUpdateDto = z.infer<typeof UserProfileUpdateSchema>;

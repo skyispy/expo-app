@@ -12,11 +12,10 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ZodValidationPipe } from 'src/common/pipes';
-import { UserRequestDto, UserResponseDto } from './dto';
-import { UserProfileUpdateSchema, UserSignupSchema } from './dto';
+import { UserProfileUpdateSchema, UserResponseSchema, UserSignupSchema } from './dto/user.schema';
+import type { UserProfileUpdateDto, UserResponseDto, UserSignupDto } from './dto/user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { saveFileToDist } from '../common/utils';
-import { plainToInstance } from 'class-transformer';
 import { ConfigService } from '@nestjs/config';
 
 @Controller('user')
@@ -30,9 +29,9 @@ export class UserController {
   // 회원가입
   @Post('/signup')
   @UsePipes(new ZodValidationPipe(UserSignupSchema))
-  async signup(@Body() userRequestDto: UserRequestDto): Promise<void> {
-    this.logger.log('회원가입 유저 정보', userRequestDto);
-    await this.userService.createUser(userRequestDto);
+  async signup(@Body() userSignupDto: UserSignupDto): Promise<void> {
+    this.logger.log('회원가입 유저 정보', userSignupDto);
+    await this.userService.createUser(userSignupDto);
   }
 
   // 닉네임 중복 확인
@@ -49,16 +48,17 @@ export class UserController {
   async updateProfile(
     @UploadedFile() file: Express.Multer.File,
     @Body(new ZodValidationPipe(UserProfileUpdateSchema))
-    userRequestDto: UserRequestDto,
+    userProfileUpdateDto: UserProfileUpdateDto,
   ): Promise<{ user: UserResponseDto }> {
     this.logger.log('파일 정보: ', file);
-    this.logger.log('프로필 수정 유저 정보', userRequestDto);
+    this.logger.log('프로필 수정 유저 정보', userProfileUpdateDto);
     if (file) {
       // 파일이 업로드된 경우에만 profileImageUrl 설정
       saveFileToDist(file, 'profile-images');
-      userRequestDto.profileImageUrl = `${this.configService.get<string>('BASE_URL')}/uploads/profile-images/${file.originalname}`;
+      userProfileUpdateDto.profileImageUrl = `${this.configService.get<string>('BASE_URL')}/uploads/profile-images/${file.originalname}`;
     }
-    const user = await this.userService.updateUserProfile(userRequestDto);
-    return { user: plainToInstance(UserResponseDto, user, { excludeExtraneousValues: true }) };
+    const user = await this.userService.updateUserProfile(userProfileUpdateDto);
+    const userResponse = UserResponseSchema.parse(user);
+    return { user: userResponse };
   }
 }

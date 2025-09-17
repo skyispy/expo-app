@@ -2,7 +2,7 @@ import { Injectable, ConflictException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './models';
 import { Repository } from 'typeorm';
-import type { UserRequestDto } from './dto';
+import type { UserProfileUpdateDto, UserSignupDto } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -13,16 +13,16 @@ export class UserService {
   ) {}
   private readonly logger = new Logger(UserService.name);
 
-  async createUser(userRequestDto: UserRequestDto): Promise<UserEntity> {
-    const existingUser = await this.findUserByEmail(userRequestDto.email);
+  async createUser(userSignupDto: UserSignupDto): Promise<UserEntity> {
+    const existingUser = await this.findUserByEmail(userSignupDto.email);
     if (existingUser) {
       throw new ConflictException('이미 존재하는 이메일입니다.');
     }
     // 비밀번호 해시화
-    const hashedPassword = await bcrypt.hash(userRequestDto.password, 10);
+    const hashedPassword = await bcrypt.hash(userSignupDto.password, 10);
     const user = this.userRepository.create({
-      email: userRequestDto.email,
-      nickname: userRequestDto.nickname,
+      email: userSignupDto.email,
+      nickname: userSignupDto.nickname,
       password: hashedPassword,
     });
 
@@ -45,21 +45,21 @@ export class UserService {
   }
 
   // 프로필 수정
-  async updateUserProfile(userRequestDto: UserRequestDto): Promise<UserEntity> {
-    const prevUser = await this.findUserById(userRequestDto.userId);
+  async updateUserProfile(userProfileUpdateDto: UserProfileUpdateDto): Promise<UserEntity> {
+    const prevUser = await this.findUserById(userProfileUpdateDto.userId);
     if (!prevUser) {
       throw new ConflictException('존재하지 않는 사용자입니다.');
     }
     const param: Partial<UserEntity> = {
-      nickname: userRequestDto.nickname,
-      introduction: userRequestDto.introduction,
+      nickname: userProfileUpdateDto.nickname,
+      introduction: userProfileUpdateDto.introduction,
     };
-    if (userRequestDto.profileImageUrl) {
+    if (userProfileUpdateDto.profileImageUrl) {
       // profileImageUrl이 있을 때만 업데이트
-      param.profileImageUrl = userRequestDto.profileImageUrl;
+      param.profileImageUrl = userProfileUpdateDto.profileImageUrl;
     }
-    await this.userRepository.update({ userId: userRequestDto.userId }, param);
-    const user = await this.findUserById(userRequestDto.userId);
+    await this.userRepository.update({ userId: userProfileUpdateDto.userId }, param);
+    const user = await this.findUserById(userProfileUpdateDto.userId);
     if (!user) {
       throw new ConflictException('존재하지 않는 사용자입니다.');
     }

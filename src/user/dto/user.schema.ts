@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+export const UserResponseSchema = z.object({
+  userId: z.number(),
+  email: z.email(),
+  nickname: z.string(),
+  profileImageUrl: z.url().nullable(),
+  introduction: z.string().nullable(),
+});
+
 // 회원가입 DTO 검증 스키마
 export const UserSignupSchema = z
   .object({
@@ -19,8 +27,6 @@ export const UserSignupSchema = z
   })
   .required();
 
-export type UserSignupDto = z.infer<typeof UserSignupSchema>;
-
 // 로그인 DTO 검증 스키마
 export const UserLoginSchema = z
   .object({
@@ -37,19 +43,16 @@ export const UserLoginSchema = z
   })
   .required();
 
-export type UserLoginDto = z.infer<typeof UserLoginSchema>;
-
 // 프로필 수정 DTO 검증 스키마
 export const UserProfileUpdateSchema = z
   .object({
-    userId: z.string().transform(val => Number(val)),
+    userId: z.string().transform((val) => Number(val)),
     nickname: z
       .string()
       .min(1, '닉네을 입력해주세요.')
       .max(12, '닉네임은 12자 이내로 입력해주세요.')
       .optional(),
     introduction: z.string().max(35, '자기소개는 35자 이내로 입력해주세요.').optional(),
+    profileImageUrl: z.url().optional(),
   })
   .required();
-
-export type UserProfileUpdateDto = z.infer<typeof UserProfileUpdateSchema>;

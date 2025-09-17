@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException, ForbiddenException, Logger } from '@
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { UserLoginDto } from '../user/dto/user.schema';
+import type { UserLoginDto } from '../user/dto/user.dto';
 import { UserEntity } from '../user/models';
 import { RefreshTokensEntity } from './models';
 import { InjectRepository } from '@nestjs/typeorm';
