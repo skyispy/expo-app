@@ -97,26 +97,26 @@ export const ProfileEditScreen = () => {
   }
 
   // 닉네임 중복확인
-  const { refetch: checkDuplicateNickname } = useCheckDuplicateNickname(nickname);
+  const { nicknameCheck, nicknameCheckResult, nicknameCheckError } = useCheckDuplicateNickname(nickname);
   const handleCheckDuplicateNickname = async () => {
     if (!validate('nickname', nickname)) {
       Alert.alert('닉네임 오류', '닉네임을 올바르게 입력해주세요.');
       return;
     }
-    const { data, error, isError } = await checkDuplicateNickname();
-    if (isError) {
-      Alert.alert('중복확인 실패', error.message);
+    await nicknameCheck();
+    if (nicknameCheckError) {
+      Alert.alert('중복확인 실패', nicknameCheckError.message);
       return;
     }
-    if (!data) {
+    if (!nicknameCheckResult) {
       Alert.alert('중복확인 실패', '데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
       return;
     }
     Alert.alert(
       '중복확인 완료',
-      data.isDuplicate ? '이미 사용중인 닉네임입니다.' : '사용 가능한 닉네임입니다.'
+      nicknameCheckResult.isDuplicate ? '이미 사용중인 닉네임입니다.' : '사용 가능한 닉네임입니다.'
     );
-    setIsNicknameChecked(!data.isDuplicate);
+    setIsNicknameChecked(!nicknameCheckResult.isDuplicate);
   };
 
   // 저장 버튼 활성화 여부

@@ -13,14 +13,18 @@ export const useSignupUser = () => {
 
 // 닉네임 중복 확인
 export const useCheckDuplicateNickname = (nickname: string) => {
-  const { refetch } = useQuery({
+  const { data, refetch, error } = useQuery({
     queryKey: ['checkDuplicateNickname', nickname],
     queryFn: () => checkDuplicateNickname(nickname),
     enabled: false, // 자동 실행 방지, 수동으로 refetch 호출
     retry: false,
   });
 
-  return { refetch };
+  return {
+    nicknameCheck: refetch,
+    nicknameCheckResult: data,
+    nicknameCheckError: error,
+  };
 };
 
 // 프로필 수정
