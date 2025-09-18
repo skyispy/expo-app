@@ -6,7 +6,7 @@ import { useLoginUser } from '../../hooks';
 import { UserLoginSchema } from '../../schemas';
 import CheckBox from 'expo-checkbox';
 import { useAuthStore } from '../../store';
-import { FormInput } from '@components/sign';
+import { FormInput } from '../../components';
 
 export const LoginScreen = () => {
   const stackNav = useNavigation<SignStackScreenProps>();

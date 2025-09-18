@@ -1,7 +1,7 @@
 import { Text, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { useLogoutUser } from '../../hooks';
 import { useAuthStore } from '../../store';
-import { ProfileBox } from '@components/profile';
+import { ProfileBox } from './';
 
 export const ProfileScreen = () => {
   const { logoutUser } = useLogoutUser();

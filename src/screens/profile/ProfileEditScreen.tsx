@@ -6,8 +6,7 @@ import { UserProfileUpdateSchema } from '../../schemas';
 import * as ImagePicker from 'expo-image-picker';
 import { useCheckDuplicateNickname, useUpdateProfile } from '../../hooks';
 import { User } from '../../types';
-import { ProfileImage } from '@components/common';
-import { FormInput, FormInputWithButton } from '@components/sign';
+import { ProfileImage, FormInput, FormInputWithButton } from '../../components';
 
 export const ProfileEditScreen = () => {
   const { user, setUser } = useAuthStore((state) => state);

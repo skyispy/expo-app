@@ -5,7 +5,7 @@ import { SignStackScreenProps, SignupRequest } from '../../types';
 import { useCheckDuplicateNickname, useSignupUser } from '../../hooks';
 import { UserSignupSchema } from '../../schemas';
 import type { UserSignupFields } from '../../schemas';
-import { FormInput, FormInputWithButton } from '@components/sign';
+import { FormInput, FormInputWithButton } from '../../components';
 
 export const SignupScreen = () => {
   const stackNav = useNavigation<SignStackScreenProps>();

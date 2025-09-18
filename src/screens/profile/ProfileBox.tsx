@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import type { TabNavigationProps, User } from '../../types';
-import { ProfileImage } from '../common';
+import { ProfileImage } from '../../components';
 import { useNavigation } from '@react-navigation/native';
 
 export const ProfileBox = ({ user }: { user: User; }) => {

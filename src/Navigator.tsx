@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { HomeScreen } from '@screens/home';
 import { ProfileScreen, ProfileEditScreen } from '@screens/profile';
-import { Header } from '@components/common';
+import { Header } from './components';
 import { SignupScreen, LoginScreen } from '@screens/sign';
 import { useAuthStore } from './store';
 import { Ionicons } from '@expo/vector-icons';
