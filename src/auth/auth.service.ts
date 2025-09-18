@@ -39,7 +39,7 @@ export class AuthService {
   }
 
   // 리프레시 토큰 발급
-  async signRefreshToken(payload: Partial<UserEntity>, userAgent: string): Promise<string> {
+  async signRefreshToken(payload: Partial<UserPayload>, userAgent: string): Promise<string> {
     const refreshToken: string = await this.jwtService.signAsync(payload, {
       expiresIn: '30d',
       secret: 'secret_refresh_key',
@@ -48,9 +48,11 @@ export class AuthService {
     expiresAt.setDate(expiresAt.getDate() + 30); // 30일
 
     // 리프레시 토큰이 존재하는지 조회
-    const existingToken = await this.refreshTokensRepository.findOneBy({
-      userId: payload.userId,
-      userAgent,
+    const existingToken = await this.refreshTokensRepository.findOne({
+      where: {
+        user: { userId: payload.userId },
+        userAgent,
+      },
     });
     if (existingToken) {
       // 기존 토큰이 있으면 업데이트
@@ -61,8 +63,13 @@ export class AuthService {
       return refreshToken;
     }
 
+    const user = await this.userService.findUserById(payload.userId as number);
+    if (!user) {
+      throw new ForbiddenException('유효하지 않은 사용자입니다.');
+    }
+
     const refreshTokenEntity = this.refreshTokensRepository.create({
-      userId: payload.userId,
+      user,
       refreshToken,
       userAgent,
       expiresAt,
@@ -107,9 +114,11 @@ export class AuthService {
       throw new UnauthorizedException('유효하지 않은 사용자입니다.');
     }
     // DB에서 리프레시 토큰 조회
-    const storedToken = await this.refreshTokensRepository.findOneBy({
-      userId: payload.userId,
-      userAgent,
+    const storedToken = await this.refreshTokensRepository.findOne({
+      where: {
+        user: { userId: payload.userId },
+        userAgent,
+      },
     });
     if (!storedToken) {
       throw new ForbiddenException('유효하지 않은 리프레시 토큰입니다.');

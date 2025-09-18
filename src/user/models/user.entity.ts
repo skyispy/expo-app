@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { RefreshTokensEntity } from '../../auth/models';
+import { BoardEntity } from '../../board/models';
 
 @Entity('USER')
 export class UserEntity {
@@ -42,6 +43,10 @@ export class UserEntity {
   updateAt: Date;
 
   // RefreshTokensEntity와의 1:N 관계 설정
-  @OneToMany(() => RefreshTokensEntity, (refreshToken) => refreshToken.userId)
+  @OneToMany(() => RefreshTokensEntity, (refreshToken) => refreshToken.user)
   refreshTokens: RefreshTokensEntity[];
+
+  // BoardEntity와의 1:N 관계 설정
+  @OneToMany(() => BoardEntity, (board) => board.user)
+  boards: BoardEntity[];
 }
