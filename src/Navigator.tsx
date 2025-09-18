@@ -9,6 +9,8 @@ import { useAuthStore } from './store';
 import { Ionicons } from '@expo/vector-icons';
 import { useTokenLoginUser } from './hooks';
 import { useEffect, useState } from 'react';
+import { BoardScreen } from '@screens/board';
+import { BoardListScreen } from '@screens/board/BoardListScreen';
 
 // 로그인, 회원가입
 const SignStack = createStackNavigator();
@@ -35,6 +37,20 @@ const HomeStackScreen = () => (
   >
     <HomeStack.Screen name="Home" component={HomeScreen} />
   </HomeStack.Navigator>
+);
+
+// 게시판
+const BoardStack = createStackNavigator();
+const BoardStackScreen = () => (
+  <BoardStack.Navigator
+    screenOptions={{
+      header: (props) => <Header headerProps={props} />,
+    }}
+    initialRouteName="BoardList"
+  >
+    <BoardStack.Screen name="BoardList" component={BoardListScreen} />
+    <BoardStack.Screen name="Board" component={BoardScreen} />
+  </BoardStack.Navigator>
 );
 
 // 프로필
@@ -96,7 +112,7 @@ const Navigator = () => {
         <BottomTab.Navigator
           screenOptions={({ route }) => {
             const routeName = getFocusedRouteNameFromRoute(route)
-            const tabBarStyle = { borderWidth: 1, marginTop: 5, display: 'flex' as 'flex' | 'none' };
+            const tabBarStyle = { display: 'flex' as 'flex' | 'none' };
             if(routeName && hideOnScreens.includes(routeName)) {
               tabBarStyle.display = 'none';
             }
@@ -104,9 +120,19 @@ const Navigator = () => {
               headerShown: false,
               tabBarStyle,
           }}}
+          screenListeners={({ navigation, route }) => ({
+            tabPress: (e) => {
+              if(route.name === "BoardStack") {
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: 'BoardStack', state: { routes: [{ name: 'BoardList' }] } }],
+                })
+              }
+            }
+          })}
         >
           <BottomTab.Screen
-            name="HomeTab"
+            name="HomeStack"
             component={HomeStackScreen}
             options={{
               tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
@@ -116,7 +142,17 @@ const Navigator = () => {
             }}
           />
           <BottomTab.Screen
-            name="ProfileTab"
+            name="BoardStack"
+            component={BoardStackScreen}
+            options={{
+              tabBarIcon: ({ color, size }) => <Ionicons name="musical-note" size={size} color={color} />,
+              tabBarLabel: '게시판',
+              tabBarActiveTintColor: '#6A49E9',
+              tabBarInactiveTintColor: 'gray',
+            }}
+          />
+          <BottomTab.Screen
+            name="ProfileStack"
             component={ProfileStackScreen}
             options={{
               tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,

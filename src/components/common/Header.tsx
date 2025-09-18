@@ -27,6 +27,13 @@ const headerConfig: Record<
     title: '프로필 수정',
     showBackButton: true,
   },
+  BoardList: {
+    title: '게시판',
+  },
+  Board: {
+    title: '게시글',
+    showBackButton: true,
+  }
 };
 
 export const Header = ({ headerProps }: { headerProps: StackHeaderProps }) => {

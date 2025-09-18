@@ -1,5 +1,10 @@
-import { ScrollView, Text } from 'react-native';
+import { ScrollView } from 'react-native';
+import { EventBanner } from '@components/home';
 
 export const HomeScreen = () => {
-  return <ScrollView></ScrollView>;
+  return (
+    <ScrollView>
+      <EventBanner />
+    </ScrollView>
+  );
 };

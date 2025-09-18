@@ -23,7 +23,7 @@ export const ProfileImage = ({
       ]}>
       <Image
         style={styles.profileImage}
-        source={uri ? { uri: `${uri}?t=${Date.now()}` } : defaultUserImage}
+        source={{ uri: `${uri}?t=${Date.now()}` }}
         cachePolicy={"none"}
         placeholder={defaultUserImage}
         {...props}

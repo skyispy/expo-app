@@ -1,8 +1,10 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import type { User } from '../../types';
+import type { TabNavigationProps, User } from '../../types';
 import { ProfileImage } from '../common';
+import { useNavigation } from '@react-navigation/native';
 
-export const ProfileBox = ({ user, navigation }: { user: User; navigation: any }) => {
+export const ProfileBox = ({ user }: { user: User; }) => {
+  const navigation = useNavigation<TabNavigationProps>();
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
@@ -23,7 +25,7 @@ export const ProfileBox = ({ user, navigation }: { user: User; navigation: any }
       <View style={styles.actionsContainer}>
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => navigation.navigate('ProfileEdit')}
+          onPress={() => navigation.navigate('ProfileStack', { screen: 'ProfileEdit' })}
         >
           <Text style={styles.actionButtonText}>프로필 수정</Text>
         </TouchableOpacity>
