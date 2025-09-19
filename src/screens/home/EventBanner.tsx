@@ -2,11 +2,11 @@ import { FlatList, StyleSheet, View, TouchableOpacity, Dimensions } from 'react-
 import { Image } from 'expo-image';
 import { useGetBoards } from '../../hooks';
 import { useNavigation } from '@react-navigation/native';
-import { TabNavigationProps } from '../../types';
+import { AppStackScreenProps } from '../../types';
 
 export const EventBanner = () => {
   const { boards, isBoardsLoading } = useGetBoards('event');
-  const navigation = useNavigation<TabNavigationProps>();
+  const navigation = useNavigation<AppStackScreenProps>();
 
   return (
     <View style={styles.container}>
@@ -22,13 +22,9 @@ export const EventBanner = () => {
             <TouchableOpacity
               style={styles.itemContainer}
               onPress={() =>
-                navigation?.navigate('BoardStack', {
-                  screen: 'Board',
-                  params: { board: item }
-                })
+                navigation?.navigate('Board', { board: item } )
               }
             >
-              {/* Render your banner item here */}
               <Image
                 source={item.imageUrl ? { uri: item.imageUrl } : require('@assets/event2.png')}
                 style={{ flex: 1, borderWidth: 1 }}

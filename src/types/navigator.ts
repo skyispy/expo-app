@@ -1,5 +1,4 @@
 import type { StackNavigationProp } from '@react-navigation/stack';
-import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { Board } from './';
 
 type StackScreenProps<
@@ -14,32 +13,13 @@ type SignStackParamList = {
 
 export type SignStackScreenProps = StackScreenProps<SignStackParamList>;
 
-// 바텀 탭 안에 있는 stack param 목록
-type StackParamLists = {
-  HomeStack: HomeStackParamList;
-  BoardStack: BoardStackParamList;
-  ProfileStack: ProfileStackParamList;
-}
-
-type TabParamList = {
-  [K in keyof StackParamLists]: undefined | {
-  screen: keyof StackParamLists[K];
-  params?: StackParamLists[K][keyof StackParamLists[K]];
-};
-};
-
-export type TabNavigationProps = BottomTabNavigationProp<TabParamList>;
-
-type HomeStackParamList = {
+export type AppStackParamList = {
+  Main: undefined;
   Home: undefined;
-};
-
-type ProfileStackParamList = {
   Profile: undefined;
-  ProfileEdit: undefined;
-};
-
-type BoardStackParamList = {
   BoardList: undefined;
+  ProfileEdit: undefined;
   Board: { board: Board };
 }
+
+export type AppStackScreenProps = StackScreenProps<AppStackParamList>;

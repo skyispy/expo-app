@@ -1,5 +1,5 @@
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
-import Navigator from './src/Navigator';
+import RootNavigator from './src/navigator/RootNavigator';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export default function App() {
@@ -7,7 +7,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
-        <Navigator />
+        <RootNavigator />
       </SafeAreaProvider>
     </QueryClientProvider>
   );

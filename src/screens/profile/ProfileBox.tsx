@@ -1,10 +1,10 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import type { TabNavigationProps, User } from '../../types';
+import type { AppStackScreenProps, User } from '../../types';
 import { ProfileImage } from '../../components';
 import { useNavigation } from '@react-navigation/native';
 
 export const ProfileBox = ({ user }: { user: User; }) => {
-  const navigation = useNavigation<TabNavigationProps>();
+  const navigation = useNavigation<AppStackScreenProps>();
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
@@ -25,7 +25,7 @@ export const ProfileBox = ({ user }: { user: User; }) => {
       <View style={styles.actionsContainer}>
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => navigation.navigate('ProfileStack', { screen: 'ProfileEdit' })}
+          onPress={() => navigation.navigate('ProfileEdit')}
         >
           <Text style={styles.actionButtonText}>프로필 수정</Text>
         </TouchableOpacity>
