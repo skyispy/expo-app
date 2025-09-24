@@ -1,5 +1,6 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { UserEntity } from '../../user/models';
+import { CommentEntity } from './comment.entity';
 
 @Entity('BOARD')
 export class BoardEntity {
@@ -55,6 +56,11 @@ export class BoardEntity {
   @Column({
     type: 'datetime',
     default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
   })
   updateDate: Date;
+
+  // 댓글들 (OneToMany 관계 설정)
+  @OneToMany(() => CommentEntity, (comment) => comment.board)
+  comments: CommentEntity[];
 }

@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { RefreshTokensEntity } from '../../auth/models';
 import { BoardEntity } from '../../board/models';
+import { CommentEntity } from '../../board/models';
 
 @Entity('USER')
 export class UserEntity {
@@ -32,7 +33,7 @@ export class UserEntity {
     type: 'datetime',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  createAt: Date;
+  createDate: Date;
 
   // 수정일시
   @Column({
@@ -40,7 +41,7 @@ export class UserEntity {
     default: () => 'CURRENT_TIMESTAMP',
     onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updateAt: Date;
+  updateDate: Date;
 
   // RefreshTokensEntity와의 1:N 관계 설정
   @OneToMany(() => RefreshTokensEntity, (refreshToken) => refreshToken.user)
@@ -49,4 +50,8 @@ export class UserEntity {
   // BoardEntity와의 1:N 관계 설정
   @OneToMany(() => BoardEntity, (board) => board.user)
   boards: BoardEntity[];
+
+  // CommentEntity와의 1:N 관계 설정
+  @OneToMany(() => CommentEntity, (comment) => comment.user)
+  comments: CommentEntity[];
 }

@@ -44,8 +44,8 @@ export class AuthService {
       expiresIn: '30d',
       secret: 'secret_refresh_key',
     });
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 30); // 30일
+    const expiresDate = new Date();
+    expiresDate.setDate(expiresDate.getDate() + 30); // 30일
 
     // 리프레시 토큰이 존재하는지 조회
     const existingToken = await this.refreshTokensRepository.findOne({
@@ -58,7 +58,7 @@ export class AuthService {
       // 기존 토큰이 있으면 업데이트
       await this.refreshTokensRepository.update(
         { tokenId: existingToken.tokenId, userAgent },
-        { refreshToken, expiresAt },
+        { refreshToken, expiresDate },
       );
       return refreshToken;
     }
@@ -72,7 +72,7 @@ export class AuthService {
       user,
       refreshToken,
       userAgent,
-      expiresAt,
+      expiresDate,
     });
     await this.refreshTokensRepository.save(refreshTokenEntity);
 

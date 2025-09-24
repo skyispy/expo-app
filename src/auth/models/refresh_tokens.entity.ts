@@ -1,6 +1,5 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -27,8 +26,8 @@ export class RefreshTokensEntity {
     type: 'datetime',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  createdAt: Date;
+  createdDate: Date;
 
   @Column({ type: 'datetime' })
-  expiresAt: Date;
+  expiresDate: Date;
 }
