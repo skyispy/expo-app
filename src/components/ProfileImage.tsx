@@ -1,4 +1,4 @@
-import { View, StyleSheet, ViewStyle } from 'react-native';
+import { StyleSheet, ViewStyle, Pressable } from 'react-native';
 import { Image, ImageProps } from 'expo-image';
 
 interface ProfileImageProps extends ImageProps {
@@ -14,21 +14,22 @@ export const ProfileImage = ({
   ...props
 }: ProfileImageProps) => {
   const defaultUserImage = require('@assets/user.png');
+  const { style: imageStyle, ...restProps } = props;
   return (
-    <View
+    <Pressable
       style={[
         styles.container,
         { width: size, height: size, borderRadius: size / 2 },
         wrapperStyle
       ]}>
       <Image
-        style={styles.profileImage}
+        style={[styles.profileImage, imageStyle]}
         source={{ uri: `${uri}?t=${Date.now()}` }}
         cachePolicy={"none"}
         placeholder={defaultUserImage}
-        {...props}
+        {...restProps}
       />
-    </View>
+    </Pressable>
   )
 }
 

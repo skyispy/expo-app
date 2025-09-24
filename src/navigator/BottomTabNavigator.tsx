@@ -2,8 +2,9 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { HomeScreen } from '@screens/home';
-import { BoardListScreen } from '@screens/board/BoardListScreen';
+import { BoardListScreen } from '@screens/board';
 import { ProfileScreen } from '@screens/profile';
+import { Header } from '../components';
 
 const BottomTab = createBottomTabNavigator();
 
@@ -20,7 +21,7 @@ const BottomTabNavigator = () => {
           tabBarStyle.display = 'none';
         }
         return {
-          headerShown: false,
+          header: (props) => <Header headerProps={props} />,
           tabBarStyle,
         }
       }}

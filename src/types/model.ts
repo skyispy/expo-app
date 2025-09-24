@@ -24,8 +24,10 @@ export type Board = {
   // 게시글 상태 (예: 'active', 'inactive', 'deleted' 등)
   status: string;
   // 게시글 시작일과 종료일 (예: 이벤트 게시글의 경우)
-  startDate: Date;
-  endDate: Date;
-  createDate: Date;
-  updateDate: Date;
+  startDate: string;
+  endDate: string;
+  createDate: string;
+  updateDate: string;
+  // 댓글 수
+  commentCount: number | undefined;
 }
