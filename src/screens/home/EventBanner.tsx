@@ -1,8 +1,11 @@
-import { FlatList, StyleSheet, View, TouchableOpacity, Dimensions } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
-import { useGetBoards } from '../../hooks';
 import { useNavigation } from '@react-navigation/native';
+import Carousel from 'react-native-reanimated-carousel';
+import { useGetBoards } from '../../hooks';
 import { AppStackScreenProps } from '../../types';
+
+const { width } = Dimensions.get('window');
 
 export const EventBanner = () => {
   const { boards, isBoardsLoading } = useGetBoards('event');
@@ -11,34 +14,31 @@ export const EventBanner = () => {
   return (
     <View style={styles.container}>
       {boards && (
-        <FlatList
-          style={{ width: '100%', borderWidth: 1, borderColor: 'red' }}
+        <Carousel
+          width={width * 0.9}
+          height={100}
           data={boards}
-          pagingEnabled
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.boardId.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.itemContainer}
-              onPress={() =>
-                navigation?.navigate('Board', { board: item } )
-              }
-            >
-              <Image
-                source={item.imageUrl ? { uri: item.imageUrl } : require('@assets/event2.png')}
-                style={{ flex: 1, borderWidth: 1 }}
-                contentFit="contain"
-              />
-            </TouchableOpacity>
+            <View style={styles.itemContainer}>
+              <TouchableOpacity
+                style={styles.itemImageContainer}
+                onPress={() =>
+                  navigation?.navigate('Board', { board: item } )
+                }
+              >
+                <Image
+                  source={item.imageUrl ? { uri: item.imageUrl } : require('@assets/event2.png')}
+                  style={styles.itemImage}
+                  contentFit="cover"
+                />
+              </TouchableOpacity>
+            </View>
           )}
         />
       )}
     </View>
   );
 }
-
-const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
@@ -48,7 +48,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   itemContainer: {
-    width: width ,
-    height: 200,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  itemImageContainer: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  itemImage: {
+    flex: 1,
   }
 })
