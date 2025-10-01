@@ -4,8 +4,10 @@ import { Image } from 'expo-image';
 import { useNavigation } from '@react-navigation/native';
 import { ProfileImage } from '../../components';
 import { Ionicons } from '@expo/vector-icons/';
+import { useAuthStore } from '../../store';
 
 export const BoardPreview = ({ board }: { board: Board }) => {
+  const { user } = useAuthStore((state) => state);
   const navigation = useNavigation<AppStackScreenProps>()
   const boardCreateDate = new Date(board.createDate);
   const formatted = boardCreateDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
@@ -24,10 +26,12 @@ export const BoardPreview = ({ board }: { board: Board }) => {
           </View>
         </View>
         <View style={styles.actionContainer}>
-          <TouchableOpacity style={styles.followButton}>
-            <Text style={styles.followButtonText}>팔로우</Text>
-          </TouchableOpacity>
-          <Pressable>
+          {user?.userId !== board.user.userId && (
+            <TouchableOpacity style={styles.followButton}>
+              <Text style={styles.followButtonText}>팔로우</Text>
+            </TouchableOpacity>
+          )}
+          <Pressable style={{ marginHorizontal: 8 }}>
             <Ionicons name="ellipsis-vertical" size={24} color="black" />
           </Pressable>
         </View>
@@ -76,7 +80,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   profileContainer: {
-    flex: 0.7,
+    flex: 0.6,
     flexDirection: 'row',
   },
   profileImageContainer: {
@@ -96,9 +100,10 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   actionContainer: {
-    flex: 0.3,
+    flex: 0.4,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-end',
     height: '100%',
   },
   followButton: {
