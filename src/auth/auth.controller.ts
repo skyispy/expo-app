@@ -67,20 +67,23 @@ export class AuthController {
         payload as UserPayload,
         headers['user-agent'],
       );
-      const userResponse = UserResponseSchema.parse(user);
-      return { user: userResponse, accessToken, refreshToken };
+      const validateUser = UserResponseSchema.safeParse(user);
+      if (!validateUser.success) {
+        throw new ForbiddenException('유효하지 않은 사용자 정보입니다.');
+      }
+      return { user: validateUser.data, accessToken, refreshToken };
     }
     throw new ForbiddenException('User-Agent가 필요합니다.');
   }
 
   // 로그아웃
   @Post('/logout')
-  async logout(@Req() req: Request): Promise<{ message: string }> {
+  async logout(@Req() req: Request): Promise<{ result: null; message: string }> {
     const { 'x-refresh-token': refreshToken, 'user-agent': userAgent } = req.headers;
     if (typeof refreshToken === 'string' && userAgent) {
       // 리프레시 토큰이 있을 때만 삭제
       await this.authService.logout(refreshToken, userAgent);
     }
-    return { message: '로그아웃 되었습니다.' };
+    return { result: null, message: '로그아웃 되었습니다.' };
   }
 }

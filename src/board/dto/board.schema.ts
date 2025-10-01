@@ -12,7 +12,7 @@ export const BoardResponseSchema = z.object({
   // 글 내용
   content: z.string(),
   // 글 이미지 URL (nullable)
-  imageUrl: z.url().nullable(),
+  thumbnailImageUrl: z.url().nullable(),
   // 조회수
   views: z.number(),
   // 좋아요 수
@@ -20,24 +20,23 @@ export const BoardResponseSchema = z.object({
   // 게시글 상태 (예: 'active', 'inactive', 'deleted' 등)
   status: z.string(),
   // 게시글 시작일과 종료일 (예: 이벤트 게시글의 경우)
-  startDate: z.date(),
-  endDate: z.date(),
+  startDate: z.date().nullable(),
+  endDate: z.date().nullable(),
   createDate: z.date(),
   updateDate: z.date(),
   // 댓글 수
-  commentCount: z.number().optional(),
+  commentCount: z.number(),
 });
 
 // 게시판 생성 요청 스키마
 export const BoardCreateSchema = z.object({
+  userId: z.string().transform((val) => Number(val)),
   // 카테고리 (예: '공지사항', '자유게시판' 등)
   category: z.string().min(1, 'Category is required'),
   // 글 제목
   title: z.string().min(1, 'Title is required'),
   // 글 내용
   content: z.string().min(1, 'Content is required'),
-  // 글 이미지 URL (nullable)
-  imageUrl: z.url().optional(),
   // 게시글 시작일과 종료일 (예: 이벤트 게시글의 경우)
   startDate: z.date().optional(),
   endDate: z.date().optional(),

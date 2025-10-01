@@ -1,12 +1,15 @@
 import {
   Body,
+  ConflictException,
   Controller,
   Get,
   Logger,
   Post,
   Put,
   Query,
+  Req,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
@@ -15,15 +18,12 @@ import { ZodValidationPipe } from 'src/common/pipes';
 import { UserProfileUpdateSchema, UserResponseSchema, UserSignupSchema } from './dto/user.schema';
 import type { UserProfileUpdateDto, UserResponseDto, UserSignupDto } from './dto/user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { saveFileToDist } from '../common/utils';
-import { ConfigService } from '@nestjs/config';
+import { JwtAuthGuard, UserPayload } from '../auth/guards';
+import type { Request } from 'express';
 
 @Controller('user')
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
   private readonly logger = new Logger(UserController.name);
 
   // 회원가입
@@ -36,29 +36,32 @@ export class UserController {
 
   // 닉네임 중복 확인
   @Get('/check-nickname')
-  async checkNickname(@Query('nickname') nickname: string): Promise<{ isDuplicate: boolean }> {
+  async checkNickname(@Query('nickname') nickname: string): Promise<boolean> {
     this.logger.log('중복 확인 닉네임: ' + nickname);
     const existingUser = await this.userService.findUserByNickname(nickname);
-    return { isDuplicate: !!existingUser };
+    return !!existingUser;
   }
 
   // 프로필 수정
   @Put('/profile')
   @UseInterceptors(FileInterceptor('profileImage'))
+  @UseGuards(JwtAuthGuard)
   async updateProfile(
-    @UploadedFile() file: Express.Multer.File,
+    @Req() req: Request,
     @Body(new ZodValidationPipe(UserProfileUpdateSchema))
     userProfileUpdateDto: UserProfileUpdateDto,
-  ): Promise<{ user: UserResponseDto }> {
-    this.logger.log('파일 정보: ', file);
-    this.logger.log('프로필 수정 유저 정보', userProfileUpdateDto);
+    @UploadedFile() file?: Express.Multer.File,
+  ): Promise<UserResponseDto> {
+    this.logger.log('프로필 수정 정보', userProfileUpdateDto);
+    const userPayload = req.user as UserPayload;
+    const user = await this.userService.updateUserProfile(userPayload.userId, userProfileUpdateDto);
     if (file) {
-      // 파일이 업로드된 경우에만 profileImageUrl 설정
-      saveFileToDist(file, 'profile-images');
-      userProfileUpdateDto.profileImageUrl = `${this.configService.get<string>('BASE_URL')}/uploads/profile-images/${file.originalname}`;
+      user.profileImageUrl = await this.userService.uploadProfileImage(file, user.userId);
     }
-    const user = await this.userService.updateUserProfile(userProfileUpdateDto);
-    const userResponse = UserResponseSchema.parse(user);
-    return { user: userResponse };
+    const validateUser = UserResponseSchema.safeParse(user);
+    if (!validateUser.success) {
+      throw new ConflictException('프로필 수정 후 유효성 검사에 실패했습니다.');
+    }
+    return validateUser.data;
   }
 }

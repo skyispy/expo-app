@@ -1,9 +1,17 @@
-import { Body, Controller, Get, Logger, Post, Query, UsePipes } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Post,
+  Query,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { BoardService } from './board.service';
 import type { BoardCreateDto, BoardResponseDto } from './dto/board.dto';
-import { BoardResponseSchema, BoardCreateSchema } from './dto/board.schema';
-import { z } from 'zod';
-import { ZodValidationPipe } from '../common/pipes';
+import { BoardCreateSchema, BoardResponseSchema } from './dto/board.schema';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('board')
 export class BoardController {
@@ -14,17 +22,30 @@ export class BoardController {
   async getBoards(@Query('category') category: string): Promise<BoardResponseDto[]> {
     this.logger.log('Get /board 요청');
     const boards = await this.boardService.selectBoards(category);
-    // 댓글 수 추가
-    const result = boards.map(({ comments, ...board }) => ({
-      ...board,
-      commentCount: comments?.length,
-    }));
-    return z.array(BoardResponseSchema).parse(result);
+    // 댓글 수 추가 및 응답 형식 변환
+    return (
+      boards
+        .map(({ comments, ...board }) => ({
+          ...board,
+          commentCount: comments?.length ?? 0,
+        }))
+        // zod으로 유효성 검사
+        .map((board) => BoardResponseSchema.safeParse(board))
+        .filter((result) => result.success)
+        .map((result) => result.data)
+    );
   }
 
-  @UsePipes(new ZodValidationPipe(BoardCreateSchema))
-  @Post('/create')
-  async createBoard(@Body() boardCreateDto: BoardCreateDto): Promise<void> {
-    await this.boardService.createBoard(boardCreateDto);
+  @UseInterceptors(FileInterceptor('thumbnailImage'))
+  @Post('/')
+  async createBoard(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() boardCreateDto: BoardCreateDto,
+  ): Promise<void> {
+    const validatedData = BoardCreateSchema.parse(boardCreateDto);
+    const boardEntity = await this.boardService.createBoard(validatedData);
+    if (file) {
+      await this.boardService.uploadThumbnailImage(file, boardEntity.boardId);
+    }
   }
 }

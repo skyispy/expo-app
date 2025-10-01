@@ -4,12 +4,15 @@ import { UserEntity } from './models';
 import { Repository } from 'typeorm';
 import type { UserProfileUpdateDto, UserSignupDto } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
+import { saveFileToDist } from '../common/utils';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    private readonly configService: ConfigService,
   ) {}
   private readonly logger = new Logger(UserService.name);
 
@@ -45,8 +48,11 @@ export class UserService {
   }
 
   // 프로필 수정
-  async updateUserProfile(userProfileUpdateDto: UserProfileUpdateDto): Promise<UserEntity> {
-    const prevUser = await this.findUserById(userProfileUpdateDto.userId);
+  async updateUserProfile(
+    userId: number,
+    userProfileUpdateDto: UserProfileUpdateDto,
+  ): Promise<UserEntity> {
+    const prevUser = await this.findUserById(userId);
     if (!prevUser) {
       throw new ConflictException('존재하지 않는 사용자입니다.');
     }
@@ -54,15 +60,20 @@ export class UserService {
       nickname: userProfileUpdateDto.nickname,
       introduction: userProfileUpdateDto.introduction,
     };
-    if (userProfileUpdateDto.profileImageUrl) {
-      // profileImageUrl이 있을 때만 업데이트
-      param.profileImageUrl = userProfileUpdateDto.profileImageUrl;
-    }
-    await this.userRepository.update({ userId: userProfileUpdateDto.userId }, param);
-    const user = await this.findUserById(userProfileUpdateDto.userId);
+    await this.userRepository.update({ userId }, param);
+    const user = await this.findUserById(userId);
     if (!user) {
       throw new ConflictException('존재하지 않는 사용자입니다.');
     }
     return user;
+  }
+
+  // 프로필 이미지 업로드
+  async uploadProfileImage(file: Express.Multer.File, userId: number): Promise<string> {
+    const filePath = saveFileToDist(file, 'profile-images');
+    const baseurl = this.configService.get<string>('BASE_URL');
+    const imgUrl = baseurl + '/' + filePath;
+    await this.userRepository.update({ userId }, { profileImageUrl: imgUrl });
+    return imgUrl;
   }
 }

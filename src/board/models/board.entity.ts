@@ -24,9 +24,9 @@ export class BoardEntity {
   @Column()
   content: string;
 
-  // 글 이미지 URL (nullable)
+  // 썸네일 이미지 URL (nullable)
   @Column({ nullable: true })
-  imageUrl: string;
+  thumbnailImageUrl: string;
 
   // 조회수
   @Column({ default: 0 })
@@ -41,10 +41,10 @@ export class BoardEntity {
   status: string;
 
   // 게시글 시작일과 종료일 (예: 이벤트 게시글의 경우)
-  @Column({ type: 'datetime' })
+  @Column({ type: 'datetime', nullable: true })
   startDate: Date;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'datetime', nullable: true })
   endDate: Date;
 
   @Column({

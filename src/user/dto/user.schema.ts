@@ -46,13 +46,11 @@ export const UserLoginSchema = z
 // 프로필 수정 DTO 검증 스키마
 export const UserProfileUpdateSchema = z
   .object({
-    userId: z.string().transform((val) => Number(val)),
     nickname: z
       .string()
       .min(1, '닉네을 입력해주세요.')
       .max(12, '닉네임은 12자 이내로 입력해주세요.')
       .optional(),
     introduction: z.string().max(35, '자기소개는 35자 이내로 입력해주세요.').optional(),
-    profileImageUrl: z.url().optional(),
   })
   .required();
