@@ -15,11 +15,21 @@ export class BoardService {
     private readonly configService: ConfigService,
   ) {}
 
-  async selectBoards(category: string): Promise<BoardEntity[]> {
+  // 게시판 목록 조회 (카테고리별, 페이징)
+  async selectBoardList(category: string, page: number, limit: number): Promise<BoardEntity[]> {
     return await this.boardRepository.find({
       where: { category, status: 'active' },
       relations: ['user'],
       order: { createDate: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+  }
+
+  // 게시판 전체 개수 조회 (카테고리별)
+  async countBoardsByCategory(category: string): Promise<number> {
+    return await this.boardRepository.count({
+      where: { category, status: 'active' },
     });
   }
 

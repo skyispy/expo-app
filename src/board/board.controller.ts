@@ -19,21 +19,28 @@ export class BoardController {
   private readonly logger = new Logger(BoardController.name);
 
   @Get('/')
-  async getBoards(@Query('category') category: string): Promise<BoardResponseDto[]> {
+  async getBoards(
+    @Query('category') category: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ): Promise<{ boardList: BoardResponseDto[]; nextPage: number | null }> {
     this.logger.log('Get /board 요청');
-    const boards = await this.boardService.selectBoards(category);
-    // 댓글 수 추가 및 응답 형식 변환
-    return (
-      boards
-        .map(({ comments, ...board }) => ({
-          ...board,
-          commentCount: comments?.length ?? 0,
-        }))
-        // zod으로 유효성 검사
-        .map((board) => BoardResponseSchema.safeParse(board))
-        .filter((result) => result.success)
-        .map((result) => result.data)
-    );
+    page = Number(page);
+    limit = Number(limit);
+    const boardList = await this.boardService.selectBoardList(category, page, limit);
+    const validateBoardList = boardList
+      // 댓글 수 추가 및 응답 형식 변환
+      .map(({ comments, ...board }) => ({
+        ...board,
+        commentCount: comments?.length ?? 0,
+      }))
+      // zod으로 유효성 검사
+      .map((board) => BoardResponseSchema.safeParse(board))
+      .filter((result) => result.success)
+      .map((result) => result.data);
+    const totalCount = await this.boardService.countBoardsByCategory(category);
+    const hasNextPage = page * limit < totalCount;
+    return { boardList: validateBoardList, nextPage: hasNextPage ? page + 1 : null };
   }
 
   @UseInterceptors(FileInterceptor('thumbnailImage'))
