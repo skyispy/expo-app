@@ -1,20 +1,29 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { ApiResponse, Board } from '../types';
+import { useMutation, useInfiniteQuery } from '@tanstack/react-query';
+import { ApiResponse, Board, GetBoardListResponse } from '../types';
 import apiClient from '../api/config';
 import { ApiError } from '../errors/ApiError';
 
-export const useGetBoards = (category: string) => {
-  const { data, isLoading } = useQuery({
-    queryKey: ['boards', category],
-    queryFn: async () => {
-      const response: ApiResponse<Board[]> = await apiClient.get('/board', {
-        params: { category },
+export const useGetBoardList = (category: string, limit?: number, page?: number) => {
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
+    queryKey: ['boardList', category],
+    queryFn: async ({ pageParam }) => {
+      const response: ApiResponse<GetBoardListResponse> = await apiClient.get('/board', {
+        params: { category, page: pageParam, limit },
       });
       return response.data.result;
     },
+    initialPageParam: page ?? 1,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
   });
 
-  return { boards: data, isBoardsLoading: isLoading };
+  const boardList = data?.pages.flatMap(page => page.boardList);
+
+  return {
+    boardList,
+    boardFetchNextPage: fetchNextPage,
+    boardHasNextPage: hasNextPage,
+    boardIsFetchingNextPage: isFetchingNextPage
+  };
 }
 
 export const useCreateBoard = () => {

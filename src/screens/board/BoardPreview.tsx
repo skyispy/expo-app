@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     borderBottomColor: '#999',
     paddingVertical: 10,
+    paddingHorizontal: 20,
   },
   header: {
     height: 50,

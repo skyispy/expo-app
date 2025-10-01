@@ -2,22 +2,22 @@ import { StyleSheet, View, Pressable, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { useNavigation } from '@react-navigation/native';
 import Carousel from 'react-native-reanimated-carousel';
-import { useGetBoards } from '../../hooks';
+import { useGetBoardList } from '../../hooks';
 import { AppStackScreenProps } from '../../types';
 
 const { width } = Dimensions.get('window');
 
 export const EventBanner = () => {
-  const { boards, isBoardsLoading } = useGetBoards('event');
+  const { boardList } = useGetBoardList('event', 3, 1);
   const navigation = useNavigation<AppStackScreenProps>();
 
   return (
     <View style={styles.container}>
-      {boards && (
+      {boardList && (
         <Carousel
           width={width * 0.9}
           height={100}
-          data={boards}
+          data={boardList}
           autoPlay={true}
           autoPlayInterval={10000}
           loop

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { UserLoginSchema, UserSignupSchema } from '../schemas';
-import { User } from './model';
+import { Board, User } from './model';
 
 export type ApiResponse<T> = {
   data: {
@@ -27,4 +27,9 @@ export type LogoutResponse = {
 export type TokenRefreshResponse = {
   accessToken: string;
   refreshToken: string;
+}
+
+export type GetBoardListResponse = {
+  boardList: Board[];
+  nextPage: number | null;
 }

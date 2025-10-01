@@ -1,22 +1,31 @@
-import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { useGetBoards } from '../../hooks';
+import { FlatList, View, StyleSheet } from 'react-native';
+import { useGetBoardList } from '../../hooks';
 import { BoardPreview } from '@screens/board/BoardPreview';
 
 export const BoardListScreen = () => {
-  const { boards, isBoardsLoading } = useGetBoards('free');
+  const { boardList, boardFetchNextPage, boardHasNextPage, boardIsFetchingNextPage } = useGetBoardList('free', 3, 1);
 
   return (
-    <ScrollView style={styles.container}>
-      {boards && boards.map((board => (
-        <BoardPreview board={board} key={board.boardId} />
-      )))}
-    </ScrollView>
+    <View style={styles.container}>
+      <FlatList
+        data={boardList}
+        renderItem={({ item }) => <BoardPreview board={item} />}
+        keyExtractor={(item, index) => item.boardId.toString()}
+        onEndReached={() => {
+          if (boardHasNextPage && !boardIsFetchingNextPage) {
+            boardFetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.5}
+        // ListFooterComponent={boardIsFetchingNextPage ? <Loading /> : null}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    // paddingHorizontal: 20,
   }
 })

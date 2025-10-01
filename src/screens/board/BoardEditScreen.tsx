@@ -64,7 +64,6 @@ export const BoardEditScreen = ({ board }: { board?: Board }) => {
     formData.append('title', result.data.title);
     formData.append('content', result.data.content);
     formData.append('category', result.data.category);
-    console.log(result.data)
 
     if (result.data.imageUrl) {
       // 20250929180700 날짜시간 문자열 생성
