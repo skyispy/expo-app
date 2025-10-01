@@ -5,7 +5,6 @@ import type { SignStackScreenProps } from '../../types';
 import { useLoginUser } from '../../hooks';
 import { UserLoginSchema } from '../../schemas';
 import CheckBox from 'expo-checkbox';
-import { useAuthStore } from '../../store';
 import { FormInput } from '../../components';
 
 export const LoginScreen = () => {
@@ -16,7 +15,6 @@ export const LoginScreen = () => {
   const [keepLogin, setKeepLogin] = useState<boolean>(false);
 
   const { loginUser } = useLoginUser();
-  const setUser = useAuthStore((state) => state.setUser);
 
   const handleLogin = async () => {
     const param = { email, password, keepLogin };
@@ -26,15 +24,7 @@ export const LoginScreen = () => {
       return;
     }
 
-    await loginUser(result.data, {
-      onSuccess: (data) => {
-        Alert.alert('로그인 성공', `${data?.user.nickname}님 환영합니다!`);
-        setUser(data.user);
-      },
-      onError: (error: Error) => {
-        Alert.alert('로그인 실패', `${error.message}`);
-      },
-    });
+    await loginUser(result.data);
   };
 
   return (

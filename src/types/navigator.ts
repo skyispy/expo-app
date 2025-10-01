@@ -20,6 +20,7 @@ export type AppStackParamList = {
   BoardList: undefined;
   ProfileEdit: undefined;
   Board: { board: Board };
+  BoardEdit: { board?: Board };
 }
 
 export type AppStackScreenProps = StackScreenProps<AppStackParamList>;

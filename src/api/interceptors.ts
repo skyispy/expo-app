@@ -42,7 +42,7 @@ export const refreshAccessToken = async (error: AxiosError, axiosInstance: Axios
           {},
           { headers: { 'x-refresh-token': refreshToken } },
         );
-        const { accessToken: newAccessToken, refreshToken: newRefreshToken } = data;
+        const { accessToken: newAccessToken, refreshToken: newRefreshToken } = data.result;
         // 새로운 토큰 저장
         await SecureStore.setItemAsync('accessToken', newAccessToken);
         await SecureStore.setItemAsync('refreshToken', newRefreshToken);
@@ -50,15 +50,15 @@ export const refreshAccessToken = async (error: AxiosError, axiosInstance: Axios
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         // 재요청
         return axiosInstance(originalRequest);
-      } catch (refreshError) {
+      } catch (refreshError: unknown) {
         if (refreshError instanceof AxiosError) {
           if (refreshError.response && refreshError.response.status === 403) {
             await SecureStore.deleteItemAsync('accessToken');
             await SecureStore.deleteItemAsync('refreshToken');
             useAuthStore.getState().clearUser();
-            return Promise.reject(refreshError);
           }
         }
+        return Promise.reject(refreshError);
       }
     }
   }

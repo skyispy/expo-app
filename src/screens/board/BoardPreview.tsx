@@ -40,7 +40,7 @@ export const BoardPreview = ({ board }: { board: Board }) => {
         <View style={styles.thumbnailImageContainer}>
           <Image
             style={styles.thumbnailImage}
-            source={board.imageUrl ? { uri: board.imageUrl } : null}
+            source={board.thumbnailImageUrl ? { uri: board.thumbnailImageUrl } : null}
             contentFit="cover"
           />
         </View>
@@ -52,7 +52,7 @@ export const BoardPreview = ({ board }: { board: Board }) => {
         </View>
         <Pressable style={[styles.metaContainer, { flex: 0.7, justifyContent: 'flex-end' }]}>
           <Ionicons name="chatbubble-ellipses-outline" size={24} color="black" />
-          <Text style={styles.metaCount}>{board.commentCount ?? 0}</Text>
+          <Text style={styles.metaCount}>{board.commentCount}</Text>
         </Pressable>
         <Pressable style={styles.metaContainer}>
           <Ionicons name="heart-outline" size={24} color="black" />
@@ -66,7 +66,7 @@ export const BoardPreview = ({ board }: { board: Board }) => {
 const styles = StyleSheet.create({
   container: {
     borderBottomWidth: 2,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#999',
     paddingVertical: 10,
   },
   header: {
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: '16/9',
     backgroundColor: '#f5f5f5',
-    borderRadius: 12,
+    borderRadius: 8,
     overflow: 'hidden',
   },
   thumbnailImage: {

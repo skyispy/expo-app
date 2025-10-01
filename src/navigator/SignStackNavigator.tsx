@@ -8,7 +8,7 @@ const SignStackNavigator = () => {
   return (
     <SignStack.Navigator
       screenOptions={{
-        header: (props) => <Header headerProps={props} />,
+        header: (props) => <Header {...props} />,
       }}
     >
       <SignStack.Screen name="Login" component={LoginScreen} />

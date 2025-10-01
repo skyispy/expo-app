@@ -16,7 +16,7 @@ export type Board = {
   // 글 내용
   content: string;
   // 글 이미지 URL (nullable)
-  imageUrl: string | null;
+  thumbnailImageUrl: string | null;
   // 조회수
   views: number;
   // 좋아요 수
@@ -29,5 +29,5 @@ export type Board = {
   createDate: string;
   updateDate: string;
   // 댓글 수
-  commentCount: number | undefined;
+  commentCount: number;
 }

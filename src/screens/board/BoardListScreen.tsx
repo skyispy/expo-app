@@ -3,7 +3,7 @@ import { useGetBoards } from '../../hooks';
 import { BoardPreview } from '@screens/board/BoardPreview';
 
 export const BoardListScreen = () => {
-  const { boards, isBoardsLoading } = useGetBoards('event');
+  const { boards, isBoardsLoading } = useGetBoards('free');
 
   return (
     <ScrollView style={styles.container}>

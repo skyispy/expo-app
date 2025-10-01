@@ -8,8 +8,6 @@ import type { UserSignupFields } from '../../schemas';
 import { FormInput, FormInputWithButton } from '../../components';
 
 export const SignupScreen = () => {
-  const stackNav = useNavigation<SignStackScreenProps>();
-
   const [nickname, setNickname] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
@@ -61,38 +59,18 @@ export const SignupScreen = () => {
       return;
     }
     const param: SignupRequest = { nickname, email, password };
-    await signupUser(param, {
-      onSuccess: () => {
-        Alert.alert('회원가입 완료', '로그인 해주세요.');
-        stackNav.navigate('Login');
-      },
-      onError: (error: Error) => {
-        Alert.alert('회원가입 실패', `${error.message}`);
-      },
-    });
+    await signupUser(param);
   };
 
   // 닉네임 중복확인
-  const { nicknameCheck, nicknameCheckResult, nicknameCheckError } = useCheckDuplicateNickname(nickname);
+  const { nicknameCheck } = useCheckDuplicateNickname(nickname);
   const handleCheckDuplicateNickname = async () => {
     if (!validate('nickname', nickname)) {
       Alert.alert('닉네임 오류', '닉네임을 올바르게 입력해주세요.');
       return;
     }
-    await nicknameCheck();
-    if (nicknameCheckError) {
-      Alert.alert('중복확인 실패', nicknameCheckError.message);
-      return;
-    }
-    if (!nicknameCheckResult) {
-      Alert.alert('중복확인 실패', '데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
-      return;
-    }
-    Alert.alert(
-      '중복확인 완료',
-      nicknameCheckResult.isDuplicate ? '이미 사용중인 닉네임입니다.' : '사용 가능한 닉네임입니다.'
-    );
-    setIsNicknameChecked(!nicknameCheckResult.isDuplicate);
+    const nicknameCheckResult = await nicknameCheck();
+    setIsNicknameChecked(!nicknameCheckResult);
   };
 
   return (

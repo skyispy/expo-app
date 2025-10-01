@@ -5,11 +5,11 @@ import type { UserProfileUpdateFields } from '../../schemas';
 import { UserProfileUpdateSchema } from '../../schemas';
 import * as ImagePicker from 'expo-image-picker';
 import { useCheckDuplicateNickname, useUpdateProfile } from '../../hooks';
-import { User } from '../../types';
 import { ProfileImage, FormInput, FormInputWithButton } from '../../components';
+import { ApiError } from '../../errors/ApiError';
 
 export const ProfileEditScreen = () => {
-  const { user, setUser } = useAuthStore((state) => state);
+  const { user } = useAuthStore((state) => state);
   const [nickname, setNickname] = useState<string>('');
   const [introduction, setIntroduction] = useState<string>('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -69,7 +69,6 @@ export const ProfileEditScreen = () => {
     }
 
     const formData = new FormData();
-    formData.append('userId', (user as User).userId.toString())
     formData.append('nickname', nickname);
     formData.append('introduction', introduction);
     if(selectedImage) {
@@ -81,41 +80,23 @@ export const ProfileEditScreen = () => {
     }
 
     await updateProfile(formData, {
-      onSuccess: (data) => {
-        if(data) {
-          setUser(data.user);
-          Alert.alert('프로필 수정 완료', '프로필이 성공적으로 수정되었습니다.');
-          // 이미지 선택 초기화 -> 버튼 비활성화
-          setSelectedImage(null);
-        } else throw new Error('프로필 수정에 실패했습니다.');
+      onSuccess: () => {
+        // 이미지 선택 초기화 -> 버튼 비활성화
+        setSelectedImage(null);
       },
-      onError: (error) => {
-        Alert.alert('프로필 수정 실패', `${error.message}`);
-      }
     })
   }
 
   // 닉네임 중복확인
-  const { nicknameCheck, nicknameCheckResult, nicknameCheckError } = useCheckDuplicateNickname(nickname);
+  const { nicknameCheck } = useCheckDuplicateNickname();
   const handleCheckDuplicateNickname = async () => {
     if (!validate('nickname', nickname)) {
       Alert.alert('닉네임 오류', '닉네임을 올바르게 입력해주세요.');
       return;
     }
-    await nicknameCheck();
-    if (nicknameCheckError) {
-      Alert.alert('중복확인 실패', nicknameCheckError.message);
-      return;
-    }
-    if (!nicknameCheckResult) {
-      Alert.alert('중복확인 실패', '데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
-      return;
-    }
-    Alert.alert(
-      '중복확인 완료',
-      nicknameCheckResult.isDuplicate ? '이미 사용중인 닉네임입니다.' : '사용 가능한 닉네임입니다.'
-    );
-    setIsNicknameChecked(!nicknameCheckResult.isDuplicate);
+    // 있다 : true, 없다 : false
+    const isDuplicate = await nicknameCheck(nickname);
+    setIsNicknameChecked(!isDuplicate);
   };
 
   // 저장 버튼 활성화 여부

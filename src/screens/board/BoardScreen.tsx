@@ -9,7 +9,7 @@ export const BoardScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.thumbnailContainer}>
-        <Image style={styles.thumbnail} source={board.imageUrl ? { uri: board.imageUrl } : null} />
+        <Image style={styles.thumbnail} source={board.thumbnailImageUrl ? { uri: board.thumbnailImageUrl } : null} />
       </View>
       <View style={{ padding: 16 }}>
         <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 8 }}>{board.title}</Text>

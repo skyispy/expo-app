@@ -5,12 +5,10 @@ import { ProfileBox } from './ProfileBox';
 
 export const ProfileScreen = () => {
   const { logoutUser } = useLogoutUser();
-  const { user, clearUser } = useAuthStore((state) => state);
+  const { user } = useAuthStore((state) => state);
 
   const handleLogout = async () => {
-    const { message } = await logoutUser();
-    Alert.alert('로그아웃', message);
-    clearUser();
+    await logoutUser();
   };
 
   return (

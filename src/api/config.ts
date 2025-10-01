@@ -1,5 +1,6 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { addAccessTokenHeader, addUserAgentHeader, refreshAccessToken } from './interceptors';
+import { ApiError } from '../errors/ApiError';
 
 const apiClient = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080',
@@ -26,10 +27,24 @@ apiClient.interceptors.request.use(
 // 응답 인터셉터
 apiClient.interceptors.response.use(
   (response) => response,
-  (error: unknown) => {
-    if (error instanceof axios.AxiosError) {
-      return refreshAccessToken(error, apiClient);
+  async (error: unknown) => {
+    if (axios.isAxiosError(error)) {
+      try {
+        // 401 에러 발생 시 토큰 갱신 시도
+        return await refreshAccessToken(error, apiClient);
+      } catch (err: unknown) {
+        console.log(err)
+        // 에러 커스텀 에러로 내보내기
+        if(axios.isAxiosError(err)) {
+          const message = err.response?.data?.message || err.message;
+          const status = err.response?.status;
+          const data = err?.response?.data;
+          return Promise.reject(new ApiError(message, status, data));
+        }
+      }
     }
+
+    return Promise.reject(new ApiError("unknown error occurred"));
   },
 );
 

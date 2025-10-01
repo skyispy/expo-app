@@ -1,7 +1,17 @@
-import { StyleSheet, Text, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TextInputProps,
+  TouchableOpacity,
+  View,
+  ViewProps,
+} from 'react-native';
 
 interface FormInputProps extends TextInputProps {
   label: string;
+  labelStyle?: TextInputProps['style'];
+  inputWrapperStyle?: ViewProps['style'];
   value: string;
   onChangeText: (text: string) => void;
   error?: string;
@@ -10,33 +20,39 @@ interface FormInputProps extends TextInputProps {
 
 export const FormInput = ({
   label,
+  labelStyle,
+  inputWrapperStyle,
   value,
   onChangeText,
   error,
   secureTextEntry = false,
   maxLength,
   ...props
-}: FormInputProps) => (
-  <View style={styles.container}>
-    <Text style={styles.label}>{label}</Text>
-    <View style={[styles.inputContainer]}>
-      <TextInput
-        style={styles.input}
-        value={value}
-        onChangeText={(text) => onChangeText(text)}
-        secureTextEntry={secureTextEntry}
-        autoCapitalize="none"
-        {...props}
-      />
-    </View>
-    {error && (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error}</Text>
+}: FormInputProps) => {
+  const { style: inputStyle, ...restProps } = props;
+  return (
+    <>
+      <Text style={[styles.label, labelStyle]}>{label}</Text>
+      <View style={[styles.inputContainer, inputWrapperStyle]}>
+        <TextInput
+          style={[styles.input, inputStyle]}
+          value={value}
+          onChangeText={(text) => onChangeText(text)}
+          secureTextEntry={secureTextEntry}
+          autoCapitalize="none"
+          scrollEnabled={false}
+          {...restProps}
+        />
       </View>
-    )}
-    {maxLength && <Text style={styles.charCountText}>{value.length} / {maxLength}자</Text>}
-  </View>
-);
+      {error && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
+      {maxLength && <Text style={styles.charCountText}>{value.length} / {maxLength}자</Text>}
+    </>
+  )
+};
 
 interface FormInputWithButtonProps extends FormInputProps {
   buttonLabel: string;
@@ -46,6 +62,8 @@ interface FormInputWithButtonProps extends FormInputProps {
 
 export const FormInputWithButton = ({
   label,
+  labelStyle,
+  inputWrapperStyle,
   value,
   onChangeText,
   error,
@@ -53,38 +71,39 @@ export const FormInputWithButton = ({
   onButtonPress,
   disabled = false,
   ...props
-}: FormInputWithButtonProps) => (
-  <View style={styles.container}>
-    <Text style={styles.label}>{label}</Text>
-    <View style={[styles.inputContainer, { flexDirection: 'row', alignItems: 'center' }]}>
-      <TextInput
-        style={[styles.input, { flex: 1 }]}
-        value={value}
-        onChangeText={(text) => onChangeText(text)}
-        autoCapitalize="none"
-        {...props}
-      />
-      <TouchableOpacity
-        style={disabled ? [styles.button, { backgroundColor: 'gray', borderColor: 'gray' }] : styles.button}
-        onPress={onButtonPress}
-        disabled={disabled}
-      >
-        <Text style={disabled ? [styles.buttonText, { color: '#fff' }] : styles.buttonText}>
-          {buttonLabel}
-        </Text>
-      </TouchableOpacity>
-    </View>
-    {error && (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error}</Text>
+}: FormInputWithButtonProps) => {
+  const { style: inputStyle, ...restProps } = props;
+  return (
+    <>
+      <Text style={[styles.label, labelStyle]}>{label}</Text>
+      <View style={[styles.inputContainer, { flexDirection: 'row', alignItems: 'center' }, inputWrapperStyle]}>
+        <TextInput
+          style={[styles.input, { flex: 1 }, inputStyle]}
+          value={value}
+          onChangeText={(text) => onChangeText(text)}
+          autoCapitalize="none"
+          {...restProps}
+        />
+        <TouchableOpacity
+          style={disabled ? [styles.button, { backgroundColor: 'gray', borderColor: 'gray' }] : styles.button}
+          onPress={onButtonPress}
+          disabled={disabled}
+        >
+          <Text style={disabled ? [styles.buttonText, { color: '#fff' }] : styles.buttonText}>
+            {buttonLabel}
+          </Text>
+        </TouchableOpacity>
       </View>
-    )}
-  </View>
-);
+      {error && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
+    </>
+  )
+};
 
 const styles = StyleSheet.create({
-  container: {
-  },
   label: {
     fontSize: 14,
     fontWeight: 'bold',

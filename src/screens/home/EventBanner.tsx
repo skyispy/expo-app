@@ -1,4 +1,4 @@
-import { StyleSheet, View, TouchableOpacity, Dimensions } from 'react-native';
+import { StyleSheet, View, Pressable, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { useNavigation } from '@react-navigation/native';
 import Carousel from 'react-native-reanimated-carousel';
@@ -18,20 +18,23 @@ export const EventBanner = () => {
           width={width * 0.9}
           height={100}
           data={boards}
+          autoPlay={true}
+          autoPlayInterval={10000}
+          loop
           renderItem={({ item }) => (
             <View style={styles.itemContainer}>
-              <TouchableOpacity
+              <Pressable
                 style={styles.itemImageContainer}
                 onPress={() =>
                   navigation?.navigate('Board', { board: item } )
                 }
               >
                 <Image
-                  source={item.imageUrl ? { uri: item.imageUrl } : require('@assets/event2.png')}
+                  source={item.thumbnailImageUrl ? { uri: item.thumbnailImageUrl } : require('@assets/event2.png')}
                   style={styles.itemImage}
                   contentFit="cover"
                 />
-              </TouchableOpacity>
+              </Pressable>
             </View>
           )}
         />

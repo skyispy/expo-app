@@ -13,16 +13,7 @@ const RootNavigator = () => {
   useEffect(() => {
     if (user === null) {
       // 자동 로그인 시도
-      tokenLoginUser(undefined, {
-        onSuccess: (data) => {
-          if (data?.user) {
-            setUser(data.user);
-          } else {
-            clearUser();
-          }
-        },
-        onError: () => clearUser(),
-      });
+      tokenLoginUser();
     }
   }, []);
 

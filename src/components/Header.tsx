@@ -2,6 +2,8 @@ import { StyleSheet, View, Text, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons/';
 import { StackHeaderProps } from '@react-navigation/stack';
+import { BottomTabHeaderProps } from '@react-navigation/bottom-tabs';
+import { useEffect } from 'react';
 
 const headerConfig: Record<
   string,
@@ -33,18 +35,25 @@ const headerConfig: Record<
   Board: {
     title: '게시글',
     showBackButton: true,
+  },
+  BoardEdit: {
+    title: '게시글 작성',
+    showBackButton: true,
   }
 };
 
-export const Header = ({ headerProps }: { headerProps: StackHeaderProps }) => {
+export const Header = ({
+  navigation,
+  route,
+  options,
+}: StackHeaderProps | BottomTabHeaderProps) => {
   const { top } = useSafeAreaInsets();
-  const page = headerProps.route.name;
-  const config = headerConfig[page] || {};
+  const config = headerConfig[route.name] || {};
 
   const renderLeft = () => {
     if (config.showBackButton) {
       return (
-        <Pressable style={styles.backButton} onPress={() => headerProps.navigation.goBack()}>
+        <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="black" />
         </Pressable>
       );
@@ -56,7 +65,7 @@ export const Header = ({ headerProps }: { headerProps: StackHeaderProps }) => {
     <View style={[styles.container, { marginTop: top }]}>
       {renderLeft()}
       <Text style={styles.title}>{config.title}</Text>
-      <View style={styles.side} />
+      {options?.headerRight ? options.headerRight({ canGoBack: true }) : <View style={styles.side} />}
     </View>
   );
 };
@@ -88,4 +97,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  rightButtonText: {
+    fontSize: 16,
+    color: '#007AFF',
+    fontWeight: '500',
+    textAlign: 'center',
+  }
 });
