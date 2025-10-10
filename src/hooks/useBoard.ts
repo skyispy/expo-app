@@ -3,8 +3,9 @@ import { ApiResponse, Board, GetBoardListResponse } from '../types';
 import apiClient from '../api/config';
 import { ApiError } from '../errors/ApiError';
 
+// 게시글 목록 조회 (무한 스크롤)
 export const useGetBoardList = (category: string, limit?: number, page?: number) => {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteQuery({
     queryKey: ['boardList', category],
     queryFn: async ({ pageParam }) => {
       const response: ApiResponse<GetBoardListResponse> = await apiClient.get('/board', {
@@ -22,10 +23,12 @@ export const useGetBoardList = (category: string, limit?: number, page?: number)
     boardList,
     boardFetchNextPage: fetchNextPage,
     boardHasNextPage: hasNextPage,
-    boardIsFetchingNextPage: isFetchingNextPage
+    boardIsFetchingNextPage: isFetchingNextPage,
+    boardRefetch: refetch,
   };
 }
 
+// 게시글 생성
 export const useCreateBoard = () => {
   const { mutateAsync } = useMutation({
     mutationFn: async (param: FormData) => {
@@ -43,3 +46,5 @@ export const useCreateBoard = () => {
 
   return { createBoard: mutateAsync };
 }
+
+// 게시글 수정

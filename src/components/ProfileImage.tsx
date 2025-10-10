@@ -22,13 +22,13 @@ export const ProfileImage = ({
         { width: size, height: size, borderRadius: size / 2 },
         wrapperStyle
       ]}>
-      <Image
-        style={[styles.profileImage, imageStyle]}
-        source={{ uri: `${uri}?t=${Date.now()}` }}
-        cachePolicy={"none"}
-        placeholder={defaultUserImage}
-        {...restProps}
-      />
+        <Image
+          style={[styles.profileImage, imageStyle]}
+          source={uri ? { uri } : null}
+          cachePolicy={"none"}
+          placeholder={defaultUserImage}
+          {...restProps}
+        />
     </Pressable>
   )
 }

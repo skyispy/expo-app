@@ -3,7 +3,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons/';
 import { StackHeaderProps } from '@react-navigation/stack';
 import { BottomTabHeaderProps } from '@react-navigation/bottom-tabs';
-import { useEffect } from 'react';
 
 const headerConfig: Record<
   string,

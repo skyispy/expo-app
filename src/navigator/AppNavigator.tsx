@@ -21,6 +21,9 @@ const AppNavigator = () => {
       <AppStack.Screen
         name="Board"
         component={BoardScreen}
+        options={{
+          animation: 'scale_from_center'
+        }}
       />
       <AppStack.Screen
         name="BoardEdit"

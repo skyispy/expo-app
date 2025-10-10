@@ -1,7 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
 import { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { SignStackScreenProps, SignupRequest } from '../../types';
+import type { SignupRequest } from '../../types';
 import { useCheckDuplicateNickname, useSignupUser } from '../../hooks';
 import { UserSignupSchema } from '../../schemas';
 import type { UserSignupFields } from '../../schemas';
@@ -63,13 +62,13 @@ export const SignupScreen = () => {
   };
 
   // 닉네임 중복확인
-  const { nicknameCheck } = useCheckDuplicateNickname(nickname);
+  const { nicknameCheck } = useCheckDuplicateNickname();
   const handleCheckDuplicateNickname = async () => {
     if (!validate('nickname', nickname)) {
       Alert.alert('닉네임 오류', '닉네임을 올바르게 입력해주세요.');
       return;
     }
-    const nicknameCheckResult = await nicknameCheck();
+    const nicknameCheckResult = await nicknameCheck(nickname);
     setIsNicknameChecked(!nicknameCheckResult);
   };
 

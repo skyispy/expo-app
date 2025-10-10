@@ -60,7 +60,6 @@ export const useCheckDuplicateNickname = () => {
 
 // 프로필 수정
 export const useUpdateProfile = () => {
-  const { setUser } = useAuthStore((state) => state);
   const { mutateAsync } = useMutation({
     mutationFn: async (param: FormData) => {
       const response: ApiResponse<User> = await apiClient.put('/user/profile', param, {
@@ -69,7 +68,7 @@ export const useUpdateProfile = () => {
       return response.data.result;
     },
     onSuccess: (user) => {
-      setUser(user);
+      useAuthStore.getState().setUser(user);
       Alert.alert('프로필 수정 완료', '프로필이 성공적으로 수정되었습니다.');
     },
     onError: (error) => {

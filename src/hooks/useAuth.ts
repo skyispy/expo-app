@@ -7,7 +7,7 @@ import { useAuthStore } from '../store';
 import { Alert } from 'react-native';
 
 export const useLoginUser = () => {
-  const { setUser } = useAuthStore((state) => state);
+  const setUser = useAuthStore((state) => state.setUser);
   const { mutateAsync } = useMutation({
     mutationFn: async (param: LoginRequest) => {
       // 로그인 API 호출
@@ -101,7 +101,12 @@ export const useLogoutUser = () => {
       return { message: '로그아웃 되었습니다.' };
     },
     onSuccess: (data) => {
-      Alert.alert('로그아웃', data.message);
+      Alert.alert('로그아웃', data.message, [
+        {
+          text: '확인',
+          onPress: () => useAuthStore.getState().clearUser()
+        }
+      ], { cancelable: false });
     },
     onError: async (error: unknown) => {
       if(error instanceof ApiError) {

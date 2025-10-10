@@ -3,16 +3,16 @@ import { useAuthStore } from '../../store';
 import { useEffect, useState } from 'react';
 import type { UserProfileUpdateFields } from '../../schemas';
 import { UserProfileUpdateSchema } from '../../schemas';
-import * as ImagePicker from 'expo-image-picker';
-import { useCheckDuplicateNickname, useUpdateProfile } from '../../hooks';
-import { ProfileImage, FormInput, FormInputWithButton } from '../../components';
-import { ApiError } from '../../errors/ApiError';
+import { useCheckDuplicateNickname, useImagePicker, useUpdateProfile } from '../../hooks';
+import { FormInput, FormInputWithButton } from '../../components';
+import { getDateTimeString } from '../../utils';
+import { User } from '../../types';
+import { Image } from 'expo-image';
 
 export const ProfileEditScreen = () => {
-  const { user } = useAuthStore((state) => state);
+  const user = useAuthStore((state) => state.user) as User;
   const [nickname, setNickname] = useState<string>('');
   const [introduction, setIntroduction] = useState<string>('');
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isNicknameChecked, setIsNicknameChecked] = useState<boolean>(true);
   // 각 필드별 에러 상태
   const [errors, setErrors] = useState<UserProfileUpdateFields>({});
@@ -43,38 +43,31 @@ export const ProfileEditScreen = () => {
     return errorMessage === '';
   };
 
-  // 이미지 선택 함수
-  const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'images', // 'images' | 'videos' | 'livePhotos'
-      quality: 1,
-      allowsEditing: true,
-    });
-    if(!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
-    }
-  }
-
   // 프로필 수정
   const { updateProfile } = useUpdateProfile();
+  const { imageUri, pickImage, removeImage } = useImagePicker();
   const handleUpdateProfile = async () => {
     // 1. Zod 스키마의 해당 필드 검증
     const result = UserProfileUpdateSchema.safeParse({
       nickname,
       introduction,
-      profileImage: selectedImage,
+      profileImage: imageUri,
     });
     if (!result.success) {
       Alert.alert('입력 오류', result.error.issues[0].message);
+      return;
     }
 
     const formData = new FormData();
-    formData.append('nickname', nickname);
-    formData.append('introduction', introduction);
-    if(selectedImage) {
+    formData.append('nickname', result.data.nickname);
+    if(result.data.introduction) {
+      formData.append('introduction', result.data.introduction);
+    }
+    if(result.data.profileImage) {
+      const dateTimeString = getDateTimeString();
       formData.append('profileImage', {
-        uri: selectedImage,
-        name: 'profile_' + user?.userId + ".jpg",
+        uri: result.data.profileImage,
+        name: 'profile_' + dateTimeString + '.jpg',
         type: 'image/jpeg',
       } as any)
     }
@@ -82,7 +75,7 @@ export const ProfileEditScreen = () => {
     await updateProfile(formData, {
       onSuccess: () => {
         // 이미지 선택 초기화 -> 버튼 비활성화
-        setSelectedImage(null);
+        removeImage();
       },
     })
   }
@@ -103,17 +96,19 @@ export const ProfileEditScreen = () => {
   // 닉네임이 변경되었고, 중복확인이 되어야 활성화
   // 자기소개가 변경되었거나, 이미지가 변경되었을 때 활성화
   const isSaveEnabled = (
-    (nickname !== user?.nickname && isNicknameChecked) ||
-    introduction !== (user?.introduction ?? '') ||
-    selectedImage !== null
+    (nickname !== user.nickname && isNicknameChecked) ||
+    introduction !== (user.introduction ?? '') ||
+    imageUri !== null
   );
 
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.profileImageButton} onPress={pickImage}>
-        <ProfileImage
-          size={80}
-          uri={selectedImage ?? user?.profileImageUrl}
+        <Image
+          style={{ width: '100%', height: '100%' }}
+          source={{ uri: imageUri ?? user?.profileImageUrl ?? undefined }}
+          placeholder={require('@assets/user.png')}
+          cachePolicy={"none"}
         />
       </TouchableOpacity>
       <FormInputWithButton
@@ -164,6 +159,10 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   profileImageButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    overflow: 'hidden',
     alignSelf: 'center',
     marginBottom: 20,
   },

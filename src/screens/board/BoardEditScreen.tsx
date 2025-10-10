@@ -20,11 +20,11 @@ import { useNavigation } from '@react-navigation/native';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useCreateBoard, useImagePicker } from '../../hooks';
 import { BoardCreateSchema } from '../../schemas';
-import { getDateTimeString } from '../../utils/dateUtils';
+import { getDateTimeString } from '../../utils';
 import { useAuthStore } from '../../store';
 
 export const BoardEditScreen = ({ board }: { board?: Board }) => {
-  const { user } = useAuthStore((state) => state);
+  const user = useAuthStore((state) => state.user) as User;
 
   const [title, setTitle] = useState<string>(board?.title ?? '');
   const [content, setContent] = useState<string>(board?.content ?? '');
@@ -60,7 +60,7 @@ export const BoardEditScreen = ({ board }: { board?: Board }) => {
     }
     // formData로 변환
     const formData = new FormData();
-    formData.append('userId', (user as User).userId.toString())
+    formData.append('userId', user.userId.toString())
     formData.append('title', result.data.title);
     formData.append('content', result.data.content);
     formData.append('category', result.data.category);
@@ -213,6 +213,7 @@ const styles  = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: 'bold',
+    marginBottom: 10,
   },
   titleInput: {
     borderWidth: 0,

@@ -1,16 +1,19 @@
-import { AppStackScreenProps, Board } from '../../types';
+import { AppStackScreenProps, Board, User } from '../../types';
 import { View, Text, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { useNavigation } from '@react-navigation/native';
 import { ProfileImage } from '../../components';
 import { Ionicons } from '@expo/vector-icons/';
-import { useAuthStore } from '../../store';
+import { useAuthStore, useEllipsisModalStore } from '../../store';
+import { getMenuOptions } from '../../utils';
 
 export const BoardPreview = ({ board }: { board: Board }) => {
-  const { user } = useAuthStore((state) => state);
+  const user = useAuthStore((state) => state.user) as User;
   const navigation = useNavigation<AppStackScreenProps>()
   const boardCreateDate = new Date(board.createDate);
   const formatted = boardCreateDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
+
+  const { show: showEllipsisModal, setMenuOptions } = useEllipsisModalStore((state) => state);
 
   return (
     <Pressable
@@ -31,7 +34,10 @@ export const BoardPreview = ({ board }: { board: Board }) => {
               <Text style={styles.followButtonText}>팔로우</Text>
             </TouchableOpacity>
           )}
-          <Pressable style={{ marginHorizontal: 8 }}>
+          <Pressable style={{ marginHorizontal: 4 }} onPress={() => {
+            setMenuOptions(getMenuOptions(board, user, navigation));
+            showEllipsisModal();
+          }}>
             <Ionicons name="ellipsis-vertical" size={24} color="black" />
           </Pressable>
         </View>
@@ -45,7 +51,10 @@ export const BoardPreview = ({ board }: { board: Board }) => {
           <Image
             style={styles.thumbnailImage}
             source={board.thumbnailImageUrl ? { uri: board.thumbnailImageUrl } : null}
+            placeholder={require('@assets/event2.png')}
+            transition={300}
             contentFit="cover"
+            cachePolicy={"disk"}
           />
         </View>
       </View>

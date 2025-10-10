@@ -2,8 +2,10 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import type { AppStackScreenProps, User } from '../../types';
 import { ProfileImage } from '../../components';
 import { useNavigation } from '@react-navigation/native';
+import { useAuthStore } from '../../store';
 
-export const ProfileBox = ({ user }: { user: User; }) => {
+export const ProfileBox = () => {
+  const user = useAuthStore((state) => state.user) as User;
   const navigation = useNavigation<AppStackScreenProps>();
   return (
     <View style={styles.container}>
