@@ -70,7 +70,7 @@ export class UserService {
 
   // 프로필 이미지 업로드
   async uploadProfileImage(file: Express.Multer.File, userId: number): Promise<string> {
-    const filePath = saveFileToDist(file, 'profile-images');
+    const filePath = saveFileToDist(file, 'user' + '/' + userId);
     const baseurl = this.configService.get<string>('BASE_URL');
     const imgUrl = baseurl + '/' + filePath;
     await this.userRepository.update({ userId }, { profileImageUrl: imgUrl });
