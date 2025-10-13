@@ -27,6 +27,7 @@ export const ProfileImage = ({
           source={uri ? { uri } : null}
           cachePolicy={"none"}
           placeholder={defaultUserImage}
+          transition={300}
           {...restProps}
         />
     </Pressable>
