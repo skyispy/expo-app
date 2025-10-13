@@ -20,7 +20,7 @@ export const LoginScreen = () => {
     const param = { email, password, keepLogin };
     const result = UserLoginSchema.safeParse(param);
     if (!result.success) {
-      Alert.alert('로그인 실패', result.error.message);
+      Alert.alert('로그인 실패', result.error.issues[0].message);
       return;
     }
 
