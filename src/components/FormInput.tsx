@@ -148,6 +148,5 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     color: '#999',
     fontSize: 12,
-    marginTop: 8,
   },
 });

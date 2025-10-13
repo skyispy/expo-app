@@ -6,6 +6,7 @@ import { useLoginUser } from '../../hooks';
 import { UserLoginSchema } from '../../schemas';
 import CheckBox from 'expo-checkbox';
 import { FormInput } from '../../components';
+import { KeyboardLayout } from '../../layout';
 
 export const LoginScreen = () => {
   const stackNav = useNavigation<SignStackScreenProps>();
@@ -28,36 +29,38 @@ export const LoginScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <FormInput label="이메일" value={email} onChangeText={setEmail} />
-      <FormInput
-        label="비밀번호"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry={true}
-      />
-      <View style={styles.keepLoginContainer}>
-        <CheckBox
-          value={keepLogin}
-          onValueChange={setKeepLogin}
-          color={keepLogin ? '#6A49E9' : undefined}
-          style={styles.checkBox}
+    <KeyboardLayout>
+      <View style={styles.container}>
+        <FormInput label="이메일" value={email} onChangeText={setEmail} />
+        <FormInput
+          label="비밀번호"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={true}
         />
-        <Text style={styles.keepLoginText}>로그인 상태 유지</Text>
+        <View style={styles.keepLoginContainer}>
+          <CheckBox
+            value={keepLogin}
+            onValueChange={setKeepLogin}
+            color={keepLogin ? '#6A49E9' : undefined}
+            style={styles.checkBox}
+          />
+          <Text style={styles.keepLoginText}>로그인 상태 유지</Text>
+        </View>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>로그인</Text>
+        </TouchableOpacity>
+        <View style={styles.linkContainer}>
+          <Text style={styles.linkText}>아이디 찾기</Text>
+          <View style={styles.separator} />
+          <Text style={styles.linkText}>비밀번호 찾기</Text>
+          <View style={styles.separator} />
+          <Text onPress={() => stackNav.navigate('Signup')} style={styles.linkText}>
+            회원가입
+          </Text>
+        </View>
       </View>
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>로그인</Text>
-      </TouchableOpacity>
-      <View style={styles.linkContainer}>
-        <Text style={styles.linkText}>아이디 찾기</Text>
-        <View style={styles.separator} />
-        <Text style={styles.linkText}>비밀번호 찾기</Text>
-        <View style={styles.separator} />
-        <Text onPress={() => stackNav.navigate('Signup')} style={styles.linkText}>
-          회원가입
-        </Text>
-      </View>
-    </View>
+    </KeyboardLayout>
   );
 };
 

@@ -22,6 +22,7 @@ import { useCreateBoard, useImagePicker } from '../../hooks';
 import { BoardCreateSchema } from '../../schemas';
 import { getDateTimeString } from '../../utils';
 import { useAuthStore } from '../../store';
+import { KeyboardLayout } from '../../layout';
 
 export const BoardEditScreen = ({ board }: { board?: Board }) => {
   const user = useAuthStore((state) => state.user) as User;
@@ -96,28 +97,8 @@ export const BoardEditScreen = ({ board }: { board?: Board }) => {
     })
   }, [navigation, saveBoard]);
 
-  // keyboardVerticalOffset로 인한 화면 올림 처리
-  useEffect(() => {
-    const showSub = Keyboard.addListener('keyboardDidShow', () => {
-      // 키보드 올라옴
-      setKeyboardOffset(bottom + headerHeight)
-    });
-    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
-      // 키보드 내려감
-      setKeyboardOffset(0)
-    });
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
-  }, []);
-
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={keyboardOffset}
-    >
+    <KeyboardLayout>
       <ScrollView
         style={[styles.container]}
         contentContainerStyle={{ paddingBottom: bottom, flexGrow: 1 }}
@@ -164,7 +145,7 @@ export const BoardEditScreen = ({ board }: { board?: Board }) => {
           scrollEnabled={false}
         />
       </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardLayout>
   );
 }
 

@@ -1,10 +1,11 @@
-import { StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Alert, ScrollView } from 'react-native';
 import { useState } from 'react';
 import type { SignupRequest } from '../../types';
 import { useCheckDuplicateNickname, useSignupUser } from '../../hooks';
 import { UserSignupSchema } from '../../schemas';
 import type { UserSignupFields } from '../../schemas';
 import { FormInput, FormInputWithButton } from '../../components';
+import { KeyboardLayout } from '../../layout';
 
 export const SignupScreen = () => {
   const [nickname, setNickname] = useState<string>('');
@@ -73,67 +74,72 @@ export const SignupScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <FormInput
-        label="이메일"
-        value={email}
-        onChangeText={(text: string) => {
-          setEmail(text);
-          validate('email', text);
-        }}
-        error={errors.email}
-      />
-      <FormInputWithButton
-        label="닉네임"
-        value={nickname}
-        onChangeText={(text: string) => {
-          setNickname(text);
-          validate('nickname', text);
-          setIsNicknameChecked(false);
-        }}
-        error={errors.nickname}
-        buttonLabel={isNicknameChecked ? '완료' : '중복확인'}
-        onButtonPress={handleCheckDuplicateNickname}
-        disabled={isNicknameChecked}
-      />
-      <FormInput
-        label="비밀번호"
-        value={password}
-        onChangeText={(text: string) => {
-          setPassword(text);
-          validate('password', text);
-        }}
-        error={errors.password}
-        secureTextEntry={true}
-      />
-      <FormInput
-        label="비밀번호 확인"
-        value={confirmPassword}
-        onChangeText={(text: string) => {
-          setConfirmPassword(text);
-          validate('confirmPassword', text);
-        }}
-        error={errors.confirmPassword}
-        secureTextEntry={true}
-      />
-      <TouchableOpacity
-        style={hasError ? [styles.button, { backgroundColor: 'gray' }] : styles.button}
-        onPress={handleSignup}
-        disabled={hasError}
+    <KeyboardLayout>
+      <ScrollView
+        style={{ flex: 1, backgroundColor: '#fff' }}
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.buttonText}>회원가입</Text>
-      </TouchableOpacity>
-    </View>
+        <FormInput
+          label="이메일"
+          value={email}
+          onChangeText={(text: string) => {
+            setEmail(text);
+            validate('email', text);
+          }}
+          error={errors.email}
+        />
+        <FormInputWithButton
+          label="닉네임"
+          value={nickname}
+          onChangeText={(text: string) => {
+            setNickname(text);
+            validate('nickname', text);
+            setIsNicknameChecked(false);
+          }}
+          error={errors.nickname}
+          buttonLabel={isNicknameChecked ? '완료' : '중복확인'}
+          onButtonPress={handleCheckDuplicateNickname}
+          disabled={isNicknameChecked}
+        />
+        <FormInput
+          label="비밀번호"
+          value={password}
+          onChangeText={(text: string) => {
+            setPassword(text);
+            validate('password', text);
+          }}
+          error={errors.password}
+          secureTextEntry={true}
+        />
+        <FormInput
+          label="비밀번호 확인"
+          value={confirmPassword}
+          onChangeText={(text: string) => {
+            setConfirmPassword(text);
+            validate('confirmPassword', text);
+          }}
+          error={errors.confirmPassword}
+          secureTextEntry={true}
+        />
+        <TouchableOpacity
+          style={hasError ? [styles.button, { backgroundColor: 'gray' }] : styles.button}
+          onPress={handleSignup}
+          disabled={hasError}
+        >
+          <Text style={styles.buttonText}>회원가입</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardLayout>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
     paddingHorizontal: 40,
     paddingTop: 40,
     gap: 16,
+    paddingBottom: 20
   },
   button: {
     backgroundColor: '#6A49E9',

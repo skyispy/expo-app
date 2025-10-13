@@ -8,6 +8,7 @@ import { FormInput, FormInputWithButton } from '../../components';
 import { getDateTimeString } from '../../utils';
 import { User } from '../../types';
 import { Image } from 'expo-image';
+import { KeyboardLayout } from '../../layout';
 
 export const ProfileEditScreen = () => {
   const user = useAuthStore((state) => state.user) as User;
@@ -102,52 +103,54 @@ export const ProfileEditScreen = () => {
   );
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.profileImageButton} onPress={pickImage}>
-        <Image
-          style={{ width: '100%', height: '100%' }}
-          source={{ uri: imageUri ?? user?.profileImageUrl ?? undefined }}
-          placeholder={require('@assets/user.png')}
-          cachePolicy={"none"}
+    <KeyboardLayout>
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.profileImageButton} onPress={pickImage}>
+          <Image
+            style={{ width: '100%', height: '100%' }}
+            source={{ uri: imageUri ?? user?.profileImageUrl ?? undefined }}
+            placeholder={require('@assets/user.png')}
+            cachePolicy={"none"}
+          />
+        </TouchableOpacity>
+        <FormInputWithButton
+          label="닉네임"
+          value={nickname}
+          onChangeText={(text: string) => {
+            setNickname(text);
+            validate('nickname', text);
+            setIsNicknameChecked(text === user?.nickname);
+          }}
+          error={errors.nickname}
+          buttonLabel={isNicknameChecked ? '완료' : '중복확인'}
+          onButtonPress={handleCheckDuplicateNickname}
+          disabled={isNicknameChecked}
+          style={[styles.textarea, { flex: 1 }]}
         />
-      </TouchableOpacity>
-      <FormInputWithButton
-        label="닉네임"
-        value={nickname}
-        onChangeText={(text: string) => {
-          setNickname(text);
-          validate('nickname', text);
-          setIsNicknameChecked(text === user?.nickname);
-        }}
-        error={errors.nickname}
-        buttonLabel={isNicknameChecked ? '완료' : '중복확인'}
-        onButtonPress={handleCheckDuplicateNickname}
-        disabled={isNicknameChecked}
-        style={[styles.textarea, { flex: 1 }]}
-      />
-      <FormInput
-        label="자기소개"
-        value={introduction}
-        onChangeText={(text) => {
-          if(validate('introduction', text)) {
-            setIntroduction(text);
-          }
-        }}
-        style={[styles.textarea, { height: 100, textAlignVertical: 'top' }]}
-        multiline={true}
-        numberOfLines={4}
-        placeholder="자신을 알릴 수 있는 소개글을 작성해 주세요."
-        placeholderTextColor="#999999"
-        maxLength={35}
-      />
-      <TouchableOpacity
-        style={isSaveEnabled ? styles.button : [styles.button, { backgroundColor: 'gray' }]}
-        onPress={handleUpdateProfile}
-        disabled={!isSaveEnabled}
-      >
-        <Text style={styles.buttonText}>저장</Text>
-      </TouchableOpacity>
-    </View>
+        <FormInput
+          label="자기소개"
+          value={introduction}
+          onChangeText={(text) => {
+            if(validate('introduction', text)) {
+              setIntroduction(text);
+            }
+          }}
+          style={[styles.textarea, { height: 100, textAlignVertical: 'top' }]}
+          multiline={true}
+          numberOfLines={4}
+          placeholder="자신을 알릴 수 있는 소개글을 작성해 주세요."
+          placeholderTextColor="#999999"
+          maxLength={35}
+        />
+        <TouchableOpacity
+          style={isSaveEnabled ? styles.button : [styles.button, { backgroundColor: 'gray' }]}
+          onPress={handleUpdateProfile}
+          disabled={!isSaveEnabled}
+        >
+          <Text style={styles.buttonText}>저장</Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardLayout>
   );
 };
 
