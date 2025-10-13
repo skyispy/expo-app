@@ -1,5 +1,5 @@
 import { useMutation, useInfiniteQuery } from '@tanstack/react-query';
-import { ApiResponse, Board, GetBoardListResponse } from '../types';
+import { ApiResponse, Board, Comment, InfiniteQueryResponse } from '../types';
 import apiClient from '../api/config';
 import { ApiError } from '../errors/ApiError';
 
@@ -8,7 +8,7 @@ export const useGetBoardList = (category: string, limit?: number, page?: number)
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteQuery({
     queryKey: ['boardList', category],
     queryFn: async ({ pageParam }) => {
-      const response: ApiResponse<GetBoardListResponse> = await apiClient.get('/board', {
+      const response: ApiResponse<InfiniteQueryResponse<Board>> = await apiClient.get('/board', {
         params: { category, page: pageParam, limit },
       });
       return response.data.result;
@@ -17,7 +17,7 @@ export const useGetBoardList = (category: string, limit?: number, page?: number)
     getNextPageParam: (lastPage) => lastPage.nextPage,
   });
 
-  const boardList = data?.pages.flatMap(page => page.boardList);
+  const boardList = data?.pages.flatMap(page => page.itemList);
 
   return {
     boardList,
@@ -48,3 +48,22 @@ export const useCreateBoard = () => {
 }
 
 // 게시글 수정
+
+// 댓글 목록 조회
+export const useGetCommentList = (boardId: number) => {
+  const { data, fetchNextPage, refetch } = useInfiniteQuery({
+    queryKey: ['commentList', boardId],
+    queryFn: async ({ pageParam }) => {
+      const response: ApiResponse<InfiniteQueryResponse<Comment>> = await apiClient.get(`/board/comment`, {
+        params: { boardId, page: pageParam, limit: 10 },
+      });
+      return response.data.result;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+  });
+
+  const commentList = data?.pages.flatMap(page => page.itemList);
+
+  return { commentList, commentFetchNextPage: fetchNextPage, commentRefetch: refetch };
+}

@@ -29,7 +29,8 @@ export type TokenRefreshResponse = {
   refreshToken: string;
 }
 
-export type GetBoardListResponse = {
-  boardList: Board[];
+export type InfiniteQueryResponse<T> = {
+  itemList: T[];
   nextPage: number | null;
+  totalCount: number;
 }

@@ -31,3 +31,16 @@ export type Board = {
   // 댓글 수
   commentCount: number;
 }
+
+export type Comment = {
+  commentId: number;
+  targetId: number; // 댓글이 달린 대상 ID
+  targetType: string; // 댓글이 달린 대상 타입 (게시글 또는 댓글)
+  user: User; // 댓글 작성자 정보
+  content: string; // 댓글 내용
+  likes: number; // 댓글 좋아요 수
+  dislikes: number; // 댓글 싫어요 수
+  status: string; // 댓글 상태 (예: 'active', 'deleted' 등)
+  createDate: string; // 댓글 작성일
+  updateDate: string; // 댓글 수정일
+}
