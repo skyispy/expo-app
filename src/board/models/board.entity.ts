@@ -59,8 +59,4 @@ export class BoardEntity {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   updateDate: Date;
-
-  // 댓글들 (OneToMany 관계 설정)
-  @OneToMany(() => CommentEntity, (comment) => comment.board)
-  comments: CommentEntity[];
 }

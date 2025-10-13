@@ -7,9 +7,11 @@ export class CommentEntity {
   @PrimaryGeneratedColumn()
   commentId: number;
 
-  @ManyToOne(() => BoardEntity, (board) => board.comments, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'boardId' })
-  board: BoardEntity;
+  @Column()
+  targetId: number;
+
+  @Column()
+  targetType: string; // 'board' 또는 'comment'
 
   // 댓글 작성자
   @ManyToOne(() => UserEntity, (user) => user.comments, { onDelete: 'CASCADE' })
@@ -27,6 +29,10 @@ export class CommentEntity {
   // 싫어요
   @Column()
   dislikes: number;
+
+  // 댓글 상태
+  @Column()
+  status: string; // 'active', 'deleted' 등
 
   // 작성 일자
   @Column({
