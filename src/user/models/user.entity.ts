@@ -1,7 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { RefreshTokensEntity } from '../../auth/models';
 import { BoardEntity } from '../../board/models';
-import { CommentEntity } from '../../board/models';
+import { CommentEntity } from '../../common/models';
 
 @Entity('USER')
 export class UserEntity {

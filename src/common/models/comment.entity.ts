@@ -1,5 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { BoardEntity } from './board.entity';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { UserEntity } from '../../user/models';
 
 @Entity('COMMENT')
@@ -7,9 +6,11 @@ export class CommentEntity {
   @PrimaryGeneratedColumn()
   commentId: number;
 
+  // 대상 ID (boardId)
   @Column()
   targetId: number;
 
+  // 댓글 타입
   @Column()
   targetType: string; // 'board' 또는 'comment'
 
@@ -23,16 +24,28 @@ export class CommentEntity {
   content: string;
 
   // 좋아요
-  @Column()
+  @Column({ default: 0 })
   likes: number;
 
   // 싫어요
-  @Column()
+  @Column({ default: 0 })
   dislikes: number;
 
   // 댓글 상태
-  @Column()
+  @Column({ default: 'active' })
   status: string; // 'active', 'deleted' 등
+
+  // 부모 댓글
+  @ManyToOne(() => CommentEntity, (comment) => comment.children, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'parentCommentId' })
+  parent?: CommentEntity;
+
+  // 대댓글
+  @OneToMany(() => CommentEntity, (comment) => comment.parent)
+  children?: CommentEntity[];
 
   // 작성 일자
   @Column({

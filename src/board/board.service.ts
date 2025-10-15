@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BoardEntity, CommentEntity } from './models';
+import { BoardEntity } from './models';
 import { Repository } from 'typeorm';
 import type { BoardCreateDto } from './dto/board.dto';
 import { ConfigService } from '@nestjs/config';
@@ -11,7 +11,6 @@ import { UserService } from '../user/user.service';
 export class BoardService {
   constructor(
     @InjectRepository(BoardEntity) private readonly boardRepository: Repository<BoardEntity>,
-    @InjectRepository(CommentEntity) private readonly commentRepository: Repository<CommentEntity>,
     private readonly userService: UserService,
     private readonly configService: ConfigService,
   ) {}
@@ -53,27 +52,5 @@ export class BoardService {
     const filePath = saveFileToDist(file, 'board/' + boardId);
     const baseurl = this.configService.get<string>('BASE_URL');
     await this.boardRepository.update({ boardId }, { thumbnailImageUrl: baseurl + '/' + filePath });
-  }
-
-  // 댓글 개수 조회
-  async countCommentListByBoardId(boardId: number): Promise<number> {
-    return await this.commentRepository.count({
-      where: { targetType: 'board', targetId: boardId },
-    });
-  }
-
-  // 댓글 목록 조회
-  async getCommentListByBoardId(
-    boardId: number,
-    page: number,
-    limit: number,
-  ): Promise<CommentEntity[]> {
-    return await this.commentRepository.find({
-      where: { targetType: 'board', targetId: boardId },
-      relations: ['user'],
-      order: { createDate: 'ASC' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
   }
 }

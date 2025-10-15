@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { UserEntity } from '../../user/models';
-import { CommentEntity } from './comment.entity';
+import { CommentEntity } from '../../common/models/comment.entity';
 
 @Entity('BOARD')
 export class BoardEntity {

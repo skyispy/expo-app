@@ -5,20 +5,28 @@ import {
   Logger,
   Post,
   Query,
+  Req,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { BoardService } from './board.service';
 import type { BoardCreateDto, BoardResponseDto } from './dto/board.dto';
 import { BoardCreateSchema, BoardResponseSchema } from './dto/board.schema';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CommentResponseDto } from './dto/comment.dto';
-import { CommentResponseSchema } from './dto/comment.schema';
+import type { CommentResponseDto, CommentCreateDto } from '../common/dto/comment.dto';
+import { CommentCreateSchema, CommentResponseSchema } from '../common/dto/comment.schema';
 import { InfiniteQueryResponse } from '../common/dto/response.dto';
+import { JwtAuthGuard, UserPayload } from '../auth/guards';
+import type { Request } from 'express';
+import { CommonService } from '../common/common.service';
 
 @Controller('board')
 export class BoardController {
-  constructor(private readonly boardService: BoardService) {}
+  constructor(
+    private readonly boardService: BoardService,
+    private readonly commonService: CommonService,
+  ) {}
   private readonly logger = new Logger(BoardController.name);
 
   @Get('/')
@@ -33,7 +41,10 @@ export class BoardController {
     const boardList = await this.boardService.selectBoardList(category, page, limit);
     const addCommentCount = await Promise.all(
       boardList.map(async (board) => {
-        const commentCount = await this.boardService.countCommentListByBoardId(board.boardId);
+        const commentCount = await this.commonService.countCommentListByTarget(
+          board.boardId,
+          'board',
+        );
         return { ...board, commentCount };
       }),
     );
@@ -60,6 +71,22 @@ export class BoardController {
     }
   }
 
+  // 댓글 생성
+  @Post('/comment')
+  @UseGuards(JwtAuthGuard)
+  async createComment(
+    @Req() req: Request,
+    @Body() commentCreateDto: CommentCreateDto,
+  ): Promise<void> {
+    const { userId } = req.user as UserPayload;
+    const validateRequest = CommentCreateSchema.safeParse(commentCreateDto);
+    if (!validateRequest.success) {
+      this.logger.warn('댓글 생성 요청 데이터 검증 실패', validateRequest.error);
+      throw new Error('Invalid comment data');
+    }
+    await this.commonService.createComment(commentCreateDto, userId);
+  }
+
   // 댓글 목록 조회
   @Get('/comment')
   async getComments(
@@ -69,12 +96,17 @@ export class BoardController {
   ): Promise<InfiniteQueryResponse<CommentResponseDto>> {
     page = Number(page);
     limit = Number(limit);
-    const commentList = await this.boardService.getCommentListByBoardId(boardId, page, limit);
+    const commentList = await this.commonService.getCommentListByTarget(
+      boardId,
+      'board',
+      page,
+      limit,
+    );
     const validateCommentList = commentList
       .map((comment) => CommentResponseSchema.safeParse(comment))
       .filter((result) => result.success)
       .map((result) => result.data);
-    const totalCount = await this.boardService.countCommentListByBoardId(boardId);
+    const totalCount = await this.commonService.countCommentListByTarget(boardId, 'board');
     const hasNextPage = page * limit < totalCount;
     return {
       itemList: validateCommentList,
