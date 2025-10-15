@@ -9,3 +9,11 @@ export const BoardCreateSchema = z.object({
   startDate: z.date().optional(),
   endDate: z.date().optional(),
 })
+
+// 댓글 생성 스키마
+export const CommentCreateSchema = z.object({
+  content: z.string().min(1, '댓글 내용을 입력해주세요.').max(500, '댓글은 최대 500자입니다.'),
+  targetId: z.number().min(1, '유효한 게시판 ID가 필요합니다.'),
+  targetType: z.string(),
+  parentCommentId: z.number().optional(),
+})

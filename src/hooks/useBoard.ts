@@ -1,5 +1,5 @@
 import { useMutation, useInfiniteQuery } from '@tanstack/react-query';
-import { ApiResponse, Board, Comment, InfiniteQueryResponse } from '../types';
+import { ApiResponse, Board, Comment, CommentCreateRequest, InfiniteQueryResponse } from '../types';
 import apiClient from '../api/config';
 import { ApiError } from '../errors/ApiError';
 
@@ -48,6 +48,23 @@ export const useCreateBoard = () => {
 }
 
 // 게시글 수정
+
+// 댓글 생성
+export const useCreateComment = () => {
+  const { mutateAsync } = useMutation({
+    mutationFn: async (param: CommentCreateRequest) => {
+      const response: ApiResponse<null> = await apiClient.post('/board/comment', param);
+      return response.data.result;
+    },
+    onError: (err) => {
+      if(err instanceof ApiError) {
+        console.error('useCreateComment -> Failed to create comment', err.message);
+      }
+    }
+  });
+
+  return { createComment: mutateAsync };
+}
 
 // 댓글 목록 조회
 export const useGetCommentList = (boardId: number) => {

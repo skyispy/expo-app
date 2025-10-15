@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ProfileImage } from '../../components';
 import { Ionicons } from '@expo/vector-icons/';
 import { useAuthStore, useEllipsisModalStore } from '../../store';
-import { getMenuOptions } from '../../utils';
+import { getBoardMenuOptions, timeSince } from '../../utils';
 
 export const BoardPreview = ({ board }: { board: Board }) => {
   const user = useAuthStore((state) => state.user) as User;
@@ -25,7 +25,7 @@ export const BoardPreview = ({ board }: { board: Board }) => {
           <ProfileImage wrapperStyle={styles.profileImageContainer} uri={board.user.profileImageUrl} size={50} />
           <View style={styles.profileTextContainer}>
             <Text style={styles.nickname}>{board.user.nickname}</Text>
-            <Text style={styles.boardCreateDate}>{formatted}</Text>
+            <Text style={styles.boardCreateDate}>{timeSince(board.createDate, board.updateDate)}</Text>
           </View>
         </View>
         <View style={styles.actionContainer}>
@@ -35,7 +35,7 @@ export const BoardPreview = ({ board }: { board: Board }) => {
             </TouchableOpacity>
           )}
           <Pressable style={{ marginHorizontal: 4 }} onPress={() => {
-            setMenuOptions(getMenuOptions(board, user, navigation));
+            setMenuOptions(getBoardMenuOptions(board, user, navigation));
             showEllipsisModal();
           }}>
             <Ionicons name="ellipsis-vertical" size={24} color="black" />

@@ -1,5 +1,4 @@
 import {
-  KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
   Text,
@@ -7,17 +6,15 @@ import {
   View,
   Platform,
   Pressable,
-  Keyboard,
   Alert,
 } from 'react-native';
-import { useLayoutEffect, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Image } from 'expo-image';
 import { AppStackScreenProps, Board, User } from '../../types';
 import { FormInput } from '../../components';
 import { Ionicons } from '@expo/vector-icons/';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { useHeaderHeight } from '@react-navigation/elements';
 import { useCreateBoard, useImagePicker } from '../../hooks';
 import { BoardCreateSchema } from '../../schemas';
 import { getDateTimeString } from '../../utils';
@@ -30,11 +27,9 @@ export const BoardEditScreen = ({ board }: { board?: Board }) => {
   const [title, setTitle] = useState<string>(board?.title ?? '');
   const [content, setContent] = useState<string>(board?.content ?? '');
   const [contentHeight, setContentHeight] = useState<number>(0);
-  const [keyboardOffset, setKeyboardOffset] = useState<number>(0);
 
   const { bottom } = useSafeAreaInsets();
   const navigation = useNavigation<AppStackScreenProps>();
-  const headerHeight = useHeaderHeight();
 
   const { imageUri, pickImage, removeImage } = useImagePicker();
 
@@ -81,7 +76,7 @@ export const BoardEditScreen = ({ board }: { board?: Board }) => {
   }, [title, content, imageUri, createBoard, navigation]);
 
   // 헤더에 저장 버튼 추가
-  useLayoutEffect(() => {
+  useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <Pressable onPress={saveBoard}>

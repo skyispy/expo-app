@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { UserLoginSchema, UserSignupSchema } from '../schemas';
-import { Board, User } from './model';
+import { CommentCreateSchema, UserLoginSchema, UserSignupSchema } from '../schemas';
+import { User } from './model';
 
 export type ApiResponse<T> = {
   data: {
@@ -34,3 +34,5 @@ export type InfiniteQueryResponse<T> = {
   nextPage: number | null;
   totalCount: number;
 }
+
+export type CommentCreateRequest = z.infer<typeof CommentCreateSchema>;

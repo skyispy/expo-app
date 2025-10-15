@@ -1,6 +1,6 @@
 import type { Board, User } from '../types/';
 
-export const getMenuOptions = (board: Board, user: User, navigation: any) => {
+export const getBoardMenuOptions = (board: Board, user: User, navigation: any) => {
   const isAuthor = user?.userId === board.user.userId;
   return isAuthor ? [
     {
@@ -28,6 +28,34 @@ export const getMenuOptions = (board: Board, user: User, navigation: any) => {
       label: '팔로우하기',
       icon: 'person-add-outline',
       action: () => console.log('Follow author'),
+    },
+  ];
+}
+
+export const getCommentMenuOptions = (commentUser: User, user: User) => {
+  console.log(commentUser.userId, user.userId);
+  const isAuthor = user?.userId === commentUser.userId;
+  return isAuthor ? [
+    {
+      label: '댓글 수정',
+      icon: 'pencil-outline',
+      action: () => console.log('Edit comment'),
+    },
+    {
+      label: '댓글 삭제',
+      icon: 'trash-outline',
+      action: () => console.log('Delete comment'),
+    },
+  ] : [
+    {
+      label: '신고하기',
+      icon: 'flag-outline',
+      action: () => console.log('Report comment'),
+    },
+    {
+      label: '팔로우하기',
+      icon: 'person-add-outline',
+      action: () => console.log('Follow comment author'),
     },
   ];
 }
