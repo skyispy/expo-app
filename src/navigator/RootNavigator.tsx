@@ -4,6 +4,7 @@ import AppNavigator from './AppNavigator';
 import SignStackNavigator from './SignStackNavigator';
 import { useAuthStore } from '../store';
 import { useTokenLoginUser } from '../hooks';
+import { BottomBackground } from '../layout';
 
 const RootNavigator = () => {
   const { user, setUser, clearUser } = useAuthStore((state) => state);
@@ -34,6 +35,8 @@ const RootNavigator = () => {
 
   return (
     <NavigationContainer>
+      {/* 바텀 내비게이션 바 백그라운드 컴포넌트 */}
+      <BottomBackground />
       {user ? (
         <AppNavigator />
       ) : (
