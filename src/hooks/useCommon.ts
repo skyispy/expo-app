@@ -1,0 +1,41 @@
+// 댓글 생성
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
+import { ApiResponse, CommentCreateRequest, InfiniteQueryResponse, Comment } from '../types';
+import apiClient from '../api/config';
+import { ApiError } from '../errors/ApiError';
+
+export const useCreateComment = () => {
+  const { mutateAsync } = useMutation({
+    mutationFn: async (param: CommentCreateRequest) => {
+      const response: ApiResponse<null> = await apiClient.post('/common/comment', param);
+      return response.data.result;
+    },
+    onError: (err) => {
+      if(err instanceof ApiError) {
+        console.error('useCreateComment -> Failed to create comment', err.message);
+      }
+    }
+  });
+
+  return { createComment: mutateAsync };
+}
+
+// 댓글 목록 조회
+export const useGetCommentList = (targetType: string, targetId: number) => {
+  const { data, fetchNextPage, refetch } = useInfiniteQuery({
+    queryKey: ['commentList', targetType, targetId],
+    queryFn: async ({ pageParam }) => {
+      const response: ApiResponse<InfiniteQueryResponse<Comment>> = await apiClient.get(`/common/comment`, {
+        params: { targetType, targetId, page: pageParam, limit: 10 },
+      });
+      return response.data.result;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    enabled: !!targetId,
+  });
+
+  const commentList = data?.pages.flatMap(page => page.itemList);
+
+  return { commentList, commentFetchNextPage: fetchNextPage, commentRefetch: refetch };
+}

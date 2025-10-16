@@ -5,19 +5,18 @@ import { useNavigation } from '@react-navigation/native';
 import { ProfileImage } from '../../components';
 import { Ionicons } from '@expo/vector-icons/';
 import { useAuthStore, useEllipsisModalStore } from '../../store';
-import { getBoardMenuOptions, timeSince } from '../../utils';
+import { timeSince } from '../../utils';
+import { useBoardMenuOptions } from '../../hooks';
 
 export const BoardPreview = ({ board }: { board: Board }) => {
-  const user = useAuthStore((state) => state.user) as User;
   const navigation = useNavigation<AppStackScreenProps>()
-  const boardCreateDate = new Date(board.createDate);
-  const formatted = boardCreateDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
+  const user = useAuthStore((state) => state.user) as User;
+  const boardMenuOptions = useBoardMenuOptions(board, user);
 
   const { show: showEllipsisModal, setMenuOptions } = useEllipsisModalStore((state) => state);
-
   return (
     <Pressable
-      onPress={() => navigation.navigate('Board', { board })}
+      onPress={() => navigation.navigate('Board', { boardId: board.boardId })}
       style={styles.container}
     >
       <View style={styles.header}>
@@ -35,7 +34,7 @@ export const BoardPreview = ({ board }: { board: Board }) => {
             </TouchableOpacity>
           )}
           <Pressable style={{ marginHorizontal: 4 }} onPress={() => {
-            setMenuOptions(getBoardMenuOptions(board, user, navigation));
+            setMenuOptions(boardMenuOptions);
             showEllipsisModal();
           }}>
             <Ionicons name="ellipsis-vertical" size={24} color="black" />

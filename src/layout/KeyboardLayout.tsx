@@ -11,7 +11,7 @@ export const KeyboardLayout = ({ children }: { children: ReactNode }) => {
   // 오프셋 설정
   useEffect(() => {
     const showSub = Keyboard.addListener('keyboardDidShow', () => {
-      setKeyboardOffset(bottom + headerHeight);
+      setKeyboardOffset(70);
     });
     const hideSub = Keyboard.addListener('keyboardDidHide', () => {
       setKeyboardOffset(0);

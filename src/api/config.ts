@@ -33,7 +33,6 @@ apiClient.interceptors.response.use(
         // 401 에러 발생 시 토큰 갱신 시도
         return await refreshAccessToken(error, apiClient);
       } catch (err: unknown) {
-        console.log(err)
         // 에러 커스텀 에러로 내보내기
         if(axios.isAxiosError(err)) {
           const message = err.response?.data?.message || err.message;

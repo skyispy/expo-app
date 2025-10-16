@@ -1,7 +1,7 @@
 import { FlatList, View, StyleSheet } from 'react-native';
 import { useGetBoardList } from '../../hooks';
 import { BoardPreview } from '@screens/board/BoardPreview';
-import { EllipsisModal } from '../../components/EllipsisModal';
+import { EllipsisModal } from '../../components';
 import { useState } from 'react';
 
 export const BoardListScreen = () => {

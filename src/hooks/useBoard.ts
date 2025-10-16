@@ -1,4 +1,4 @@
-import { useMutation, useInfiniteQuery } from '@tanstack/react-query';
+import { useMutation, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { ApiResponse, Board, Comment, CommentCreateRequest, InfiniteQueryResponse } from '../types';
 import apiClient from '../api/config';
 import { ApiError } from '../errors/ApiError';
@@ -32,7 +32,7 @@ export const useGetBoardList = (category: string, limit?: number, page?: number)
 export const useCreateBoard = () => {
   const { mutateAsync } = useMutation({
     mutationFn: async (param: FormData) => {
-      const response: ApiResponse<Board> = await apiClient.post('/board', param, {
+      const response: ApiResponse<null> = await apiClient.post('/board', param, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data.result;
@@ -47,40 +47,36 @@ export const useCreateBoard = () => {
   return { createBoard: mutateAsync };
 }
 
-// 게시글 수정
+// 게시판 상세 조회
+export const useGetBoard = (boardId: number) => {
+  const { data, refetch } = useQuery({
+    queryKey: ['board', boardId],
+    queryFn: async () => {
+      console.log(boardId)
+      const response: ApiResponse<Board> = await apiClient.get(`/board/${boardId}`);
+      return response.data.result;
+    },
+    enabled: !!boardId,
+  })
 
-// 댓글 생성
-export const useCreateComment = () => {
+  return { board: data, boardRefetch: refetch };
+}
+
+// 게시글 수정
+export const useUpdateBoard = (boardId: number) => {
   const { mutateAsync } = useMutation({
-    mutationFn: async (param: CommentCreateRequest) => {
-      const response: ApiResponse<null> = await apiClient.post('/board/comment', param);
+    mutationFn: async (param: FormData) => {
+      const response: ApiResponse<Board> = await apiClient.put(`/board/${boardId}`, param, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       return response.data.result;
     },
     onError: (err) => {
       if(err instanceof ApiError) {
-        console.error('useCreateComment -> Failed to create comment', err.message);
+        console.error('useUpdateBoard -> Failed to update board', err.message);
       }
     }
   });
 
-  return { createComment: mutateAsync };
-}
-
-// 댓글 목록 조회
-export const useGetCommentList = (boardId: number) => {
-  const { data, fetchNextPage, refetch } = useInfiniteQuery({
-    queryKey: ['commentList', boardId],
-    queryFn: async ({ pageParam }) => {
-      const response: ApiResponse<InfiniteQueryResponse<Comment>> = await apiClient.get(`/board/comment`, {
-        params: { boardId, page: pageParam, limit: 10 },
-      });
-      return response.data.result;
-    },
-    initialPageParam: 1,
-    getNextPageParam: (lastPage) => lastPage.nextPage,
-  });
-
-  const commentList = data?.pages.flatMap(page => page.itemList);
-
-  return { commentList, commentFetchNextPage: fetchNextPage, commentRefetch: refetch };
+  return { updateBoard: mutateAsync };
 }

@@ -10,19 +10,22 @@ import {
 } from 'react-native';
 import { useState, useEffect, useCallback } from 'react';
 import { Image } from 'expo-image';
-import { AppStackScreenProps, Board, User } from '../../types';
+import { AppRouteScreenProps, AppStackScreenProps } from '../../types';
 import { FormInput } from '../../components';
 import { Ionicons } from '@expo/vector-icons/';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import { useCreateBoard, useImagePicker } from '../../hooks';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useCreateBoard, useImagePicker, useUpdateBoard } from '../../hooks';
 import { BoardCreateSchema } from '../../schemas';
 import { getDateTimeString } from '../../utils';
-import { useAuthStore } from '../../store';
 import { KeyboardLayout } from '../../layout';
+import { useQueryClient } from '@tanstack/react-query';
 
-export const BoardEditScreen = ({ board }: { board?: Board }) => {
-  const user = useAuthStore((state) => state.user) as User;
+export const BoardEditScreen = () => {
+  // 수정할 게시글 정보 (없으면 새 글 작성)
+  const route = useRoute<AppRouteScreenProps<'BoardEdit'>>();
+  const board = route?.params?.board;
+  const queryClient = useQueryClient();
 
   const [title, setTitle] = useState<string>(board?.title ?? '');
   const [content, setContent] = useState<string>(board?.content ?? '');
@@ -42,37 +45,54 @@ export const BoardEditScreen = ({ board }: { board?: Board }) => {
   }
 
   const { createBoard } = useCreateBoard();
+  const { updateBoard } = useUpdateBoard(board?.boardId ?? 0);
   // 저장 버튼 함수
   const saveBoard = useCallback(async () => {
-    const result = BoardCreateSchema.safeParse({
+    const { success, data, error } = BoardCreateSchema.safeParse({
       title,
       content,
       imageUrl: imageUri,
       category: 'free',
     });
-    if (!result.success) {
-      Alert.alert('입력 오류', result.error.message);
+    if (!success) {
+      Alert.alert('입력 오류', error.message);
       return;
     }
     // formData로 변환
     const formData = new FormData();
-    formData.append('userId', user.userId.toString())
-    formData.append('title', result.data.title);
-    formData.append('content', result.data.content);
-    formData.append('category', result.data.category);
+    formData.append('title', data.title);
+    formData.append('content', data.content);
+    formData.append('category', data.category);
 
-    if (result.data.imageUrl) {
+    if (data.imageUrl) {
       // 20250929180700 날짜시간 문자열 생성
       const dateTimeString = getDateTimeString();
       // 이미지가 있을 때만 추가
       formData.append('thumbnailImage', {
-        uri: result.data.imageUrl,
+        uri: data.imageUrl,
         name: 'thumbnail_' + dateTimeString + '.jpg',
         type: 'image/jpeg',
       } as any);
     }
-    await createBoard(formData);
-    navigation.goBack();
+    // 게시글 수정 or 생성
+    if (board?.boardId) {
+      const updateResult = await updateBoard(formData);
+      if (!updateResult) {
+        Alert.alert('게시글 수정 실패', '게시글 수정에 실패했습니다. 다시 시도해주세요.');
+        return;
+      }
+      // 수정한 게시글 캐시 업데이트
+      await queryClient.invalidateQueries({ queryKey: ['board', board.boardId] })
+      await queryClient.invalidateQueries({ queryKey: ['boardList', board.category] })
+      Alert.alert('게시글 수정 성공', '게시글이 수정되었습니다.', [
+        { text: '확인', onPress: () => navigation.goBack() }
+      ]);
+    } else {
+      await createBoard(formData);
+      Alert.alert('게시글 생성 성공', '게시글이 생성되었습니다.', [
+        { text: '확인', onPress: () => navigation.goBack() }
+      ]);
+    }
   }, [title, content, imageUri, createBoard, navigation]);
 
   // 헤더에 저장 버튼 추가
@@ -100,6 +120,14 @@ export const BoardEditScreen = ({ board }: { board?: Board }) => {
         nestedScrollEnabled={false}
         keyboardShouldPersistTaps="handled"
       >
+        {board?.thumbnailImageUrl && !imageUri && (
+          <>
+            <Text style={{ fontSize: 18, marginBottom: 8}}>현재 썸네일 이미지</Text>
+            <View style={styles.imageContainer}>
+              <Image style={styles.image} source={{ uri: board.thumbnailImageUrl }} />
+            </View>
+          </>
+        )}
         {!imageUri ? (
           <TouchableOpacity style={styles.selectImageButton} onPress={pickImage}>
             <Ionicons name="image" size={24} color="black" />

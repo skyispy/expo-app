@@ -26,7 +26,7 @@ export const EventBanner = () => {
               <Pressable
                 style={styles.itemImageContainer}
                 onPress={() =>
-                  navigation?.navigate('Board', { board: item } )
+                  navigation?.navigate('Board', { boardId: item.boardId } )
                 }
               >
                 <Image

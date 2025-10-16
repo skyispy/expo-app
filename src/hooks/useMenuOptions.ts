@@ -1,39 +1,42 @@
-import type { Board, User } from '../types/';
+import { AppStackScreenProps, Board, User } from '../types';
+import { useNavigation } from '@react-navigation/native';
 
-export const getBoardMenuOptions = (board: Board, user: User, navigation: any) => {
-  const isAuthor = user?.userId === board.user.userId;
+export const useBoardMenuOptions = (board: Board | undefined, user: User) => {
+  const isAuthor = user.userId === board?.user.userId;
+  const navigation = useNavigation<AppStackScreenProps>();
   return isAuthor ? [
     {
       label: '게시글 수정',
       icon: 'pencil-outline',
-      action: () => navigation.navigate('BoardEdit', { board }),
+      action: () => {
+        navigation.navigate('BoardEdit', { board })
+      },
     },
     {
       label: '게시글 삭제',
       icon: 'trash-outline',
-      action: () => console.log('Delete post'),
+      action: () => console.log(""),
     },
   ] : [
     {
       label: '신고하기',
       icon: 'flag-outline',
-      action: () => console.log('Report post'),
+      action: () => console.log(""),
     },
     {
       label: '게시글 공유',
       icon: 'share-social-outline',
-      action: () => console.log('Share post'),
+      action: () => console.log(""),
     },
     {
       label: '팔로우하기',
       icon: 'person-add-outline',
-      action: () => console.log('Follow author'),
+      action: () => console.log(""),
     },
   ];
 }
 
-export const getCommentMenuOptions = (commentUser: User, user: User) => {
-  console.log(commentUser.userId, user.userId);
+export const useCommentMenuOptions = (commentUser: User, user: User) => {
   const isAuthor = user?.userId === commentUser.userId;
   return isAuthor ? [
     {
