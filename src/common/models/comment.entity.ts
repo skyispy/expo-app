@@ -6,13 +6,13 @@ export class CommentEntity {
   @PrimaryGeneratedColumn()
   commentId: number;
 
-  // 대상 ID (boardId)
-  @Column()
-  targetId: number;
-
   // 댓글 타입
   @Column()
   targetType: string; // 'board' 또는 'comment'
+
+  // 대상 ID (boardId)
+  @Column()
+  targetId: number;
 
   // 댓글 작성자
   @ManyToOne(() => UserEntity, (user) => user.comments, { onDelete: 'CASCADE' })

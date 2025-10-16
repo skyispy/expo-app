@@ -25,12 +25,11 @@ export const BoardResponseSchema = z.object({
   createDate: z.date(),
   updateDate: z.date(),
   // 댓글 수
-  commentCount: z.number(),
+  commentCount: z.number().optional().nullable(),
 });
 
 // 게시판 생성 요청 스키마
 export const BoardCreateSchema = z.object({
-  userId: z.string().transform((val) => Number(val)),
   // 카테고리 (예: '공지사항', '자유게시판' 등)
   category: z.string().min(1, 'Category is required'),
   // 글 제목

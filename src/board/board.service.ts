@@ -6,6 +6,7 @@ import type { BoardCreateDto } from './dto/board.dto';
 import { ConfigService } from '@nestjs/config';
 import { saveFileToDist } from '../common/utils';
 import { UserService } from '../user/user.service';
+import { CommonService } from '../common/common.service';
 
 @Injectable()
 export class BoardService {
@@ -13,17 +14,34 @@ export class BoardService {
     @InjectRepository(BoardEntity) private readonly boardRepository: Repository<BoardEntity>,
     private readonly userService: UserService,
     private readonly configService: ConfigService,
+    private readonly commonService: CommonService,
   ) {}
 
   // 게시판 목록 조회 (카테고리별, 페이징)
-  async selectBoardList(category: string, page: number, limit: number): Promise<BoardEntity[]> {
-    return await this.boardRepository.find({
+  async selectBoardList(
+    category: string,
+    page: number,
+    limit: number,
+  ): Promise<(BoardEntity & { commentCount: number })[]> {
+    // 게시판 목록 조회
+    const boardList = await this.boardRepository.find({
       where: { category, status: 'active' },
       relations: ['user'],
       order: { createDate: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
     });
+    // 각 게시판에 댓글 개수 추가
+    return await Promise.all(
+      boardList.map(async (board) => {
+        // 댓글 개수 조회
+        const commentCount = await this.commonService.countCommentListByTarget(
+          board.boardId,
+          'board',
+        );
+        return { ...board, commentCount };
+      }),
+    );
   }
 
   // 게시판 전체 개수 조회 (카테고리별)
@@ -34,8 +52,8 @@ export class BoardService {
   }
 
   // 게시판 생성
-  async createBoard(boardCreateDto: BoardCreateDto): Promise<BoardEntity> {
-    const user = await this.userService.findUserById(boardCreateDto.userId);
+  async createBoard(boardCreateDto: BoardCreateDto, userId: number): Promise<BoardEntity> {
+    const user = await this.userService.findUserById(userId);
     if (!user) {
       throw new UnauthorizedException('존재하지 않는 사용자입니다.');
     }
@@ -45,6 +63,19 @@ export class BoardService {
       user,
     });
     return await this.boardRepository.save(newBoard);
+  }
+
+  // 게시판 상세 조회
+  async getBoardById(boardId: number): Promise<BoardEntity | null> {
+    return await this.boardRepository.findOne({
+      where: { boardId, status: 'active' },
+      relations: ['user'],
+    });
+  }
+
+  // 게시판 수정
+  async updateBoard(boardUpdateDto: BoardCreateDto, boardId: number): Promise<void> {
+    await this.boardRepository.update({ boardId }, { ...boardUpdateDto });
   }
 
   // 썸네일 이미지 업로드

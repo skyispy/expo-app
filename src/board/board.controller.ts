@@ -1,9 +1,12 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Logger,
+  Param,
   Post,
+  Put,
   Query,
   Req,
   UploadedFile,
@@ -39,16 +42,7 @@ export class BoardController {
     page = Number(page);
     limit = Number(limit);
     const boardList = await this.boardService.selectBoardList(category, page, limit);
-    const addCommentCount = await Promise.all(
-      boardList.map(async (board) => {
-        const commentCount = await this.commonService.countCommentListByTarget(
-          board.boardId,
-          'board',
-        );
-        return { ...board, commentCount };
-      }),
-    );
-    const validateBoardList = addCommentCount
+    const validateBoardList = boardList
       .map((board) => BoardResponseSchema.safeParse(board))
       .filter((result) => result.success)
       .map((result) => result.data);
@@ -58,60 +52,64 @@ export class BoardController {
   }
 
   // 게시판 생성
-  @UseInterceptors(FileInterceptor('thumbnailImage'))
   @Post('/')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('thumbnailImage'))
   async createBoard(
     @UploadedFile() file: Express.Multer.File,
     @Body() boardCreateDto: BoardCreateDto,
+    @Req() req: Request,
   ): Promise<void> {
-    const validatedData = BoardCreateSchema.parse(boardCreateDto);
-    const boardEntity = await this.boardService.createBoard(validatedData);
+    const validatedRequest = BoardCreateSchema.safeParse(boardCreateDto);
+    if (!validatedRequest.success) {
+      this.logger.warn('게시판 생성 요청 데이터 검증 실패', validatedRequest.error);
+      throw new BadRequestException(validatedRequest.error.issues[0].message);
+    }
+    const { userId } = req.user as UserPayload;
+    const boardEntity = await this.boardService.createBoard(validatedRequest.data, userId);
     if (file) {
       await this.boardService.uploadThumbnailImage(file, boardEntity.boardId);
     }
   }
 
-  // 댓글 생성
-  @Post('/comment')
-  @UseGuards(JwtAuthGuard)
-  async createComment(
-    @Req() req: Request,
-    @Body() commentCreateDto: CommentCreateDto,
-  ): Promise<void> {
-    const { userId } = req.user as UserPayload;
-    const validateRequest = CommentCreateSchema.safeParse(commentCreateDto);
-    if (!validateRequest.success) {
-      this.logger.warn('댓글 생성 요청 데이터 검증 실패', validateRequest.error);
-      throw new Error('Invalid comment data');
+  // 게시판 상세 조회
+  @Get('/:boardId')
+  async getBoard(@Param('boardId') boardId: number): Promise<{ result: BoardResponseDto }> {
+    const board = await this.boardService.getBoardById(boardId);
+    const { data, success, error } = BoardResponseSchema.safeParse(board);
+    if (!success) {
+      this.logger.warn('게시판 상세 응답 데이터 검증 실패', error);
+      throw new BadRequestException('게시판 응답 데이터 검증 실패');
     }
-    await this.commonService.createComment(commentCreateDto, userId);
+    return { result: data };
   }
 
-  // 댓글 목록 조회
-  @Get('/comment')
-  async getComments(
-    @Query('boardId') boardId: number,
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
-  ): Promise<InfiniteQueryResponse<CommentResponseDto>> {
-    page = Number(page);
-    limit = Number(limit);
-    const commentList = await this.commonService.getCommentListByTarget(
-      boardId,
-      'board',
-      page,
-      limit,
-    );
-    const validateCommentList = commentList
-      .map((comment) => CommentResponseSchema.safeParse(comment))
-      .filter((result) => result.success)
-      .map((result) => result.data);
-    const totalCount = await this.commonService.countCommentListByTarget(boardId, 'board');
-    const hasNextPage = page * limit < totalCount;
-    return {
-      itemList: validateCommentList,
-      nextPage: hasNextPage ? page + 1 : null,
-      totalCount,
-    };
+  // 게시판 수정
+  @Put('/:boardId')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('thumbnailImage'))
+  async updateBoard(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() boardUpdateDto: BoardCreateDto,
+    @Param('boardId') boardId: number,
+  ): Promise<{ result: BoardResponseDto }> {
+    const validatedRequest = BoardCreateSchema.safeParse(boardUpdateDto);
+    if (!validatedRequest.success) {
+      this.logger.warn('게시판 수정 요청 데이터 검증 실패', validatedRequest.error);
+      throw new BadRequestException(validatedRequest.error.issues[0].message);
+    }
+    await this.boardService.updateBoard(validatedRequest.data, boardId);
+    if (file) {
+      await this.boardService.uploadThumbnailImage(file, boardId);
+    }
+    const board = await this.boardService.getBoardById(boardId);
+    const commentCount = await this.commonService.countCommentListByTarget(boardId, 'board');
+    const boardWithComment = { ...board, commentCount };
+    const { data, success, error } = BoardResponseSchema.safeParse(boardWithComment);
+    if (!success) {
+      this.logger.warn('게시판 수정 응답 데이터 검증 실패', error);
+      throw new BadRequestException('게시판 응답 데이터 검증 실패');
+    }
+    return { result: data };
   }
 }
