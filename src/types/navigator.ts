@@ -14,16 +14,24 @@ type SignStackParamList = {
 };
 export type SignStackScreenProps = StackScreenProps<SignStackParamList>;
 
+// 메인 탭
+export type MainTabParamList = {
+  Home: undefined;
+  BoardList: undefined;
+  Notification: undefined;
+  Profile: undefined;
+}
+
 // 메인
 export type AppStackParamList = {
-  Main: undefined;
+  Main: { screen: keyof MainTabParamList };
   Home: undefined;
   Profile: undefined;
-  BoardList: undefined;
   ProfileEdit: undefined;
+  BoardList: undefined;
   Board: { boardId: number };
   BoardEdit: { board?: Board };
-}
+};
 export type AppStackScreenProps = StackScreenProps<AppStackParamList>;
 
 export type AppRouteScreenProps<RouteName extends keyof AppStackParamList>

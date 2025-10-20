@@ -1,12 +1,12 @@
 import { useMutation, useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { ApiResponse, Board, Comment, CommentCreateRequest, InfiniteQueryResponse } from '../types';
+import { ApiResponse, Board, InfiniteQueryResponse } from '../types';
 import apiClient from '../api/config';
 import { ApiError } from '../errors/ApiError';
 
-// 게시글 목록 조회 (무한 스크롤)
+// 게시판 목록 조회 (무한 스크롤)
 export const useGetBoardList = (category: string, limit?: number, page?: number) => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteQuery({
-    queryKey: ['boardList', category],
+    queryKey: ['board', category],
     queryFn: async ({ pageParam }) => {
       const response: ApiResponse<InfiniteQueryResponse<Board>> = await apiClient.get('/board', {
         params: { category, page: pageParam, limit },
@@ -47,12 +47,11 @@ export const useCreateBoard = () => {
   return { createBoard: mutateAsync };
 }
 
-// 게시판 상세 조회
+// 게시글 상세 조회
 export const useGetBoard = (boardId: number) => {
   const { data, refetch } = useQuery({
     queryKey: ['board', boardId],
     queryFn: async () => {
-      console.log(boardId)
       const response: ApiResponse<Board> = await apiClient.get(`/board/${boardId}`);
       return response.data.result;
     },
@@ -66,7 +65,7 @@ export const useGetBoard = (boardId: number) => {
 export const useUpdateBoard = (boardId: number) => {
   const { mutateAsync } = useMutation({
     mutationFn: async (param: FormData) => {
-      const response: ApiResponse<Board> = await apiClient.put(`/board/${boardId}`, param, {
+      const response: ApiResponse<null> = await apiClient.put(`/board/${boardId}`, param, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data.result;
@@ -79,4 +78,21 @@ export const useUpdateBoard = (boardId: number) => {
   });
 
   return { updateBoard: mutateAsync };
+}
+
+// 게시글 삭제
+export const useDeleteBoard = (boardId: number) => {
+  const { mutateAsync } = useMutation({
+    mutationFn: async () => {
+      const response: ApiResponse<null> = await apiClient.delete(`/board/${boardId}`);
+      return response.data.result;
+    },
+    onError: (err) => {
+      if(err instanceof ApiError) {
+        console.error('useDeleteBoard -> Failed to delete board', err.message);
+      }
+    }
+  });
+
+  return { deleteBoard: mutateAsync };
 }

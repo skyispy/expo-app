@@ -1,13 +1,20 @@
 export type User = {
+  // 사용자 ID
   userId: number;
+  // 닉네임
   nickname: string;
+  // 이메일
   email: string;
+  // 프로필 사진 URL (nullable)
   profileImageUrl: string | null;
+  // 자기소개 (nullable)
   introduction: string | null;
 };
 
 export type Board = {
+  // 게시판 ID
   boardId: number;
+  // 작성자 정보
   user: User;
   // 카테고리 (예: '공지사항', '자유게시판' 등)
   category: string;
@@ -21,26 +28,43 @@ export type Board = {
   views: number;
   // 좋아요 수
   likes: number;
-  // 게시글 상태 (예: 'active', 'inactive', 'deleted' 등)
+  // 게시 상태 (예: 'active', 'inactive', 'deleted' 등)
   status: string;
-  // 게시글 시작일과 종료일 (예: 이벤트 게시글의 경우)
+  // 게시 시작일 (예: 이벤트 게시의 경우)
   startDate: string;
+  // 게시 종료일 (예: 이벤트 게시의 경우)
   endDate: string;
+  // 생성 일시
   createDate: string;
+  // 수정 일시
   updateDate: string;
+  // 삭제 일시
+  deleteDate: string | null;
   // 댓글 수
   commentCount: number;
 }
 
 export type Comment = {
+  // 댓글 ID
   commentId: number;
-  targetId: number; // 댓글이 달린 대상 ID
-  targetType: string; // 댓글이 달린 대상 타입 (게시글 또는 댓글)
-  user: User; // 댓글 작성자 정보
-  content: string; // 댓글 내용
-  likes: number; // 댓글 좋아요 수
-  dislikes: number; // 댓글 싫어요 수
-  status: string; // 댓글 상태 (예: 'active', 'deleted' 등)
-  createDate: string; // 댓글 작성일
-  updateDate: string; // 댓글 수정일
+  // 대상 타입 (예: 'board', 'post' 등)
+  targetType: string;
+  // 대상 ID
+  targetId: number;
+  // 댓글 작성자 정보
+  user: User;
+  // 댓글 내용
+  content: string;
+  // 좋아요 수
+  likes: number;
+  // 싫어요 수
+  dislikes: number;
+  // 댓글 상태 (예: 'active', 'deleted' 등)
+  status: string;
+  // 생성 일시
+  createDate: string;
+  // 수정 일시
+  updateDate: string;
+  // 삭제 일시
+  deleteDate: string | null;
 }
