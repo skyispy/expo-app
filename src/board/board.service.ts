@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardEntity } from './models';
 import { Repository } from 'typeorm';
@@ -83,5 +88,18 @@ export class BoardService {
     const filePath = saveFileToDist(file, 'board/' + boardId);
     const baseurl = this.configService.get<string>('BASE_URL');
     await this.boardRepository.update({ boardId }, { thumbnailImageUrl: baseurl + '/' + filePath });
+  }
+
+  /// 게시판 삭제
+  async deleteBoard(boardId: number, userId: number): Promise<void> {
+    const board = await this.getBoardById(boardId);
+    if (!board) {
+      throw new BadRequestException('존재하지 않는 게시판입니다.');
+    }
+    if (board.user.userId !== userId) {
+      throw new ForbiddenException('게시판 삭제 권한이 없습니다.');
+    }
+    // 상태를 'deleted'로 변경하고 삭제 일자 기록
+    await this.boardRepository.update({ boardId }, { status: 'deleted', deleteDate: new Date() });
   }
 }

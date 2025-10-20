@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Logger,
   Param,
@@ -32,6 +33,7 @@ export class BoardController {
   ) {}
   private readonly logger = new Logger(BoardController.name);
 
+  // 게시판 목록 조회
   @Get('/')
   async getBoards(
     @Query('category') category: string,
@@ -92,7 +94,7 @@ export class BoardController {
     @UploadedFile() file: Express.Multer.File,
     @Body() boardUpdateDto: BoardCreateDto,
     @Param('boardId') boardId: number,
-  ): Promise<{ result: BoardResponseDto }> {
+  ): Promise<void> {
     const validatedRequest = BoardCreateSchema.safeParse(boardUpdateDto);
     if (!validatedRequest.success) {
       this.logger.warn('게시판 수정 요청 데이터 검증 실패', validatedRequest.error);
@@ -102,14 +104,13 @@ export class BoardController {
     if (file) {
       await this.boardService.uploadThumbnailImage(file, boardId);
     }
-    const board = await this.boardService.getBoardById(boardId);
-    const commentCount = await this.commonService.countCommentListByTarget(boardId, 'board');
-    const boardWithComment = { ...board, commentCount };
-    const { data, success, error } = BoardResponseSchema.safeParse(boardWithComment);
-    if (!success) {
-      this.logger.warn('게시판 수정 응답 데이터 검증 실패', error);
-      throw new BadRequestException('게시판 응답 데이터 검증 실패');
-    }
-    return { result: data };
+  }
+
+  // 게시판 삭제
+  @Delete('/:boardId')
+  @UseGuards(JwtAuthGuard)
+  async deleteBoard(@Param('boardId') boardId: number, @Req() req: Request): Promise<void> {
+    const { userId } = req.user as UserPayload;
+    await this.boardService.deleteBoard(boardId, userId);
   }
 }

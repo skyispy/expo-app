@@ -1,6 +1,5 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { UserEntity } from '../../user/models';
-import { CommentEntity } from '../../common/models/comment.entity';
 
 @Entity('BOARD')
 export class BoardEntity {
@@ -47,16 +46,22 @@ export class BoardEntity {
   @Column({ type: 'datetime', nullable: true })
   endDate: Date;
 
+  // 생성 일자
   @Column({
     type: 'datetime',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createDate: Date;
 
+  // 수정 일자
   @Column({
     type: 'datetime',
     default: () => 'CURRENT_TIMESTAMP',
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   updateDate: Date;
+
+  // 삭제 일자
+  @Column({ type: 'datetime', nullable: true })
+  deleteDate: Date;
 }
