@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import AppNavigator from './AppNavigator';
 import SignStackNavigator from './SignStackNavigator';
-import { useAuthStore } from '../store';
-import { useTokenLoginUser } from '../hooks';
-import { BottomBackground } from '../layout';
+import { useAuthStore } from '@store';
+import { useTokenLoginUser } from '@hooks';
+import { BottomBackground } from '@layout';
 
 const RootNavigator = () => {
   const { user, setUser, clearUser } = useAuthStore((state) => state);

@@ -1,14 +1,13 @@
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { useAuthStore } from '../../store';
 import { useEffect, useState } from 'react';
-import type { UserProfileUpdateFields } from '../../schemas';
-import { UserProfileUpdateSchema } from '../../schemas';
-import { useCheckDuplicateNickname, useImagePicker, useUpdateProfile } from '../../hooks';
-import { FormInput, FormInputWithButton } from '../../components';
-import { getDateTimeString } from '../../utils';
-import { User } from '../../types';
 import { Image } from 'expo-image';
-import { KeyboardLayout } from '../../layout';
+import { useAuthStore } from '@store';
+import { UserProfileUpdateSchema, UserProfileUpdateFields } from '@schemas';
+import { useCheckDuplicateNickname, useImagePicker, useUpdateProfile } from '@hooks';
+import { FormInput, FormInputWithButton } from '@components';
+import { getDateTimeString } from '@utils';
+import { User } from '@types';
+import { KeyboardLayout } from '@layout';
 
 export const ProfileEditScreen = () => {
   const user = useAuthStore((state) => state.user) as User;

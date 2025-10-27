@@ -35,7 +35,11 @@ const headerConfig: Record<
     title: '게시글',
     showBackButton: true,
   },
-  BoardEdit: {
+  BoardStep1: {
+    title: '게시글 작성',
+    showBackButton: true,
+  },
+  BoardStep2: {
     title: '게시글 작성',
     showBackButton: true,
   }

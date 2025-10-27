@@ -2,13 +2,13 @@ import { StyleSheet, View, Pressable, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { useNavigation } from '@react-navigation/native';
 import Carousel from 'react-native-reanimated-carousel';
-import { useGetBoardList } from '../../hooks';
-import { AppStackScreenProps } from '../../types';
+import { useGetBoardList } from '@hooks';
+import { AppStackScreenProps } from '@types';
 
 const { width } = Dimensions.get('window');
 
 export const EventBanner = () => {
-  const { boardList } = useGetBoardList('event', 3, 1);
+  const { boardList } = useGetBoardList(1);
   const navigation = useNavigation<AppStackScreenProps>();
 
   return (

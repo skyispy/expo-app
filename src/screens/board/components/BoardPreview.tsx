@@ -1,12 +1,12 @@
-import { AppStackScreenProps, Board, User } from '../../types';
+import { AppStackScreenProps, Board, User } from '@types';
 import { View, Text, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { useNavigation } from '@react-navigation/native';
-import { ProfileImage } from '../../components';
+import { ProfileImage } from '@components';
 import { Ionicons } from '@expo/vector-icons/';
-import { useAuthStore, useEllipsisModalStore } from '../../store';
-import { timeSince } from '../../utils';
-import { useBoardMenuOptions } from '../../hooks';
+import { useAuthStore, useEllipsisModalStore } from '@store';
+import { timeSince } from '@utils';
+import { useBoardMenuOptions } from '@hooks';
 
 export const BoardPreview = ({ board }: { board: Board }) => {
   const navigation = useNavigation<AppStackScreenProps>()

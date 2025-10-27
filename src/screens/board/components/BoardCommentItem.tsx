@@ -1,10 +1,10 @@
-import { useCommentMenuOptions } from '../../hooks';
+import { useCommentMenuOptions } from '@hooks';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { ProfileImage } from '../../components';
-import { timeSince } from '../../utils';
+import { ProfileImage } from '@components';
+import { timeSince } from '@utils';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuthStore, useEllipsisModalStore } from '../../store';
-import { Comment, User } from '../../types';
+import { useAuthStore, useEllipsisModalStore } from '@store';
+import { Comment, User } from '@types';
 
 export const BoardCommentItem = ({ comment }: { comment: Comment }) => {
   const user = useAuthStore((state) => state.user) as User;

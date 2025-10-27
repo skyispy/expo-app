@@ -30,7 +30,8 @@ export type AppStackParamList = {
   ProfileEdit: undefined;
   BoardList: undefined;
   Board: { boardId: number };
-  BoardEdit: { board?: Board };
+  BoardStep1: { board?: Board };
+  BoardStep2: { board: Board & { imageUri: string | null; categoryId: number } | { title: string; content: string; imageUri: string | null }  };
 };
 export type AppStackScreenProps = StackScreenProps<AppStackParamList>;
 

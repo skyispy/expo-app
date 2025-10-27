@@ -1,6 +1,6 @@
 import { Text, TouchableOpacity, ScrollView } from 'react-native';
-import { useLogoutUser } from '../../hooks';
-import { ProfileBox } from './ProfileBox';
+import { useLogoutUser } from '@hooks';
+import { ProfileBox } from './components/ProfileBox';
 
 export const ProfileScreen = () => {
 

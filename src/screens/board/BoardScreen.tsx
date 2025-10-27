@@ -1,17 +1,17 @@
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { AppRouteScreenProps, AppStackScreenProps, Board, User } from '../../types';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons/';
-import { CommentInput, ProfileImage, EllipsisModal } from '../../components';
-import { useAuthStore, useEllipsisModalStore } from '../../store';
-import { useEffect, useState } from 'react';
-import { timeSince } from '../../utils';
-import { BoardCommentList } from '@screens/board/BoardCommentList';
-import { KeyboardLayout } from '../../layout';
-import { CommentCreateSchema } from '../../schemas';
-import { useCreateComment, useGetBoard, useBoardMenuOptions } from '../../hooks';
 import { useQueryClient } from '@tanstack/react-query';
+import { AppRouteScreenProps, AppStackScreenProps, Board, User } from '@types';
+import { CommentInput, ProfileImage, EllipsisModal } from '@components';
+import { useAuthStore, useEllipsisModalStore } from '@store';
+import { timeSince } from '@utils';
+import { BoardCommentList } from './components/BoardCommentList';
+import { KeyboardLayout } from '@layout';
+import { CommentCreateSchema } from '@schemas';
+import { useCreateComment, useGetBoard, useBoardMenuOptions } from '@hooks';
 
 export const BoardScreen = () => {
   const route = useRoute<AppRouteScreenProps<'Board'>>();

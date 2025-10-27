@@ -6,6 +6,13 @@
     "paths": {
       "@screens/*": ["screens/*"],
       "@assets/*": ["../assets/*"],
+      "@hooks": ["hooks/"],
+      "@components": ["components/"],
+      "@types": ["types/"],
+      "@utils": ["utils/"],
+      "@schemas": ["schemas/"],
+      "@store": ["store/"],
+      "@layout": ["layout/"]
     }
   }
 }

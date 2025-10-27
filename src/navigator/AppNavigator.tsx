@@ -1,7 +1,7 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import { ProfileEditScreen } from '@screens/profile';
-import { Header } from '../components';
-import { BoardEditScreen, BoardScreen } from '@screens/board';
+import { Header } from '@components';
+import { BoardStep1Screen, BoardScreen, BoardStep2Screen } from '@screens/board';
 import BottomTabNavigator from './BottomTabNavigator';
 
 const AppStack = createStackNavigator();
@@ -26,8 +26,12 @@ const AppNavigator = () => {
         }}
       />
       <AppStack.Screen
-        name="BoardEdit"
-        component={BoardEditScreen}
+        name="BoardStep1"
+        component={BoardStep1Screen}
+      />
+      <AppStack.Screen
+        name={"BoardStep2"}
+        component={BoardStep2Screen}
       />
       <AppStack.Screen
         name="ProfileEdit"

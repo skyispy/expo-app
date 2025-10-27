@@ -1,15 +1,15 @@
 import { useMutation, useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { ApiResponse, Board, InfiniteQueryResponse } from '../types';
+import { ApiResponse, Board, InfiniteQueryResponse } from '@types';
 import apiClient from '../api/config';
 import { ApiError } from '../errors/ApiError';
 
 // 게시판 목록 조회 (무한 스크롤)
-export const useGetBoardList = (category: string, limit?: number, page?: number) => {
+export const useGetBoardList = (categoryId: number, limit?: number, page?: number) => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteQuery({
-    queryKey: ['board', category],
+    queryKey: ['board', { categoryId }],
     queryFn: async ({ pageParam }) => {
       const response: ApiResponse<InfiniteQueryResponse<Board>> = await apiClient.get('/board', {
-        params: { category, page: pageParam, limit },
+        params: { categoryId, page: pageParam, limit },
       });
       return response.data.result;
     },
@@ -50,13 +50,13 @@ export const useCreateBoard = () => {
 // 게시글 상세 조회
 export const useGetBoard = (boardId: number) => {
   const { data, refetch } = useQuery({
-    queryKey: ['board', boardId],
+    queryKey: ['board', { boardId }],
     queryFn: async () => {
       const response: ApiResponse<Board> = await apiClient.get(`/board/${boardId}`);
       return response.data.result;
     },
     enabled: !!boardId,
-  })
+  });
 
   return { board: data, boardRefetch: refetch };
 }

@@ -1,13 +1,13 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import {
   ApiResponse,
   SignStackScreenProps,
   SignupRequest,
   User,
-} from '../types';
+} from '@types';
 import apiClient from '../api/config';
 import { Alert } from 'react-native';
-import { useAuthStore } from '../store';
+import { useAuthStore } from '@store';
 import { ApiError } from '../errors/ApiError';
 import { useNavigation } from '@react-navigation/native';
 

@@ -1,6 +1,6 @@
 // 댓글 생성
 import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
-import { ApiResponse, CommentCreateRequest, InfiniteQueryResponse, Comment } from '../types';
+import { ApiResponse, CommentCreateRequest, InfiniteQueryResponse, Comment } from '@types';
 import apiClient from '../api/config';
 import { ApiError } from '../errors/ApiError';
 

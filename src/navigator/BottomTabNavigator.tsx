@@ -4,8 +4,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { HomeScreen } from '@screens/home';
 import { BoardListScreen } from '@screens/board';
 import { ProfileScreen } from '@screens/profile';
-import { Header } from '../components';
-import { AppStackScreenProps } from '../types';
+import { Header } from '@components';
+import { AppStackScreenProps } from '@types';
 import { Pressable } from 'react-native';
 import { BottomTabHeaderProps } from '@react-navigation/bottom-tabs';
 
@@ -57,7 +57,7 @@ const BottomTabNavigator = () => {
         options={{
           tabBarButton: () => (
             <Pressable
-              onPress={() => navigation.navigate({ name: 'BoardEdit', params: {} })}
+              onPress={() => navigation.navigate({ name: 'BoardStep1', params: {} })}
               style={{ alignItems: 'center', justifyContent: 'center', marginTop: -16 }}
             >
               <Ionicons

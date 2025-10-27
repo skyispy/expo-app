@@ -11,13 +11,49 @@ export type User = {
   introduction: string | null;
 };
 
+export type Channel = {
+  // 채널 ID
+  channelId: number;
+  // 채널 이름
+  channelName: string;
+  // 채널 설명
+  description: string;
+  // 채널 이미지 url (nullable)
+  channelImageUrl: string | null;
+  // 생성 일시
+  createDate: string;
+  // 수정 일시
+  updateDate: string;
+  // 삭제 일시
+  deleteDate: string | null;
+  // 카테고리 목록
+  categoryList?: Category[];
+}
+
+export type Category = {
+  // 카테고리 ID
+  categoryId: number;
+  // 카테고리 이름
+  categoryName: string;
+  // 카테고리 설명
+  description: string;
+  // 카테고리 상태 (예: 'active', 'inactive' 등)
+  status: string;
+  // 생성 일시
+  createDate: string;
+  // 수정 일시
+  updateDate: string;
+  // 삭제 일시
+  deleteDate: string | null;
+}
+
 export type Board = {
   // 게시판 ID
   boardId: number;
   // 작성자 정보
   user: User;
   // 카테고리 (예: '공지사항', '자유게시판' 등)
-  category: string;
+  category: Category;
   // 글 제목
   title: string;
   // 글 내용

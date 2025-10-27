@@ -1,4 +1,4 @@
-import { AppStackScreenProps, Board, User } from '../types';
+import { AppStackScreenProps, Board, User } from '@types';
 import { useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import { useDeleteBoard } from './useBoard';
@@ -15,7 +15,7 @@ export const useBoardMenuOptions = (board: Board | undefined, user: User) => {
           label: '게시글 수정',
           icon: 'pencil-outline',
           action: () => {
-            navigation.navigate('BoardEdit', { board });
+            navigation.navigate('BoardStep1', { board });
           },
         },
         {

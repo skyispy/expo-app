@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { Board } from '../../types';
-import { useGetCommentList } from '../../hooks';
-import { BoardCommentItem } from '@screens/board/BoardCommentItem';
+import { Board } from '@types';
+import { useGetCommentList } from '@hooks';
+import { BoardCommentItem } from './BoardCommentItem';
 
 export const BoardCommentList = ({ board }: { board: Board }) => {
 

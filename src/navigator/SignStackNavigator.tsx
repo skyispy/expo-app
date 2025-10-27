@@ -1,5 +1,5 @@
 import { createStackNavigator } from '@react-navigation/stack';
-import { Header } from '../components';
+import { Header } from '@components';
 import { LoginScreen, SignupScreen } from '@screens/sign';
 
 // 로그인, 회원가입

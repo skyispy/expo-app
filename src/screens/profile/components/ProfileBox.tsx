@@ -1,8 +1,8 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import type { AppStackScreenProps, User } from '../../types';
-import { ProfileImage } from '../../components';
 import { useNavigation } from '@react-navigation/native';
-import { useAuthStore } from '../../store';
+import { ProfileImage } from '@components';
+import type { AppStackScreenProps, User } from '@types';
+import { useAuthStore } from '@store';
 
 export const ProfileBox = () => {
   const user = useAuthStore((state) => state.user) as User;
