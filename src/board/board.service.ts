@@ -3,6 +3,7 @@ import {
   Injectable,
   UnauthorizedException,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardEntity } from './models';
@@ -12,26 +13,32 @@ import { ConfigService } from '@nestjs/config';
 import { saveFileToDist } from '../common/utils';
 import { UserService } from '../user/user.service';
 import { CommonService } from '../common/common.service';
+import { CategoryEntity } from './models/category.entity';
 
 @Injectable()
 export class BoardService {
   constructor(
-    @InjectRepository(BoardEntity) private readonly boardRepository: Repository<BoardEntity>,
+    @InjectRepository(BoardEntity)
+    private readonly boardRepository: Repository<BoardEntity>,
+    @InjectRepository(CategoryEntity)
+    private readonly categoryRepository: Repository<CategoryEntity>,
     private readonly userService: UserService,
     private readonly configService: ConfigService,
     private readonly commonService: CommonService,
   ) {}
 
+  private readonly logger = new Logger(BoardService.name);
+
   // 게시판 목록 조회 (카테고리별, 페이징)
   async selectBoardList(
-    category: string,
+    categoryId: number,
     page: number,
     limit: number,
   ): Promise<(BoardEntity & { commentCount: number })[]> {
     // 게시판 목록 조회
     const boardList = await this.boardRepository.find({
-      where: { category, status: 'active' },
-      relations: ['user'],
+      where: { category: { categoryId }, status: 'active' },
+      relations: ['user', 'category'],
       order: { createDate: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
@@ -50,9 +57,9 @@ export class BoardService {
   }
 
   // 게시판 전체 개수 조회 (카테고리별)
-  async countBoardsByCategory(category: string): Promise<number> {
+  async countBoardsByCategoryId(categoryId: number): Promise<number> {
     return await this.boardRepository.count({
-      where: { category, status: 'active' },
+      where: { category: { categoryId }, status: 'active' },
     });
   }
 
@@ -62,10 +69,17 @@ export class BoardService {
     if (!user) {
       throw new UnauthorizedException('존재하지 않는 사용자입니다.');
     }
+    const category = await this.categoryRepository.findOne({
+      where: { categoryId: boardCreateDto.categoryId, status: 'active' },
+    });
+    if (!category) {
+      throw new BadRequestException('유효하지 않은 카테고리입니다.');
+    }
     const newBoard = this.boardRepository.create({
       ...boardCreateDto,
       status: 'active',
       user,
+      category,
     });
     return await this.boardRepository.save(newBoard);
   }
@@ -74,13 +88,22 @@ export class BoardService {
   async getBoardById(boardId: number): Promise<BoardEntity | null> {
     return await this.boardRepository.findOne({
       where: { boardId, status: 'active' },
-      relations: ['user'],
+      relations: ['user', 'category'],
     });
   }
 
   // 게시판 수정
   async updateBoard(boardUpdateDto: BoardCreateDto, boardId: number): Promise<void> {
-    await this.boardRepository.update({ boardId }, { ...boardUpdateDto });
+    // 카테고리 유효성 검사
+    const category = await this.categoryRepository.findOne({
+      where: { categoryId: boardUpdateDto.categoryId, status: 'active' },
+    });
+    if (!category) {
+      throw new BadRequestException('유효하지 않은 카테고리입니다.');
+    }
+    // 필드에 없는 categoryId 제거 후 업데이트
+    const { categoryId, ...rest } = boardUpdateDto;
+    await this.boardRepository.update({ boardId }, { ...rest, category });
   }
 
   // 썸네일 이미지 업로드

@@ -3,10 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BoardModule } from './board/board.module';
+import { ChannelModule } from './channel/channel.module';
 
 @Module({
   imports: [
@@ -30,8 +30,9 @@ import { BoardModule } from './board/board.module';
     UserModule,
     AuthModule,
     BoardModule,
+    ChannelModule,
   ],
-  controllers: [AppController, AuthController],
+  controllers: [AppController],
   providers: [AppService],
   exports: [],
 })

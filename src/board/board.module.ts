@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BoardEntity } from './models';
 import { UserModule } from '../user/user.module';
 import { CommonModule } from '../common/common.module';
+import { CategoryEntity } from './models/category.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BoardEntity]), UserModule, CommonModule],
+  imports: [TypeOrmModule.forFeature([BoardEntity, CategoryEntity]), UserModule, CommonModule],
   providers: [BoardService],
   controllers: [BoardController],
 })

@@ -61,4 +61,8 @@ export class CommentEntity {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   updateDate: Date;
+
+  // 삭제 일자
+  @Column({ type: 'datetime', nullable: true })
+  deleteDate: Date;
 }

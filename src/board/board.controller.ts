@@ -6,6 +6,7 @@ import {
   Get,
   Logger,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -18,8 +19,6 @@ import { BoardService } from './board.service';
 import type { BoardCreateDto, BoardResponseDto } from './dto/board.dto';
 import { BoardCreateSchema, BoardResponseSchema } from './dto/board.schema';
 import { FileInterceptor } from '@nestjs/platform-express';
-import type { CommentResponseDto, CommentCreateDto } from '../common/dto/comment.dto';
-import { CommentCreateSchema, CommentResponseSchema } from '../common/dto/comment.schema';
 import { InfiniteQueryResponse } from '../common/dto/response.dto';
 import { JwtAuthGuard, UserPayload } from '../auth/guards';
 import type { Request } from 'express';
@@ -36,19 +35,28 @@ export class BoardController {
   // 게시판 목록 조회
   @Get('/')
   async getBoards(
-    @Query('category') category: string,
+    @Query('categoryId') categoryId: number,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
   ): Promise<InfiniteQueryResponse<BoardResponseDto>> {
-    this.logger.log(`게시판 ${category} ${page}페이지`);
+    categoryId = Number(categoryId);
     page = Number(page);
     limit = Number(limit);
-    const boardList = await this.boardService.selectBoardList(category, page, limit);
+    const totalCount = await this.boardService.countBoardsByCategoryId(categoryId);
+    const boardList = await this.boardService.selectBoardList(categoryId, page, limit);
+    this.logger.log(
+      boardList[0]?.category.categoryName +
+        ', ' +
+        page +
+        '/' +
+        Math.ceil(totalCount / limit) +
+        ', 총 게시판 수 : ' +
+        totalCount,
+    );
     const validateBoardList = boardList
       .map((board) => BoardResponseSchema.safeParse(board))
       .filter((result) => result.success)
       .map((result) => result.data);
-    const totalCount = await this.boardService.countBoardsByCategory(category);
     const hasNextPage = page * limit < totalCount;
     return { itemList: validateBoardList, nextPage: hasNextPage ? page + 1 : null, totalCount };
   }
@@ -101,6 +109,7 @@ export class BoardController {
       throw new BadRequestException(validatedRequest.error.issues[0].message);
     }
     await this.boardService.updateBoard(validatedRequest.data, boardId);
+    this.logger.log('게시판 정보 수정 완료: ' + boardId);
     if (file) {
       await this.boardService.uploadThumbnailImage(file, boardId);
     }

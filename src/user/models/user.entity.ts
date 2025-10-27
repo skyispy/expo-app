@@ -28,14 +28,14 @@ export class UserEntity {
   @Column({ nullable: true })
   introduction: string;
 
-  // 생성일시
+  // 생성 일자
   @Column({
     type: 'datetime',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createDate: Date;
 
-  // 수정일시
+  // 수정 일자
   @Column({
     type: 'datetime',
     default: () => 'CURRENT_TIMESTAMP',

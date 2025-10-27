@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { UserEntity } from '../../user/models';
+import { CategoryEntity } from './category.entity';
 
 @Entity('BOARD')
 export class BoardEntity {
@@ -12,8 +13,9 @@ export class BoardEntity {
   user: UserEntity;
 
   // 카테고리 (예: '공지사항', '자유게시판' 등)
-  @Column()
-  category: string;
+  @ManyToOne(() => CategoryEntity, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'categoryId' })
+  category: CategoryEntity;
 
   // 글 제목
   @Column()
