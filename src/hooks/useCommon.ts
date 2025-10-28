@@ -23,11 +23,14 @@ export const useCreateComment = () => {
 // 댓글 목록 조회
 export const useGetCommentList = (targetType: string, targetId: number) => {
   const { data, fetchNextPage, refetch } = useInfiniteQuery({
-    queryKey: ['commentList', targetType, targetId],
+    queryKey: ['commentList', { targetType, targetId }],
     queryFn: async ({ pageParam }) => {
-      const response: ApiResponse<InfiniteQueryResponse<Comment>> = await apiClient.get(`/common/comment`, {
-        params: { targetType, targetId, page: pageParam, limit: 10 },
-      });
+      const response: ApiResponse<InfiniteQueryResponse<Comment>> = await apiClient.get(
+        `/common/comment`,
+        {
+          params: { targetType, targetId, page: pageParam, limit: 10 },
+        },
+      );
       return response.data.result;
     },
     initialPageParam: 1,
@@ -38,4 +41,21 @@ export const useGetCommentList = (targetType: string, targetId: number) => {
   const commentList = data?.pages.flatMap(page => page.itemList);
 
   return { commentList, commentFetchNextPage: fetchNextPage, commentRefetch: refetch };
+}
+
+// 댓글 수정
+export const useUpdateComment = (commentId: number) => {
+  const { mutateAsync } = useMutation({
+    mutationFn: async (param: { content: string }) => {
+      const response: ApiResponse<null> = await apiClient.put(`/common/comment/${commentId}`, param);
+      return response.data.result;
+    },
+    onError: (err) => {
+      if(err instanceof ApiError) {
+        console.error('useUpdateComment -> Failed to edit comment', err.message);
+      }
+    }
+  });
+
+  return { updateComment: mutateAsync };
 }

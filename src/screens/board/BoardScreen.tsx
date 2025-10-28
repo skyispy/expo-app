@@ -1,32 +1,39 @@
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { useEffect, useState } from 'react';
+import {
+  ScrollView,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+} from 'react-native';
+import { useEffect, useRef } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons/';
-import { useQueryClient } from '@tanstack/react-query';
-import { AppRouteScreenProps, AppStackScreenProps, Board, User } from '@types';
+import { AppRouteScreenProps, AppStackScreenProps, User } from '@types';
 import { CommentInput, ProfileImage, EllipsisModal } from '@components';
-import { useAuthStore, useEllipsisModalStore } from '@store';
+import { useAuthStore, useCommentInputStore, useEllipsisModalStore } from '@store';
 import { timeSince } from '@utils';
-import { BoardCommentList } from './components/BoardCommentList';
+import { BoardComment } from './components/BoardComment';
 import { KeyboardLayout } from '@layout';
-import { CommentCreateSchema } from '@schemas';
-import { useCreateComment, useGetBoard, useBoardMenuOptions } from '@hooks';
+import { useGetBoard, useBoardMenuOptions } from '@hooks';
 
 export const BoardScreen = () => {
   const route = useRoute<AppRouteScreenProps<'Board'>>();
   const navigation = useNavigation<AppStackScreenProps>();
-  const queryClient = useQueryClient();
+  // 댓글 input ref
+  const commentInputRef = useRef<TextInput>(null);
 
   const user = useAuthStore((state) => state.user) as User;
   const { show: showEllipsisModal, setMenuOptions } = useEllipsisModalStore((state) => state);
 
-  const { board, boardRefetch } = useGetBoard(route.params.boardId);
-  const boardMenuOptions = useBoardMenuOptions(board, user)
+  const { board } = useGetBoard(route.params.boardId);
+  const boardMenuOptions = useBoardMenuOptions(board, user);
 
-  const [commentText, setCommentText] = useState<string>('');
+  const { setTargetType: setCommentTargetType, setTargetId: setCommentTargetId } = useCommentInputStore();
 
   useEffect(() => {
+    // 헤더 우측 더보기 버튼 설정
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity style={{ marginRight: 16 }} onPress={() => {
@@ -37,32 +44,12 @@ export const BoardScreen = () => {
         </TouchableOpacity>
       ),
     })
+    // 댓글 타겟 설정
+    if(board) {
+      setCommentTargetType('board');
+      setCommentTargetId(board.boardId);
+    }
   }, [board])
-
-  // 댓글 작성
-  const { createComment } = useCreateComment();
-  const submitComment = async () => {
-    const param = {
-      content: commentText,
-      targetId: (board as Board).boardId,
-      targetType: 'board',
-    }
-    const { success, data, error } = CommentCreateSchema.safeParse(param);
-    if (!success) {
-      Alert.alert('댓글 작성 실패', error.issues[0].message);
-      return;
-    }
-    await createComment(data);
-    Alert.alert('댓글 작성 성공', '댓글이 작성되었습니다.', [
-      {
-        text: '확인',
-        onPress: async () => {
-          setCommentText('');
-          await queryClient.invalidateQueries({ queryKey: ['commentList', 'board', (board as Board).boardId] })
-        },
-      },
-    ]);
-  }
 
   return (
     <>
@@ -75,7 +62,6 @@ export const BoardScreen = () => {
       ) : (
         <KeyboardLayout>
           <ScrollView
-            style={{ flex: 1 }}
             contentContainerStyle={{ paddingBottom: 70 }}
             keyboardShouldPersistTaps="handled"
           >
@@ -126,15 +112,10 @@ export const BoardScreen = () => {
               </View>
             </View>
             {/* 댓글 컴포넌트 */}
-            <BoardCommentList board={board} />
-            {/*<View style={{ height: 100}} />*/}
+            <BoardComment board={board} commentInputRef={commentInputRef}  />
           </ScrollView>
-          {/* 댓글 입력 컴포넌트 */}
-          <CommentInput
-            value={commentText}
-            onChangeText={setCommentText}
-            onSubmit={submitComment}
-          />
+          {/*댓글 입력 컴포넌트*/}
+          <CommentInput ref={commentInputRef} />
         </KeyboardLayout>
       )}
     </>

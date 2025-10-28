@@ -1,8 +1,10 @@
-import { AppStackScreenProps, Board, User } from '@types';
+import { AppStackScreenProps, Board, Comment, User } from '@types';
 import { useNavigation } from '@react-navigation/native';
-import { Alert } from 'react-native';
+import { Alert, TextInput } from 'react-native';
 import { useDeleteBoard } from './useBoard';
 import { useQueryClient } from '@tanstack/react-query';
+import { RefObject } from 'react';
+import { useCommentInputStore } from '@store';
 
 export const useBoardMenuOptions = (board: Board | undefined, user: User) => {
   const queryClient = useQueryClient();
@@ -64,29 +66,42 @@ export const useBoardMenuOptions = (board: Board | undefined, user: User) => {
       ];
 }
 
-export const useCommentMenuOptions = (commentUser: User, user: User) => {
-  const isAuthor = user?.userId === commentUser.userId;
-  return isAuthor ? [
-    {
-      label: '댓글 수정',
-      icon: 'pencil-outline',
-      action: () => console.log('Edit comment'),
-    },
-    {
-      label: '댓글 삭제',
-      icon: 'trash-outline',
-      action: () => console.log('Delete comment'),
-    },
-  ] : [
-    {
-      label: '신고하기',
-      icon: 'flag-outline',
-      action: () => console.log('Report comment'),
-    },
-    {
-      label: '팔로우하기',
-      icon: 'person-add-outline',
-      action: () => console.log('Follow comment author'),
-    },
-  ];
+export const useCommentMenuOptions = (user: User, commentInputRef?: RefObject<TextInput | null>) => {
+  const { setMode, setValue, setParentCommentId, setCommentId, setHeaderText } = useCommentInputStore();
+  return (comment: Comment) => {
+    const isAuthor = user?.userId === comment.user.userId;
+    return isAuthor
+      ? [
+          {
+            label: '댓글 수정',
+            icon: 'pencil-outline',
+            action: () => {
+              if (commentInputRef?.current) {
+                setMode('edit');
+                setValue(comment.content);
+                setCommentId(comment.commentId);
+                setHeaderText("댓글 입력");
+                commentInputRef.current.focus();
+              }
+            },
+          },
+          {
+            label: '댓글 삭제',
+            icon: 'trash-outline',
+            action: () => console.log('Delete comment'),
+          },
+        ]
+      : [
+          {
+            label: '신고하기',
+            icon: 'flag-outline',
+            action: () => console.log('Report comment'),
+          },
+          {
+            label: '팔로우하기',
+            icon: 'person-add-outline',
+            action: () => console.log('Follow comment author'),
+          },
+        ];
+  }
 }
