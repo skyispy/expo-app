@@ -1,10 +1,10 @@
 import { AppStackScreenProps, Board, Comment, User } from '@types';
 import { useNavigation } from '@react-navigation/native';
-import { Alert, TextInput } from 'react-native';
+import { Alert } from 'react-native';
 import { useDeleteBoard } from './useBoard';
 import { useQueryClient } from '@tanstack/react-query';
-import { RefObject } from 'react';
 import { useCommentInputStore } from '@store';
+import { useDeleteComment } from './useCommon';
 
 export const useBoardMenuOptions = (board: Board | undefined, user: User) => {
   const queryClient = useQueryClient();
@@ -66,8 +66,10 @@ export const useBoardMenuOptions = (board: Board | undefined, user: User) => {
       ];
 }
 
-export const useCommentMenuOptions = (user: User, commentInputRef?: RefObject<TextInput | null>) => {
+export const useCommentMenuOptions = (user: User) => {
+  const queryClient = useQueryClient();
   const { setMode, setValue, setParentCommentId, setCommentId, setHeaderText } = useCommentInputStore();
+    const { deleteComment } = useDeleteComment();
   return (comment: Comment) => {
     const isAuthor = user?.userId === comment.user.userId;
     return isAuthor
@@ -76,19 +78,36 @@ export const useCommentMenuOptions = (user: User, commentInputRef?: RefObject<Te
             label: '댓글 수정',
             icon: 'pencil-outline',
             action: () => {
-              if (commentInputRef?.current) {
-                setMode('edit');
-                setValue(comment.content);
-                setCommentId(comment.commentId);
-                setHeaderText("댓글 입력");
-                commentInputRef.current.focus();
-              }
+              setMode('edit');
+              setValue(comment.content);
+              setCommentId(comment.commentId);
+              setHeaderText('댓글 입력');
             },
           },
           {
             label: '댓글 삭제',
             icon: 'trash-outline',
-            action: () => console.log('Delete comment'),
+            action: () => {
+              Alert.alert('댓글 삭제', '댓글을 삭제하시겠습니까?', [
+                {
+                  text: '확인',
+                  onPress: async () => {
+                    await deleteComment(comment.commentId, {
+                      onError: (err) => {
+                        Alert.alert('댓글 삭제 실패', err.message);
+                      }
+                    });
+                    await queryClient.invalidateQueries({
+                      queryKey: ['commentList', { targetType: comment.targetType, targetId: comment.targetId }]
+                    });
+                  }
+                },
+                {
+                  text: '취소',
+                  style: 'cancel',
+                }
+              ]);
+            },
           },
         ]
       : [

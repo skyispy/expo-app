@@ -5,6 +5,7 @@ import { useCommentInputStore } from '@store';
 import { useCreateComment, useUpdateComment } from '@hooks';
 import { CommentCreateSchema } from '@schemas';
 import { useQueryClient } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons/';
 
 export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => {
   const queryClient = useQueryClient();
@@ -82,6 +83,9 @@ export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => 
       {headerText && (
         <View style={styles.header}>
           <Text style={styles.headerText}>{headerText}</Text>
+          <Pressable onPress={clear}>
+            <Ionicons name={'close'} size={24} color={'black'} />
+          </Pressable>
         </View>
       )}
       <View style={styles.inputContainer}>
@@ -136,6 +140,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 16,
     paddingVertical: 14,
+    justifyContent: 'space-between',
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#eee',

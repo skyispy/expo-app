@@ -59,3 +59,20 @@ export const useUpdateComment = (commentId: number) => {
 
   return { updateComment: mutateAsync };
 }
+
+// 댓글 삭제
+export const useDeleteComment = () => {
+  const { mutateAsync } = useMutation({
+    mutationFn: async (commentId: number) => {
+      const response: ApiResponse<null> = await apiClient.delete(`/common/comment/${commentId}`);
+      return response.data.result;
+    },
+    onError: (err) => {
+      if(err instanceof ApiError) {
+        console.error('useDeleteComment -> Failed to delete comment', err.message);
+      }
+    }
+  });
+
+  return { deleteComment: mutateAsync };
+}

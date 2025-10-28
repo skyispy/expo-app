@@ -7,11 +7,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore, useEllipsisModalStore } from '@store';
 import { RefObject } from 'react';
 
-export const BoardComment = ({ board, commentInputRef }: { board: Board, commentInputRef: RefObject<TextInput | null> }) => {
+export const BoardComment = ({ board }: { board: Board }) => {
   const user = useAuthStore((state) => state.user) as User;
   const { show: showEllipsisModal, setMenuOptions } = useEllipsisModalStore((state) => state);
   const { commentList, commentFetchNextPage, commentRefetch } = useGetCommentList('board', board.boardId);
-  const getCommentMenuOptions = useCommentMenuOptions(user, commentInputRef);
+  const getCommentMenuOptions = useCommentMenuOptions(user);
 
   return (
     <View style={styles.container}>

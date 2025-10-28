@@ -30,7 +30,7 @@ export const BoardScreen = () => {
   const { board } = useGetBoard(route.params.boardId);
   const boardMenuOptions = useBoardMenuOptions(board, user);
 
-  const { setTargetType: setCommentTargetType, setTargetId: setCommentTargetId } = useCommentInputStore();
+  const { setTargetType: setCommentTargetType, setTargetId: setCommentTargetId, mode } = useCommentInputStore();
 
   useEffect(() => {
     // 헤더 우측 더보기 버튼 설정
@@ -50,6 +50,13 @@ export const BoardScreen = () => {
       setCommentTargetId(board.boardId);
     }
   }, [board])
+
+  useEffect(() => {
+    if(mode === 'edit' || mode === 'reply') {
+      // 댓글 입력창 포커스
+      commentInputRef.current?.focus();
+    }
+  }, [mode])
 
   return (
     <>
@@ -112,7 +119,7 @@ export const BoardScreen = () => {
               </View>
             </View>
             {/* 댓글 컴포넌트 */}
-            <BoardComment board={board} commentInputRef={commentInputRef}  />
+            <BoardComment board={board}  />
           </ScrollView>
           {/*댓글 입력 컴포넌트*/}
           <CommentInput ref={commentInputRef} />
