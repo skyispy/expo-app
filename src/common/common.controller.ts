@@ -1,4 +1,15 @@
-import { Controller, Logger, Post, Get, UseGuards, Req, Body, Query } from '@nestjs/common';
+import {
+  Controller,
+  Logger,
+  Post,
+  Get,
+  UseGuards,
+  Req,
+  Body,
+  Query,
+  Put,
+  Param,
+} from '@nestjs/common';
 import { CommonService } from './common.service';
 import { JwtAuthGuard, UserPayload } from '../auth/guards';
 import type { CommentCreateDto } from './dto/comment.dto';
@@ -57,5 +68,22 @@ export class CommonController {
       nextPage: hasNextPage ? page + 1 : null,
       totalCount,
     };
+  }
+
+  // 댓글 수정
+  @Put('/comment/:commentId')
+  @UseGuards(JwtAuthGuard)
+  async updateComment(
+    @Req() req: Request,
+    @Body('content') content: string,
+    @Param('commentId') commentId: number,
+  ): Promise<void> {
+    const { userId } = req.user as UserPayload;
+    const validatedRequest = CommentCreateSchema.shape.content.safeParse(content);
+    if (!validatedRequest.success) {
+      this.logger.warn('댓글 수정 요청 데이터 검증 실패', validatedRequest.error);
+      throw new BadRequestException(validatedRequest.error.issues[0].message);
+    }
+    await this.commonService.updateComment(validatedRequest.data, commentId, userId);
   }
 }

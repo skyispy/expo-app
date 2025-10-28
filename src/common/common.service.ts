@@ -59,4 +59,19 @@ export class CommonService {
       where: { targetType, targetId, status: 'active' },
     });
   }
+
+  // 댓글 수정
+  async updateComment(content: string, commentId: number, userId: number): Promise<void> {
+    const comment = await this.commentRepository.findOne({
+      where: { commentId, status: 'active' },
+      relations: ['user'],
+    });
+    if (!comment) {
+      throw new BadRequestException('존재하지 않는 댓글입니다.');
+    }
+    if (comment.user.userId !== userId) {
+      throw new UnauthorizedException('댓글 수정 권한이 없습니다.');
+    }
+    await this.commentRepository.update({ commentId }, { content });
+  }
 }
