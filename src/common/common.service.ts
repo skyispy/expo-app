@@ -74,4 +74,22 @@ export class CommonService {
     }
     await this.commentRepository.update({ commentId }, { content });
   }
+
+  // 댓글 삭제
+  async deleteComment(commentId: number, userId: number): Promise<void> {
+    const comment = await this.commentRepository.findOne({
+      where: { commentId, status: 'active' },
+      relations: ['user'],
+    });
+    if (!comment) {
+      throw new BadRequestException('존재하지 않는 댓글입니다.');
+    }
+    if (comment.user.userId !== userId) {
+      throw new UnauthorizedException('댓글 삭제 권한이 없습니다.');
+    }
+    await this.commentRepository.update(
+      { commentId },
+      { status: 'deleted', deleteDate: new Date() },
+    );
+  }
 }

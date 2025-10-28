@@ -9,6 +9,7 @@ import {
   Query,
   Put,
   Param,
+  Delete,
 } from '@nestjs/common';
 import { CommonService } from './common.service';
 import { JwtAuthGuard, UserPayload } from '../auth/guards';
@@ -85,5 +86,13 @@ export class CommonController {
       throw new BadRequestException(validatedRequest.error.issues[0].message);
     }
     await this.commonService.updateComment(validatedRequest.data, commentId, userId);
+  }
+
+  // 댓글 삭제
+  @Delete('/comment/:commentId')
+  @UseGuards(JwtAuthGuard)
+  async deleteComment(@Req() req: Request, @Param('commentId') commentId: number): Promise<void> {
+    const { userId } = req.user as UserPayload;
+    await this.commonService.deleteComment(commentId, userId);
   }
 }
