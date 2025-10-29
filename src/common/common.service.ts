@@ -44,13 +44,24 @@ export class CommonService {
     page: number,
     limit: number,
   ): Promise<CommentEntity[]> {
-    return await this.commentRepository.find({
-      where: { targetId, targetType, status: 'active', parent: undefined },
-      relations: ['user', 'children', 'children.user'],
-      order: { likes: 'DESC', createDate: 'DESC' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+    return await this.commentRepository
+      .createQueryBuilder('comment')
+      .leftJoinAndSelect('comment.user', 'user')
+      .leftJoinAndSelect('comment.children', 'children', 'children.status = :childStatus', {
+        childStatus: 'active',
+      })
+      .leftJoinAndSelect('children.user', 'childrenUser')
+      .leftJoinAndSelect('children.parent', 'childrenParent')
+      .leftJoinAndSelect('childrenParent.user', 'childrenParentUser')
+      .where('comment.targetId = :targetId', { targetId })
+      .andWhere('comment.targetType = :targetType', { targetType })
+      .andWhere('comment.status = :status', { status: 'active' })
+      .andWhere('comment.parent IS NULL')
+      .orderBy('comment.likes', 'DESC')
+      .addOrderBy('comment.createDate', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany();
   }
 
   // 댓글 개수 조회

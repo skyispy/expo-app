@@ -14,6 +14,9 @@ export const CommentResponseSchema = z.object({
   children: z
     .array(z.lazy(() => CommentResponseSchema as z.ZodType<z.infer<typeof CommentResponseSchema>>))
     .optional(),
+  parent: z.lazy(() =>
+    (CommentResponseSchema as z.ZodType<z.infer<typeof CommentResponseSchema>>).optional(),
+  ),
   createDate: z.date(),
   updateDate: z.date(),
 });
