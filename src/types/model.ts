@@ -97,6 +97,10 @@ export type Comment = {
   dislikes: number;
   // 댓글 상태 (예: 'active', 'deleted' 등)
   status: string;
+  // 대댓글
+  children?: Comment[];
+  // 부모 댓글
+  parent?: Comment;
   // 생성 일시
   createDate: string;
   // 수정 일시

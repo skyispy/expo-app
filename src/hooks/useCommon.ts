@@ -39,8 +39,9 @@ export const useGetCommentList = (targetType: string, targetId: number) => {
   });
 
   const commentList = data?.pages.flatMap(page => page.itemList);
+  const totalCount = data?.pages.flatMap(page => page.totalCount);
 
-  return { commentList, commentFetchNextPage: fetchNextPage, commentRefetch: refetch };
+  return { commentList, commentCount: totalCount, commentFetchNextPage: fetchNextPage, commentRefetch: refetch };
 }
 
 // 댓글 수정

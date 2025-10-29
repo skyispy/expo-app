@@ -1,46 +1,82 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Board, User } from '@types';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Board, User, Comment } from '@types';
 import { useCommentMenuOptions, useGetCommentList } from '@hooks';
 import { ProfileImage } from '../../../components';
 import { timeSince } from '@utils';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuthStore, useEllipsisModalStore } from '@store';
-import { RefObject } from 'react';
+import { useAuthStore, useCommentInputStore, useEllipsisModalStore } from '@store';
+import { Fragment } from 'react';
 
 export const BoardComment = ({ board }: { board: Board }) => {
+  const { commentList, commentCount, commentFetchNextPage, commentRefetch } = useGetCommentList('board', board.boardId);
+
   const user = useAuthStore((state) => state.user) as User;
   const { show: showEllipsisModal, setMenuOptions } = useEllipsisModalStore((state) => state);
-  const { commentList, commentFetchNextPage, commentRefetch } = useGetCommentList('board', board.boardId);
+  const { setMode, setParentCommentId, setHeaderText } = useCommentInputStore();
   const getCommentMenuOptions = useCommentMenuOptions(user);
+
+  // 대댓글 버튼 함수
+  const handleReplyPress = (comment: Comment) => {
+    // 대댓글 작성 모드로 전환
+    setMode('reply');
+    setParentCommentId(comment.parent ? comment.parent.commentId : comment.commentId);
+    setHeaderText(comment.user.nickname + '님에게 답글 쓰기');
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>댓글 {commentList?.length ?? 0}</Text>
+        <Text style={styles.headerText}>댓글 {commentCount ?? 0}</Text>
       </View>
       <View>
-        {commentList && commentList.map((comment) => (
-          <View key={comment.commentId} style={styles.commentContainer}>
-            <View style={styles.commentHeader}>
-              <View style={styles.profileContainer}>
-                <ProfileImage uri={comment.user.profileImageUrl} size={36} />
-                <View style={styles.profileTextContainer}>
-                  <Text style={styles.nickname}>{comment.user.nickname}</Text>
-                  <Text style={styles.commentDate}>{timeSince(comment.createDate, comment.updateDate)}</Text>
+        {commentList && commentList.map((comment) => !comment.parent && (
+          <Fragment key={comment.commentId}>
+            <Pressable style={styles.commentContainer} onPress={() => handleReplyPress(comment)}>
+              <View style={styles.commentHeader}>
+                <View style={styles.profileContainer}>
+                  <ProfileImage uri={comment.user.profileImageUrl} size={36} />
+                  <View style={styles.profileTextContainer}>
+                    <Text style={styles.nickname}>{comment.user.nickname}</Text>
+                    <Text style={styles.commentDate}>{timeSince(comment.createDate, comment.updateDate)}</Text>
+                  </View>
                 </View>
+                <Pressable style={styles.ellipsisButton} onPress={() => {
+                  const commentMenuOptions = getCommentMenuOptions(comment);
+                  setMenuOptions(commentMenuOptions);
+                  showEllipsisModal();
+                }}>
+                  <Ionicons name="ellipsis-vertical" size={24} color="black" />
+                </Pressable>
               </View>
-              <Pressable style={styles.ellipsisButton} onPress={() => {
-                const commentMenuOptions = getCommentMenuOptions(comment);
-                setMenuOptions(commentMenuOptions);
-                showEllipsisModal();
-              }}>
-                <Ionicons name="ellipsis-vertical" size={24} color="black" />
+              <View style={styles.main}>
+                <Text>{comment.content}</Text>
+              </View>
+            </Pressable>
+            {comment.children && comment.children.map((reply) => (
+              <Pressable key={reply.commentId} style={[styles.commentContainer, { paddingLeft: 40, backgroundColor: '#ddd' }]} onPress={() => handleReplyPress(reply)}>
+                <Ionicons name={'return-down-forward'} size={24} color={'black'} style={{ position: 'absolute', left: 10, top: 20 }} />
+                <View style={styles.commentHeader}>
+                  <View style={styles.profileContainer}>
+                    <ProfileImage uri={reply.user.profileImageUrl} size={36} />
+                    <View style={styles.profileTextContainer}>
+                      <Text style={styles.nickname}>{reply.user.nickname}</Text>
+                      <Text style={styles.commentDate}>{timeSince(reply.createDate, reply.updateDate)}</Text>
+                    </View>
+                  </View>
+                  <Pressable style={styles.ellipsisButton} onPress={() => {
+                    const commentMenuOptions = getCommentMenuOptions(reply);
+                    setMenuOptions(commentMenuOptions);
+                    showEllipsisModal();
+                  }}>
+                    <Ionicons name="ellipsis-vertical" size={24} color="black" />
+                  </Pressable>
+                </View>
+                <View style={styles.main}>
+                  <Text>{reply.content}</Text>
+                </View>
               </Pressable>
-            </View>
-            <View style={styles.main}>
-              <Text>{comment.content}</Text>
-            </View>
-          </View>
+            ))}
+          </Fragment>
         ))}
       </View>
     </View>

@@ -60,6 +60,29 @@ export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => 
           },
         },
       ]);
+    } else if (mode === 'reply') {
+      // 대댓글 등록
+      const param = {
+        content: value,
+        targetType,
+        targetId,
+        parentCommentId,
+      }
+      const { success, data, error } = CommentCreateSchema.safeParse(param);
+      if (!success) {
+        Alert.alert('대댓글 작성 실패', error.issues[0].message);
+        return;
+      }
+      await createComment(data);
+      Alert.alert('대댓글 작성 성공', '대댓글이 작성되었습니다.', [
+        {
+          text: '확인',
+          onPress: async () => {
+            await queryClient.invalidateQueries({ queryKey: ['commentList', { targetType, targetId }] });
+            clear();
+          },
+        },
+      ]);
     }
 
   }
