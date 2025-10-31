@@ -22,13 +22,13 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { InfiniteQueryResponse } from '../common/dto/response.dto';
 import { JwtAuthGuard, UserPayload } from '../auth/guards';
 import type { Request } from 'express';
-import { CommonService } from '../common/common.service';
+import { UserService } from '../user/service/user.service';
 
 @Controller('board')
 export class BoardController {
   constructor(
     private readonly boardService: BoardService,
-    private readonly commonService: CommonService,
+    private readonly userService: UserService,
   ) {}
   private readonly logger = new Logger(BoardController.name);
 
@@ -84,8 +84,12 @@ export class BoardController {
 
   // 게시판 상세 조회
   @Get('/:boardId')
-  async getBoard(@Param('boardId') boardId: number): Promise<{ result: BoardResponseDto }> {
-    const board = await this.boardService.getBoardById(boardId);
+  @UseGuards(JwtAuthGuard)
+  async getBoard(
+    @Param('boardId') boardId: number,
+    @Req() req: Request,
+  ): Promise<{ result: BoardResponseDto }> {
+    const board = await this.boardService.getBoardDetail(boardId, (req.user as UserPayload).userId);
     const { data, success, error } = BoardResponseSchema.safeParse(board);
     if (!success) {
       this.logger.warn('게시판 상세 응답 데이터 검증 실패', error);

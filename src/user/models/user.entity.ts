@@ -2,6 +2,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { RefreshTokensEntity } from '../../auth/models';
 import { BoardEntity } from '../../board/models';
 import { CommentEntity } from '../../common/models';
+import { ActionHistoryEntity } from './action_history.entity';
 
 @Entity('USER')
 export class UserEntity {
@@ -49,9 +50,13 @@ export class UserEntity {
 
   // BoardEntity와의 1:N 관계 설정
   @OneToMany(() => BoardEntity, (board) => board.user)
-  boards: BoardEntity[];
+  boardList: BoardEntity[];
 
   // CommentEntity와의 1:N 관계 설정
   @OneToMany(() => CommentEntity, (comment) => comment.user)
-  comments: CommentEntity[];
+  commentList: CommentEntity[];
+
+  // ActionHistoryEntity와의 1:N 관계 설정
+  @OneToMany(() => ActionHistoryEntity, (view) => view.user)
+  actionHistoryList: ActionHistoryEntity[];
 }

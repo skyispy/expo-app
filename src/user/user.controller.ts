@@ -13,7 +13,7 @@ import {
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
-import { UserService } from './user.service';
+import { UserService } from './service/user.service';
 import { ZodValidationPipe } from 'src/common/pipes';
 import { UserProfileUpdateSchema, UserResponseSchema, UserSignupSchema } from './dto/user.schema';
 import type { UserProfileUpdateDto, UserResponseDto, UserSignupDto } from './dto/user.dto';

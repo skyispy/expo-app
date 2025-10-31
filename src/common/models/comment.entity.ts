@@ -15,7 +15,7 @@ export class CommentEntity {
   targetId: number;
 
   // 댓글 작성자
-  @ManyToOne(() => UserEntity, (user) => user.comments, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserEntity, (user) => user.commentList, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: UserEntity;
 

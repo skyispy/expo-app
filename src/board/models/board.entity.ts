@@ -8,7 +8,7 @@ export class BoardEntity {
   boardId: number;
 
   // 외래키 설정
-  @ManyToOne(() => UserEntity, (user) => user.boards, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserEntity, (user) => user.boardList, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: UserEntity;
 
@@ -28,10 +28,6 @@ export class BoardEntity {
   // 썸네일 이미지 URL (nullable)
   @Column({ nullable: true })
   thumbnailImageUrl: string;
-
-  // 조회수
-  @Column({ default: 0 })
-  views: number;
 
   // 좋아요 수
   @Column({ default: 0 })

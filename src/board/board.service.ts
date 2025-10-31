@@ -11,9 +11,10 @@ import { Repository } from 'typeorm';
 import type { BoardCreateDto } from './dto/board.dto';
 import { ConfigService } from '@nestjs/config';
 import { saveFileToDist } from '../common/utils';
-import { UserService } from '../user/user.service';
+import { UserService } from '../user/service/user.service';
 import { CommonService } from '../common/common.service';
 import { CategoryEntity } from './models/category.entity';
+import { ActionHistoryService } from '../user/service/action_history.service';
 
 @Injectable()
 export class BoardService {
@@ -25,6 +26,7 @@ export class BoardService {
     private readonly userService: UserService,
     private readonly configService: ConfigService,
     private readonly commonService: CommonService,
+    private readonly actionHistoryService: ActionHistoryService,
   ) {}
 
   private readonly logger = new Logger(BoardService.name);
@@ -34,7 +36,7 @@ export class BoardService {
     categoryId: number,
     page: number,
     limit: number,
-  ): Promise<(BoardEntity & { commentCount: number })[]> {
+  ): Promise<(BoardEntity & { commentCount: number; views: number })[]> {
     // 게시판 목록 조회
     const boardList = await this.boardRepository.find({
       where: { category: { categoryId }, status: 'active' },
@@ -43,6 +45,7 @@ export class BoardService {
       skip: (page - 1) * limit,
       take: limit,
     });
+
     // 각 게시판에 댓글 개수 추가
     return await Promise.all(
       boardList.map(async (board) => {
@@ -51,7 +54,11 @@ export class BoardService {
           board.boardId,
           'board',
         );
-        return { ...board, commentCount };
+        const views = await this.actionHistoryService.countActionHistoryByTarget(
+          'board_view',
+          board.boardId,
+        );
+        return { ...board, commentCount, views };
       }),
     );
   }
@@ -85,6 +92,19 @@ export class BoardService {
   }
 
   // 게시판 상세 조회
+  async getBoardDetail(boardId: number, userId: number): Promise<BoardEntity & { views: number }> {
+    const board = await this.boardRepository.findOne({
+      where: { boardId, status: 'active' },
+      relations: ['user', 'category'],
+    });
+    if (!board) {
+      throw new BadRequestException('존재하지 않는 게시판입니다.');
+    }
+    const views = await this.actionHistoryService.countActionHistoryByTarget('board_view', boardId);
+    await this.actionHistoryService.recordViewHistory('board_view', boardId, userId);
+    return { ...board, views };
+  }
+
   async getBoardById(boardId: number): Promise<BoardEntity | null> {
     return await this.boardRepository.findOne({
       where: { boardId, status: 'active' },

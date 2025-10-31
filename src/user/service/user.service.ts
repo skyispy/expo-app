@@ -1,10 +1,10 @@
 import { Injectable, ConflictException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from './models';
+import { UserEntity } from '../models';
 import { Repository } from 'typeorm';
-import type { UserProfileUpdateDto, UserSignupDto } from './dto/user.dto';
+import type { UserProfileUpdateDto, UserSignupDto } from '../dto/user.dto';
 import * as bcrypt from 'bcrypt';
-import { saveFileToDist } from '../common/utils';
+import { saveFileToDist } from '../../common/utils';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
