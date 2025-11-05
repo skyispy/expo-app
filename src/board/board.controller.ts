@@ -6,7 +6,6 @@ import {
   Get,
   Logger,
   Param,
-  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -22,36 +21,30 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { InfiniteQueryResponse } from '../common/dto/response.dto';
 import { JwtAuthGuard, UserPayload } from '../auth/guards';
 import type { Request } from 'express';
-import { UserService } from '../user/service/user.service';
 
 @Controller('board')
 export class BoardController {
-  constructor(
-    private readonly boardService: BoardService,
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly boardService: BoardService) {}
   private readonly logger = new Logger(BoardController.name);
 
   // 게시판 목록 조회
   @Get('/')
+  @UseGuards(JwtAuthGuard)
   async getBoards(
     @Query('categoryId') categoryId: number,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
+    @Req() req: Request,
   ): Promise<InfiniteQueryResponse<BoardResponseDto>> {
+    const { userId } = req.user as UserPayload;
     categoryId = Number(categoryId);
     page = Number(page);
     limit = Number(limit);
     const totalCount = await this.boardService.countBoardsByCategoryId(categoryId);
-    const boardList = await this.boardService.selectBoardList(categoryId, page, limit);
+    const boardList = await this.boardService.selectBoardList(userId, categoryId, page, limit);
+    const categoryName = await this.boardService.getCategoryNameById(categoryId);
     this.logger.log(
-      boardList[0]?.category.categoryName +
-        ', ' +
-        page +
-        '/' +
-        Math.ceil(totalCount / limit) +
-        ', 총 게시판 수 : ' +
-        totalCount,
+      `게시판 목록 조회 - ${categoryName}, ${page}/${Math.ceil(totalCount / limit)}, 총 게시판 수 : ${totalCount}`,
     );
     const validateBoardList = boardList
       .map((board) => BoardResponseSchema.safeParse(board))
@@ -125,5 +118,29 @@ export class BoardController {
   async deleteBoard(@Param('boardId') boardId: number, @Req() req: Request): Promise<void> {
     const { userId } = req.user as UserPayload;
     await this.boardService.deleteBoard(boardId, userId);
+  }
+
+  // 좋아요/싫어요/신고/숨기기 추가
+  @Post('/:boardId/action')
+  @UseGuards(JwtAuthGuard)
+  async handleBoardAction(
+    @Param('boardId') boardId: number,
+    @Body('actionType') actionType: 'like' | 'report' | 'hide',
+    @Req() req: Request,
+  ): Promise<void> {
+    const { userId } = req.user as UserPayload;
+    await this.boardService.handleBoardAction(boardId, userId, actionType);
+  }
+
+  // 좋아요/싫어요/신고/숨기기 취소
+  @Delete('/:boardId/action')
+  @UseGuards(JwtAuthGuard)
+  async unHandleBoardAction(
+    @Param('boardId') boardId: number,
+    @Body('actionType') actionType: 'like' | 'report' | 'hide',
+    @Req() req: Request,
+  ): Promise<void> {
+    const { userId } = req.user as UserPayload;
+    await this.boardService.unHandleBoardAction(boardId, userId, actionType);
   }
 }

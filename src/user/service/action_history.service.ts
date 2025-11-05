@@ -33,6 +33,7 @@ export class ActionHistoryService {
   async recordViewHistory(targetType: string, targetId: number, userId: number): Promise<void> {
     const existingRecord = await this.actionHistoryRepository.findOne({
       where: { targetType, targetId, user: { userId } },
+      order: { updateDate: 'DESC' },
     });
     const thisDate = new Date();
     if (
@@ -57,5 +58,42 @@ export class ActionHistoryService {
       });
       await this.actionHistoryRepository.save(newRecord);
     }
+  }
+
+  // 기록 조회
+  async getActionHistory(
+    targetType: string,
+    targetId: number,
+    userId: number,
+  ): Promise<ActionHistoryEntity | null> {
+    return await this.actionHistoryRepository.findOne({
+      where: { targetType, targetId, user: { userId } },
+    });
+  }
+
+  // 기록 추가
+  async recordActionHistory(targetType: string, targetId: number, userId: number): Promise<void> {
+    const user = await this.userService.findUserById(userId);
+    if (!user) {
+      throw new UnauthorizedException('존재하지 않는 사용자입니다.');
+    }
+    const newRecord = this.actionHistoryRepository.create({
+      targetType,
+      targetId,
+      user,
+    });
+    await this.actionHistoryRepository.save(newRecord);
+  }
+
+  // 기록 삭제
+  async removeActionHistory(targetType: string, targetId: number, userId: number): Promise<void> {
+    const existingRecord = await this.actionHistoryRepository.findOne({
+      where: { targetType, targetId, user: { userId } },
+    });
+    if (!existingRecord) {
+      this.loger.warn('존재하지 않는 기록입니다.');
+      return;
+    }
+    await this.actionHistoryRepository.delete({ actionHistoryId: existingRecord.actionHistoryId });
   }
 }

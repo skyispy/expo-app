@@ -33,10 +33,13 @@ export class BoardService {
 
   // 게시판 목록 조회 (카테고리별, 페이징)
   async selectBoardList(
+    userId: number,
     categoryId: number,
     page: number,
     limit: number,
-  ): Promise<(BoardEntity & { commentCount: number; views: number })[]> {
+  ): Promise<
+    (BoardEntity & { commentCount: number; views: number; likes: number; isLiked: boolean })[]
+  > {
     // 게시판 목록 조회
     const boardList = await this.boardRepository.find({
       where: { category: { categoryId }, status: 'active' },
@@ -54,13 +57,33 @@ export class BoardService {
           board.boardId,
           'board',
         );
+        // 조회수 조회
         const views = await this.actionHistoryService.countActionHistoryByTarget(
           'board_view',
           board.boardId,
         );
-        return { ...board, commentCount, views };
+        // 좋아요 수 조회
+        const likes = await this.actionHistoryService.countActionHistoryByTarget(
+          'board_like',
+          board.boardId,
+        );
+        // 좋아요 여부
+        const userLiked = await this.actionHistoryService.getActionHistory(
+          'board_like',
+          board.boardId,
+          userId,
+        );
+        return { ...board, commentCount, views, likes, isLiked: !!userLiked };
       }),
     );
+  }
+
+  // 카테고리 이름 조회
+  async getCategoryNameById(categoryId: number): Promise<string | null> {
+    const category = await this.categoryRepository.findOne({
+      where: { categoryId },
+    });
+    return category ? category.categoryName : null;
   }
 
   // 게시판 전체 개수 조회 (카테고리별)
@@ -92,7 +115,10 @@ export class BoardService {
   }
 
   // 게시판 상세 조회
-  async getBoardDetail(boardId: number, userId: number): Promise<BoardEntity & { views: number }> {
+  async getBoardDetail(
+    boardId: number,
+    userId: number,
+  ): Promise<BoardEntity & { views: number; likes: number; isLiked: boolean }> {
     const board = await this.boardRepository.findOne({
       where: { boardId, status: 'active' },
       relations: ['user', 'category'],
@@ -101,8 +127,14 @@ export class BoardService {
       throw new BadRequestException('존재하지 않는 게시판입니다.');
     }
     const views = await this.actionHistoryService.countActionHistoryByTarget('board_view', boardId);
+    const likes = await this.actionHistoryService.countActionHistoryByTarget('board_like', boardId);
+    const userLiked = await this.actionHistoryService.getActionHistory(
+      'board_like',
+      boardId,
+      userId,
+    );
     await this.actionHistoryService.recordViewHistory('board_view', boardId, userId);
-    return { ...board, views };
+    return { ...board, views, likes, isLiked: !!userLiked };
   }
 
   async getBoardById(boardId: number): Promise<BoardEntity | null> {
@@ -144,5 +176,41 @@ export class BoardService {
     }
     // 상태를 'deleted'로 변경하고 삭제 일자 기록
     await this.boardRepository.update({ boardId }, { status: 'deleted', deleteDate: new Date() });
+  }
+
+  // 좋아요/신고/숨기기 추가
+  async handleBoardAction(
+    boardId: number,
+    userId: number,
+    actionType: 'like' | 'report' | 'hide',
+  ): Promise<void> {
+    const targetType = `board_${actionType}`;
+    const existingAction = await this.actionHistoryService.getActionHistory(
+      targetType,
+      boardId,
+      userId,
+    );
+    if (existingAction) {
+      throw new BadRequestException('이미 해당 게시판에 대한 행동을 수행하였습니다.');
+    }
+    await this.actionHistoryService.recordActionHistory(targetType, boardId, userId);
+  }
+
+  // 좋아요/신고/숨기기 취소
+  async unHandleBoardAction(
+    boardId: number,
+    userId: number,
+    actionType: 'like' | 'report' | 'hide',
+  ): Promise<void> {
+    const targetType = `board_${actionType}`;
+    const existingAction = await this.actionHistoryService.getActionHistory(
+      targetType,
+      boardId,
+      userId,
+    );
+    if (!existingAction) {
+      throw new BadRequestException('해당 게시판에 대한 행동 기록이 존재하지 않습니다.');
+    }
+    await this.actionHistoryService.removeActionHistory(targetType, boardId, userId);
   }
 }

@@ -18,6 +18,8 @@ export const BoardResponseSchema = z.object({
   views: z.number(),
   // 좋아요 수
   likes: z.number(),
+  // 좋아요 여부 (현재 사용자가 좋아요를 눌렀는지)
+  isLiked: z.boolean(),
   // 게시글 상태 (예: 'active', 'inactive', 'deleted' 등)
   status: z.string(),
   // 게시글 시작일과 종료일 (예: 이벤트 게시글의 경우)

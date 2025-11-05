@@ -99,6 +99,7 @@ export class AuthService {
     // 새로운 액세스 토큰 발급
     const { userId, nickname, email } = payload;
     const newPayload = { userId, nickname, email };
+    this.logger.log('리프레시 토큰 재발급 페이로드', newPayload);
     const newAccessToken = this.signAccessToken(newPayload);
     // 새로운 리프레시 토큰 발급
     const newRefreshToken = await this.signRefreshToken(newPayload, userAgent);

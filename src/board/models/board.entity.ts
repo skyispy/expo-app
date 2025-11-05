@@ -29,10 +29,6 @@ export class BoardEntity {
   @Column({ nullable: true })
   thumbnailImageUrl: string;
 
-  // 좋아요 수
-  @Column({ default: 0 })
-  likes: number;
-
   // 게시글 상태 (예: 'active', 'inactive', 'deleted' 등)
   @Column({ default: 'active' })
   status: string;
