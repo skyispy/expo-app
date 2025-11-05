@@ -6,14 +6,16 @@ import { ProfileImage } from '@components';
 import { Ionicons } from '@expo/vector-icons/';
 import { useAuthStore, useEllipsisModalStore } from '@store';
 import { timeSince } from '@utils';
-import { useBoardMenuOptions } from '@hooks';
+import { useBoardLike, useBoardMenuOptions } from '@hooks';
 
 export const BoardPreview = ({ board }: { board: Board }) => {
   const navigation = useNavigation<AppStackScreenProps>()
   const user = useAuthStore((state) => state.user) as User;
-  const boardMenuOptions = useBoardMenuOptions(board, user);
-
   const { show: showEllipsisModal, setMenuOptions } = useEllipsisModalStore((state) => state);
+
+  const boardMenuOptions = useBoardMenuOptions(board, user);
+  const { boardLike } = useBoardLike();
+
   return (
     <Pressable
       onPress={() => navigation.navigate('Board', { boardId: board.boardId })}
@@ -21,10 +23,16 @@ export const BoardPreview = ({ board }: { board: Board }) => {
     >
       <View style={styles.header}>
         <View style={styles.profileContainer}>
-          <ProfileImage wrapperStyle={styles.profileImageContainer} uri={board.user.profileImageUrl} size={50} />
+          <ProfileImage
+            wrapperStyle={styles.profileImageContainer}
+            uri={board.user.profileImageUrl}
+            size={50}
+          />
           <View style={styles.profileTextContainer}>
             <Text style={styles.nickname}>{board.user.nickname}</Text>
-            <Text style={styles.boardCreateDate}>{timeSince(board.createDate, board.updateDate)}</Text>
+            <Text style={styles.boardCreateDate}>
+              {timeSince(board.createDate, board.updateDate)}
+            </Text>
           </View>
         </View>
         <View style={styles.actionContainer}>
@@ -33,10 +41,13 @@ export const BoardPreview = ({ board }: { board: Board }) => {
               <Text style={styles.followButtonText}>팔로우</Text>
             </TouchableOpacity>
           )}
-          <Pressable style={{ marginHorizontal: 4 }} onPress={() => {
-            setMenuOptions(boardMenuOptions);
-            showEllipsisModal();
-          }}>
+          <Pressable
+            style={{ marginHorizontal: 4 }}
+            onPress={() => {
+              setMenuOptions(boardMenuOptions);
+              showEllipsisModal();
+            }}
+          >
             <Ionicons name="ellipsis-vertical" size={24} color="black" />
           </Pressable>
         </View>
@@ -53,7 +64,7 @@ export const BoardPreview = ({ board }: { board: Board }) => {
             placeholder={require('@assets/event2.png')}
             transition={300}
             contentFit="cover"
-            cachePolicy={"disk"}
+            cachePolicy={'disk'}
           />
         </View>
       </View>
@@ -66,13 +77,13 @@ export const BoardPreview = ({ board }: { board: Board }) => {
           <Ionicons name="chatbubble-ellipses-outline" size={24} color="black" />
           <Text style={styles.metaCount}>{board.commentCount}</Text>
         </Pressable>
-        <Pressable style={styles.metaContainer}>
-          <Ionicons name="heart-outline" size={24} color="black" />
+        <Pressable style={styles.metaContainer} onPress={() => boardLike(board)}>
+          <Ionicons name={board.isLiked ? 'heart' : 'heart-outline'} size={24} color={board.isLiked ? 'red' : 'black'} />
           <Text style={styles.metaCount}>{board.likes}</Text>
         </Pressable>
       </View>
     </Pressable>
-  )
+  );
 }
 
 const styles = StyleSheet.create({

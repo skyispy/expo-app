@@ -1,5 +1,9 @@
 import { z } from 'zod';
-import { CommentCreateSchema, UserLoginSchema, UserSignupSchema } from '../schemas';
+import {
+  CommentCreateSchema,
+  UserLoginSchema,
+  UserSignupSchema,
+} from '@schemas';
 import { User } from './model';
 
 export type ApiResponse<T> = {

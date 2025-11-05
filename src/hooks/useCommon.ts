@@ -36,6 +36,7 @@ export const useGetCommentList = (targetType: string, targetId: number) => {
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.nextPage,
     enabled: !!targetId,
+    staleTime: 5 * 60 * 1000,
   });
 
   const commentList = data?.pages.flatMap(page => page.itemList);
@@ -45,10 +46,10 @@ export const useGetCommentList = (targetType: string, targetId: number) => {
 }
 
 // 댓글 수정
-export const useUpdateComment = (commentId: number) => {
+export const useUpdateComment = () => {
   const { mutateAsync } = useMutation({
-    mutationFn: async (param: { content: string }) => {
-      const response: ApiResponse<null> = await apiClient.put(`/common/comment/${commentId}`, param);
+    mutationFn: async (param: { commentId: number; content: string }) => {
+      const response: ApiResponse<null> = await apiClient.put(`/common/comment/${param.commentId}`, param);
       return response.data.result;
     },
     onError: (err) => {

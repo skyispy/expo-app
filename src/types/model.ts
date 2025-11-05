@@ -48,7 +48,7 @@ export type Category = {
 }
 
 export type Board = {
-  // 게시판 ID
+  // 게시글 ID
   boardId: number;
   // 작성자 정보
   user: User;
@@ -64,6 +64,8 @@ export type Board = {
   views: number;
   // 좋아요 수
   likes: number;
+  // 좋아요 여부
+  isLiked: boolean;
   // 게시 상태 (예: 'active', 'inactive', 'deleted' 등)
   status: string;
   // 게시 시작일 (예: 이벤트 게시의 경우)

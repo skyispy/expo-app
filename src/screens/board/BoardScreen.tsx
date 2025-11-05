@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
+  Pressable,
 } from 'react-native';
 import { useEffect, useRef } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -16,7 +17,7 @@ import { useAuthStore, useCommentInputStore, useEllipsisModalStore } from '@stor
 import { timeSince } from '@utils';
 import { BoardComment } from './components/BoardComment';
 import { KeyboardLayout } from '@layout';
-import { useGetBoard, useBoardMenuOptions } from '@hooks';
+import { useGetBoard, useBoardMenuOptions, useBoardLike } from '@hooks';
 
 export const BoardScreen = () => {
   const route = useRoute<AppRouteScreenProps<'Board'>>();
@@ -26,11 +27,12 @@ export const BoardScreen = () => {
 
   const user = useAuthStore((state) => state.user) as User;
   const { show: showEllipsisModal, setMenuOptions } = useEllipsisModalStore((state) => state);
+  const { setTargetType: setCommentTargetType, setTargetId: setCommentTargetId, mode } = useCommentInputStore();
 
   const { board } = useGetBoard(route.params.boardId);
   const boardMenuOptions = useBoardMenuOptions(board, user);
+  const { boardLike } = useBoardLike();
 
-  const { setTargetType: setCommentTargetType, setTargetId: setCommentTargetId, mode } = useCommentInputStore();
 
   useEffect(() => {
     // 헤더 우측 더보기 버튼 설정
@@ -64,7 +66,7 @@ export const BoardScreen = () => {
       <EllipsisModal />
       {!board ? (
         <View style={[styles.container, { alignItems: 'center', justifyContent: 'center' }]}>
-          <Text>게시글을 불러오는 중입니다...</Text>
+          <Text>글을 불러오는 중입니다...</Text>
         </View>
       ) : (
         <KeyboardLayout>
@@ -72,24 +74,24 @@ export const BoardScreen = () => {
             contentContainerStyle={{ paddingBottom: 70 }}
             keyboardShouldPersistTaps="handled"
           >
-            <View style={{ gap: 20, backgroundColor: '#FFF', paddingHorizontal: 20, paddingVertical: 20 }}>
-              <Text style={{ fontSize: 24, fontWeight: 'bold' }}>{board.title}</Text>
-              <View style={{ flexDirection: 'row' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 12 }}>
-                  <Ionicons name='alarm' size={24} color="black" />
+            <View style={styles.boardContainer}>
+              <Text style={styles.title}>{board.title}</Text>
+              <View style={styles.infoRow}>
+                <View style={styles.infoItem}>
+                  <Ionicons name='time' size={18} color="gray" />
                   <Text style={{ fontSize: 14, color: '#666' }}>{timeSince(board.createDate, board.updateDate)}</Text>
                 </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 12 }}>
-                  <Ionicons name='eye' size={24} color="black" />
+                <View style={styles.infoItem}>
+                  <Ionicons name='eye' size={18} color="gray" />
                   <Text style={{ fontSize: 14, color: '#666' }}>{board.views}</Text>
                 </View>
               </View>
-              <View style={{ flex: 1, flexDirection: 'row', paddingHorizontal: 20, backgroundColor: '#efefef', paddingVertical: 10 }}>
-                <View style={{ flex: 0.7, flexDirection: 'row', height: '100%', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+              <View style={styles.userContainer}>
+                <View style={styles.userProfile}>
                   <ProfileImage uri={board.user.profileImageUrl} size={50} />
-                  <View style={{ flexDirection: 'column', gap: 4 }}>
-                    <Text style={{ fontSize: 16, fontWeight: 'bold' }}>{board.user.nickname}</Text>
-                    <Text style={{ fontSize: 14, color: '#666' }}>{board.user.introduction}</Text>
+                  <View style={styles.userInfo}>
+                    <Text style={styles.userNickname}>{board.user.nickname}</Text>
+                    <Text style={styles.userIntro}>{board.user.introduction}</Text>
                   </View>
                 </View>
                 <View style={styles.actionContainer}>
@@ -110,13 +112,11 @@ export const BoardScreen = () => {
                   cachePolicy={"disk"}
                 />
               </View>
-              <Text style={{ fontSize: 18, lineHeight: 24, color: '#333' }}>{board.content}</Text>
-              <View style={{ marginTop: 12 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Ionicons name="heart-outline" size={24} color="black" />
-                  <Text>{board.likes}</Text>
-                </View>
-              </View>
+              <Text style={styles.content}>{board.content}</Text>
+              <Pressable style={styles.metaContainer} onPress={() => boardLike(board)}>
+                <Ionicons name={board.isLiked ? 'heart' : 'heart-outline'} size={24} color={board.isLiked ? 'red' : 'black'} />
+                <Text style={styles.metaCount}>{board.likes}</Text>
+              </Pressable>
             </View>
             {/* 댓글 컴포넌트 */}
             <BoardComment board={board}  />
@@ -133,14 +133,51 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  thumbnailContainer: {
-    width: '100%',
-    aspectRatio: 16 / 9,
-    backgroundColor: '#f5f5f5',
+  boardContainer: {
+    gap: 20,
+    backgroundColor: '#FFF',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
   },
-  thumbnail: {
-    width: '100%',
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  infoRow: {
+    flexDirection: 'row',
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginRight: 12,
+  },
+  userContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    backgroundColor: '#efefef',
+    paddingVertical: 10,
+  },
+  userProfile: {
+    flex: 0.7,
+    flexDirection: 'row',
     height: '100%',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 20,
+  },
+  userInfo: {
+    flexDirection: 'column',
+    gap: 4,
+  },
+  userNickname: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  userIntro: {
+    fontSize: 14,
+    color: '#666',
   },
   actionContainer: {
     flex: 0.3,
@@ -161,4 +198,28 @@ const styles = StyleSheet.create({
   followButtonText: {
     color: '#6A49E9',
   },
+  thumbnailContainer: {
+    width: '100%',
+    aspectRatio: 16 / 9,
+    backgroundColor: '#f5f5f5',
+  },
+  thumbnail: {
+    width: '100%',
+    height: '100%',
+  },
+  content: {
+    fontSize: 16,
+    color: '#333',
+    lineHeight: 22,
+  },
+  metaContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 16,
+    gap: 8,
+  },
+  metaCount: {
+    fontSize: 16,
+    color: '#666',
+  }
 })

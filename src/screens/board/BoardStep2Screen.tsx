@@ -17,7 +17,7 @@ export const BoardStep2Screen = () => {
   const queryClient = useQueryClient();
   const { board } = route.params;
   const { createBoard } = useCreateBoard();
-  const { updateBoard } = useUpdateBoard('boardId' in board ? board.boardId : 0);
+  const { updateBoard } = useUpdateBoard();
   const { channelList } = useGetChannelList();
 
   const { categoryId, setCategoryId, show: showCategoryModal, clear: clearCategoryStore } = useCategoryModalStore();
@@ -40,7 +40,7 @@ export const BoardStep2Screen = () => {
       imageUrl: board.imageUri,
     });
     if (!success) {
-      Alert.alert('입력 오류', error.message);
+      Alert.alert('게시글 저장 실패', error.message);
       return;
     }
     // formData로 변환
@@ -62,25 +62,41 @@ export const BoardStep2Screen = () => {
     // 게시글 수정 or 생성
     if ('boardId' in board) {
       // 수정
-      await updateBoard(formData);
-      // 수정한 게시글 상세 캐시 업데이트
-      await queryClient.invalidateQueries({ queryKey: ['board', { boardId: board.boardId }] })
-      // 게시판 목록 캐시 업데이트
-      await queryClient.invalidateQueries({ queryKey: ['board', { categoryId: categoryId }] });
-      if(board.category.categoryId !== categoryId) {
-        // 카테고리 변경 시
-        // 이전 카테고리 캐시도 업데이트
-        await queryClient.invalidateQueries({ queryKey: ['board', { categoryId: board.category.categoryId }] })
-      }
-      Alert.alert('게시글 수정 성공', '게시글이 수정되었습니다.', [
-        { text: '확인', onPress: () => navigation.goBack() }
-      ]);
+      formData.append('boardId', board.boardId.toString());
+      await updateBoard(formData, {
+        onSuccess: async () => {
+          // 수정한 게시글 상세 캐시 업데이트
+          await queryClient.invalidateQueries({ queryKey: ['board', { boardId: board.boardId }] })
+          // 게시판 캐시 업데이트
+          await queryClient.invalidateQueries({ queryKey: ['board', { categoryId: categoryId }] });
+          if(board.category.categoryId !== categoryId) {
+            // 카테고리 변경 시
+            // 이전 카테고리 캐시도 업데이트
+            await queryClient.invalidateQueries({ queryKey: ['board', { categoryId: board.category.categoryId }] })
+          }
+          Alert.alert('게시글 수정 성공', '게시글이 수정되었습니다.', [
+            { text: '확인', onPress: () => navigation.goBack() }
+          ]);
+        },
+        onError: () => {
+          Alert.alert('게시글 수정 실패', '게시글 수정에 실패했습니다. 다시 시도해주세요.');
+        }
+      });
+
     } else {
       // 생성
-      await createBoard(formData);
-      Alert.alert('게시글 생성 성공', '게시글이 생성되었습니다.', [
-        { text: '확인', onPress: () => navigation.goBack() }
-      ]);
+      await createBoard(formData, {
+        onSuccess: async () => {
+          // 게시판 캐시 업데이트
+          await queryClient.invalidateQueries({ queryKey: ['board', { categoryId: categoryId }] });
+          Alert.alert('게시글 생성 성공', '게시글이 생성되었습니다.', [
+            { text: '확인', onPress: () => navigation.goBack() }
+          ]);
+        },
+        onError: () => {
+          Alert.alert('게시글 생성 실패', '게시글 생성에 실패했습니다. 다시 시도해주세요.');
+        }
+      });
     }
   }, [categoryId, board, createBoard, updateBoard, navigation, queryClient]);
 

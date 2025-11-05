@@ -9,8 +9,9 @@ import { useDeleteComment } from './useCommon';
 export const useBoardMenuOptions = (board: Board | undefined, user: User) => {
   const queryClient = useQueryClient();
   const navigation = useNavigation<AppStackScreenProps>();
-  const { deleteBoard } = useDeleteBoard(board?.boardId ?? 0);
-  const isAuthor = user.userId === board?.user.userId;
+  const { deleteBoard } = useDeleteBoard();
+  if(!board) return [];
+  const isAuthor = user.userId === board.user.userId;
   return isAuthor
     ? [
         {
@@ -30,17 +31,20 @@ export const useBoardMenuOptions = (board: Board | undefined, user: User) => {
                 text: '삭제',
                 style: 'destructive',
                 onPress: async () => {
-                  await deleteBoard();
-                  await queryClient.invalidateQueries({ queryKey: ['board', board?.category] });
-                  Alert.alert('게시글 삭제 성공', '게시글이 삭제되었습니다.', [
-                    {
-                      text: '확인',
-                      onPress: async () => {
-                        navigation.replace('Main', { screen: 'BoardList' });
-                        await queryClient.invalidateQueries({ queryKey: ['board', board?.boardId] });
-                      },
+                  await deleteBoard(board?.boardId, {
+                    onSuccess: () => {
+                      Alert.alert('게시글 삭제 성공', '게시글이 삭제되었습니다.', [
+                        {
+                          text: '확인',
+                          onPress: async () => {
+                            navigation.replace('Main', { screen: 'BoardList' });
+                            await queryClient.invalidateQueries({ queryKey: ['board', { boardId: board?.boardId}] });
+                          },
+                        },
+                      ]);
                     },
-                  ]);
+                    onError: () => Alert.alert('게시글 삭제 실패', '게시글 삭제에 실패했습니다. 다시 시도해주세요.')
+                  });
                 },
               },
             ]);
@@ -68,7 +72,7 @@ export const useBoardMenuOptions = (board: Board | undefined, user: User) => {
 
 export const useCommentMenuOptions = (user: User) => {
   const queryClient = useQueryClient();
-  const { setMode, setValue, setParentCommentId, setCommentId, setHeaderText } = useCommentInputStore();
+  const { setMode, setValue, setCommentId, setHeaderText } = useCommentInputStore();
     const { deleteComment } = useDeleteComment();
   return (comment: Comment) => {
     const isAuthor = user?.userId === comment.user.userId;
@@ -93,19 +97,17 @@ export const useCommentMenuOptions = (user: User) => {
                   text: '확인',
                   onPress: async () => {
                     await deleteComment(comment.commentId, {
-                      onError: (err) => {
-                        Alert.alert('댓글 삭제 실패', err.message);
+                      onSuccess: async () => {
+                        Alert.alert('댓글 삭제 성공', '댓글이 삭제되었습니다.');
+                      },
+                      onError: () => Alert.alert('댓글 삭제 실패', '댓글 삭제에 실패했습니다. 다시 시도해주세요.'),
+                      onSettled: async () => {
+                        await queryClient.invalidateQueries({ queryKey: ['commentList', { targetType: comment.targetType, targetId: comment.targetId }] });
                       }
-                    });
-                    await queryClient.invalidateQueries({
-                      queryKey: ['commentList', { targetType: comment.targetType, targetId: comment.targetId }]
                     });
                   }
                 },
-                {
-                  text: '취소',
-                  style: 'cancel',
-                }
+                { text: '취소', style: 'cancel' }
               ]);
             },
           },

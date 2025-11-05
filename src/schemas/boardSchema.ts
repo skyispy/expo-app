@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// 게시판 생성 스키마
+// 게시글 생성 스키마
 export const BoardCreateSchema = z.object({
   title: z.string().min(1, '제목을 입력해주세요.').max(100, '제목은 최대 100자입니다.'),
   content: z.string(),
@@ -13,7 +13,7 @@ export const BoardCreateSchema = z.object({
 // 댓글 생성 스키마
 export const CommentCreateSchema = z.object({
   content: z.string().min(1, '댓글 내용을 입력해주세요.').max(500, '댓글은 최대 500자입니다.'),
-  targetId: z.number().min(1, '유효한 게시판 ID가 필요합니다.'),
+  targetId: z.number().min(1, '유효한 게시글 ID가 필요합니다.'),
   targetType: z.string(),
   parentCommentId: z.number().optional(),
 })

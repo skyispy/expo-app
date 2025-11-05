@@ -18,7 +18,7 @@ export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => 
   const title = mode === 'create' ? '작성' : mode === 'edit' ? '수정' : '작성';
 
   const { createComment } = useCreateComment();
-  const { updateComment } = useUpdateComment(commentId ?? 0);
+  const { updateComment } = useUpdateComment();
 
   const onSubmit = async () => {
     if (mode === 'create') {
@@ -50,7 +50,11 @@ export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => 
         Alert.alert('댓글 수정 실패', error.issues[0].message);
         return;
       }
-      await updateComment({ content: data });
+      if(!commentId) {
+        Alert.alert('댓글 수정 실패', '수정할 댓글이 선택되지 않았습니다.');
+        return;
+      }
+      await updateComment({ commentId: commentId, content: data });
       Alert.alert('댓글 수정 성공', '댓글이 수정되었습니다.', [
         {
           text: '확인',
