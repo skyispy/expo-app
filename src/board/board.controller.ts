@@ -82,8 +82,10 @@ export class BoardController {
     @Param('boardId') boardId: number,
     @Req() req: Request,
   ): Promise<{ result: BoardResponseDto }> {
-    const board = await this.boardService.getBoardDetail(boardId, (req.user as UserPayload).userId);
-    const { data, success, error } = BoardResponseSchema.safeParse(board);
+    const { userId } = req.user as UserPayload;
+    const board = await this.boardService.getBoardDetail(boardId, userId);
+    const extraInfo = await this.boardService.getBoardExtraInfo(boardId, userId);
+    const { data, success, error } = BoardResponseSchema.safeParse({ ...board, ...extraInfo });
     if (!success) {
       this.logger.warn('게시판 상세 응답 데이터 검증 실패', error);
       throw new BadRequestException('게시판 응답 데이터 검증 실패');

@@ -16,6 +16,14 @@ import { CommonService } from '../common/common.service';
 import { CategoryEntity } from './models/category.entity';
 import { ActionHistoryService } from '../user/service/action_history.service';
 
+type BoardExtraInfo = {
+  commentCount: number;
+  views: number;
+  likes: number;
+  isLiked: boolean;
+  isHidden: boolean;
+};
+
 @Injectable()
 export class BoardService {
   constructor(
@@ -37,9 +45,7 @@ export class BoardService {
     categoryId: number,
     page: number,
     limit: number,
-  ): Promise<
-    (BoardEntity & { commentCount: number; views: number; likes: number; isLiked: boolean })[]
-  > {
+  ): Promise<(BoardEntity & BoardExtraInfo)[]> {
     // 게시판 목록 조회
     const boardList = await this.boardRepository.find({
       where: { category: { categoryId }, status: 'active' },
@@ -52,28 +58,8 @@ export class BoardService {
     // 각 게시판에 댓글 개수 추가
     return await Promise.all(
       boardList.map(async (board) => {
-        // 댓글 개수 조회
-        const commentCount = await this.commonService.countCommentListByTarget(
-          board.boardId,
-          'board',
-        );
-        // 조회수 조회
-        const views = await this.actionHistoryService.countActionHistoryByTarget(
-          'board_view',
-          board.boardId,
-        );
-        // 좋아요 수 조회
-        const likes = await this.actionHistoryService.countActionHistoryByTarget(
-          'board_like',
-          board.boardId,
-        );
-        // 좋아요 여부
-        const userLiked = await this.actionHistoryService.getActionHistory(
-          'board_like',
-          board.boardId,
-          userId,
-        );
-        return { ...board, commentCount, views, likes, isLiked: !!userLiked };
+        const extraInfo = await this.getBoardExtraInfo(board.boardId, userId);
+        return { ...board, ...extraInfo };
       }),
     );
   }
@@ -115,10 +101,7 @@ export class BoardService {
   }
 
   // 게시판 상세 조회
-  async getBoardDetail(
-    boardId: number,
-    userId: number,
-  ): Promise<BoardEntity & { views: number; likes: number; isLiked: boolean }> {
+  async getBoardDetail(boardId: number, userId: number): Promise<BoardEntity> {
     const board = await this.boardRepository.findOne({
       where: { boardId, status: 'active' },
       relations: ['user', 'category'],
@@ -126,15 +109,37 @@ export class BoardService {
     if (!board) {
       throw new BadRequestException('존재하지 않는 게시판입니다.');
     }
+    await this.actionHistoryService.recordViewHistory('board_view', boardId, userId);
+    return board;
+  }
+
+  // 게시판 추가 정보(댓글 수, 조회수, 좋아요 수 등) 조회
+  async getBoardExtraInfo(boardId: number, userId: number): Promise<BoardExtraInfo> {
+    // 댓글 개수 조회
+    const commentCount = await this.commonService.countCommentListByTarget(boardId, 'board');
+    // 조회수 조회
     const views = await this.actionHistoryService.countActionHistoryByTarget('board_view', boardId);
+    // 좋아요 수 조회
     const likes = await this.actionHistoryService.countActionHistoryByTarget('board_like', boardId);
+    // 좋아요 여부
     const userLiked = await this.actionHistoryService.getActionHistory(
       'board_like',
       boardId,
       userId,
     );
-    await this.actionHistoryService.recordViewHistory('board_view', boardId, userId);
-    return { ...board, views, likes, isLiked: !!userLiked };
+    // 숨김 여부
+    const userHidden = await this.actionHistoryService.getActionHistory(
+      'board_hide',
+      boardId,
+      userId,
+    );
+    return {
+      commentCount,
+      views,
+      likes,
+      isLiked: !!userLiked,
+      isHidden: !!userHidden,
+    };
   }
 
   async getBoardById(boardId: number): Promise<BoardEntity | null> {
