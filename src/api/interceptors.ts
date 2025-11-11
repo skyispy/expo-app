@@ -2,8 +2,8 @@ import { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import * as Device from 'expo-device';
 import * as Application from 'expo-application';
-import { useAuthStore } from '../store';
-import { ApiResponse, TokenRefreshResponse } from '../types';
+import { useAuthStore } from '@store';
+import { ApiResponse, TokenRefreshResponse } from '@types';
 
 interface RetryAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;

@@ -25,7 +25,7 @@ export const timeSince = (createDate: Date | string, updateDate: Date | string) 
   const now = new Date();
   const seconds = Math.floor((now.getTime() - baseDate.getTime()) / 1000);
 
-  let result = '';
+  let result;
   let interval = Math.floor(seconds / 31536000);
   if (interval >= 1) {
     result = `${interval}년 전`;

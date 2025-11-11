@@ -3,6 +3,7 @@ import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
 import { ApiResponse, CommentCreateRequest, InfiniteQueryResponse, Comment } from '@types';
 import apiClient from '../api/config';
 import { ApiError } from '../errors/ApiError';
+import { Alert } from 'react-native';
 
 export const useCreateComment = () => {
   const { mutateAsync } = useMutation({
@@ -11,7 +12,7 @@ export const useCreateComment = () => {
       return response.data.result;
     },
     onError: (err) => {
-      if(err instanceof ApiError) {
+      if(err instanceof ApiError && __DEV__) {
         console.error('useCreateComment -> Failed to create comment', err.message);
       }
     }
@@ -53,7 +54,7 @@ export const useUpdateComment = () => {
       return response.data.result;
     },
     onError: (err) => {
-      if(err instanceof ApiError) {
+      if(err instanceof ApiError && __DEV__) {
         console.error('useUpdateComment -> Failed to edit comment', err.message);
       }
     }
@@ -69,10 +70,14 @@ export const useDeleteComment = () => {
       const response: ApiResponse<null> = await apiClient.delete(`/common/comment/${commentId}`);
       return response.data.result;
     },
+    onSuccess: async () => {
+      Alert.alert('댓글 삭제 성공', '댓글이 삭제되었습니다.');
+    },
     onError: (err) => {
-      if(err instanceof ApiError) {
+      if(err instanceof ApiError && __DEV__) {
         console.error('useDeleteComment -> Failed to delete comment', err.message);
       }
+      Alert.alert('댓글 삭제 실패', '댓글 삭제에 실패했습니다. 다시 시도해주세요.')
     }
   });
 

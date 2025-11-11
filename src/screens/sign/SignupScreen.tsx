@@ -1,11 +1,11 @@
-import { StyleSheet, Text, TouchableOpacity, View, Alert, ScrollView } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { useState } from 'react';
-import type { SignupRequest } from '../../types';
-import { useCheckDuplicateNickname, useSignupUser } from '../../hooks';
-import { UserSignupSchema } from '../../schemas';
-import type { UserSignupFields } from '../../schemas';
-import { FormInput, FormInputWithButton } from '../../components';
-import { KeyboardLayout } from '../../layout';
+import type { SignupRequest } from '@types';
+import { useCheckDuplicateNickname, useSignupUser } from '@hooks';
+import { UserSignupSchema } from '@schemas';
+import type { UserSignupFields } from '@schemas';
+import { FormInput, FormInputWithButton } from '@components';
+import { KeyboardLayout } from '@layout';
 
 export const SignupScreen = () => {
   const [nickname, setNickname] = useState<string>('');

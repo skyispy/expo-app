@@ -7,7 +7,7 @@ import { useTokenLoginUser } from '@hooks';
 import { BottomBackground } from '@layout';
 
 const RootNavigator = () => {
-  const { user, setUser, clearUser } = useAuthStore((state) => state);
+  const user = useAuthStore((state) => state.user);
   const { tokenLoginUser, isTokenLoginPending } = useTokenLoginUser();
   const [isLoading, setIsLoading] = useState<boolean>(true);
 

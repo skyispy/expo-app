@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { addAccessTokenHeader, addUserAgentHeader, refreshAccessToken } from './interceptors';
 import { ApiError } from '../errors/ApiError';
 

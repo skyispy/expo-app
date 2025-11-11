@@ -1,12 +1,12 @@
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import type { SignStackScreenProps } from '../../types';
-import { useLoginUser } from '../../hooks';
-import { UserLoginSchema } from '../../schemas';
+import type { SignStackScreenProps } from '@types';
+import { useLoginUser } from '@hooks';
+import { UserLoginSchema } from '@schemas';
 import CheckBox from 'expo-checkbox';
-import { FormInput } from '../../components';
-import { KeyboardLayout } from '../../layout';
+import { FormInput } from '@components';
+import { KeyboardLayout } from '@layout';
 
 export const LoginScreen = () => {
   const stackNav = useNavigation<SignStackScreenProps>();
