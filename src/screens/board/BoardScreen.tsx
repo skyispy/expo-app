@@ -113,7 +113,7 @@ export const BoardScreen = () => {
                 />
               </View>
               <Text style={styles.content}>{board.content}</Text>
-              <Pressable style={styles.metaContainer} onPress={() => boardLike(board)}>
+              <Pressable style={styles.metaContainer} onPress={() => boardLike({ boardId: board.boardId, isLiked: board.isLiked })}>
                 <Ionicons name={board.isLiked ? 'heart' : 'heart-outline'} size={24} color={board.isLiked ? 'red' : 'black'} />
                 <Text style={styles.metaCount}>{board.likes}</Text>
               </Pressable>

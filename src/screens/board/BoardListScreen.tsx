@@ -6,8 +6,11 @@ import { EllipsisModal } from '@components';
 import { Category } from '@types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
+import { useQueryClient } from '@tanstack/react-query';
+import { BoardActionCancel } from '@screens/board/components/BoardActionCancel';
 
 export const BoardListScreen = () => {
+  const queryClient = useQueryClient();
   const [channelId, setChannelId] = useState<number>(1);
   const [categoryId, setCategoryId] = useState<number>(1);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -29,14 +32,13 @@ export const BoardListScreen = () => {
     boardFetchNextPage,
     boardHasNextPage,
     boardIsFetchingNextPage,
-    boardRefetch
   } = useGetBoardList(categoryId);
 
   const handleRefresh = async () => {
     setRefreshing(true);
     // 여기에 새로고침 로직 추가 (예: refetch)
     if(!boardIsFetchingNextPage){
-      await boardRefetch();
+      await queryClient.refetchQueries({ queryKey: ['board'] });
     }
     setRefreshing(false);
   }
@@ -98,11 +100,11 @@ export const BoardListScreen = () => {
       </View>
       <FlatList
         data={boardList}
-        renderItem={({ item }) => <BoardPreview board={item} />}
+        renderItem={({ item }) => !!item.isHidden ? <BoardActionCancel board={item} /> : <BoardPreview board={item} />}
         keyExtractor={(item) => item.boardId.toString()}
-        onEndReached={() => {
+        onEndReached={async () => {
           if (boardHasNextPage && !boardIsFetchingNextPage) {
-            boardFetchNextPage();
+            await boardFetchNextPage();
           }
         }}
         onEndReachedThreshold={0.5}

@@ -80,6 +80,8 @@ export type Board = {
   deleteDate: string | null;
   // 댓글 수
   commentCount: number;
+  // 숨김 여부 (서버에서 가져올 때는 없음)
+  isHidden?: boolean;
 }
 
 export type Comment = {

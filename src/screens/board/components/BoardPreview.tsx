@@ -77,7 +77,7 @@ export const BoardPreview = ({ board }: { board: Board }) => {
           <Ionicons name="chatbubble-ellipses-outline" size={24} color="black" />
           <Text style={styles.metaCount}>{board.commentCount}</Text>
         </Pressable>
-        <Pressable style={styles.metaContainer} onPress={() => boardLike(board)}>
+        <Pressable style={styles.metaContainer} onPress={() => boardLike({ boardId: board.boardId, isLiked: board.isLiked })}>
           <Ionicons name={board.isLiked ? 'heart' : 'heart-outline'} size={24} color={board.isLiked ? 'red' : 'black'} />
           <Text style={styles.metaCount}>{board.likes}</Text>
         </Pressable>
