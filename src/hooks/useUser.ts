@@ -1,6 +1,6 @@
-import { useMutation } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
 import {
-  ApiResponse,
+  ApiResponse, Board, InfiniteQueryResponse,
   SignStackScreenProps,
   SignupRequest,
   User,
@@ -77,11 +77,31 @@ export const useUpdateProfile = () => {
           Alert.alert('프로필 수정 실패', `${error.message}`);
           return;
         }
-        console.log(error)
       }
       Alert.alert('프로필 수정 실패', '요청에 실패했습니다. 잠시 후 다시 시도해주세요.');
     }
   });
 
   return { updateProfile: mutateAsync };
+}
+
+// 행동 기록 조회(게시글)
+export const useGetBoardActionList = (actionType: string) => {
+  const { data, refetch } = useInfiniteQuery({
+    queryKey: ['boardAction', { actionType }],
+    queryFn: async ({ pageParam }) => {
+      const response: ApiResponse<InfiniteQueryResponse<Board & { lastActionDate: Date }>>
+        = await apiClient.get(`/action/board/${actionType}`, {
+        params: { page: pageParam, limit: 20 },
+      });
+      return response.data.result;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    // staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+
+  const boardList = data?.pages.flatMap(page => page.itemList);
+
+  return { boardList: boardList, boardActionRefetch: refetch };
 }

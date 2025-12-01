@@ -7,7 +7,7 @@ import {
   TextInput,
   Pressable,
 } from 'react-native';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons/';
@@ -33,6 +33,7 @@ export const BoardScreen = () => {
   const boardMenuOptions = useBoardMenuOptions(board, user);
   const { boardLike } = useBoardLike();
 
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // 헤더 우측 더보기 버튼 설정
@@ -46,6 +47,11 @@ export const BoardScreen = () => {
         </TouchableOpacity>
       ),
     })
+
+    return navigation.addListener('transitionEnd', () => setIsLoading(false));
+  }, [navigation]);
+
+  useEffect(() => {
     // 댓글 타겟 설정
     if(board) {
       setCommentTargetType('board');
@@ -64,7 +70,7 @@ export const BoardScreen = () => {
     <>
       {/* 더보기 모달 */}
       <EllipsisModal />
-      {!board ? (
+      {!board || isLoading ? (
         <View style={[styles.container, { alignItems: 'center', justifyContent: 'center' }]}>
           <Text>글을 불러오는 중입니다...</Text>
         </View>

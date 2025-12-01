@@ -1,16 +1,31 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import { ProfileEditScreen } from '@screens/profile';
 import { Header } from '@components';
-import { BoardStep1Screen, BoardScreen, BoardStep2Screen } from '@screens/board';
+import { BoardScreen, BoardStep1Screen, BoardStep2Screen } from '@screens/board';
 import BottomTabNavigator from './BottomTabNavigator';
+import { BoardActionScreen } from '@screens/profile/BoardActionScreen';
+import { Pressable } from 'react-native';
+import { Ionicons } from '@expo/vector-icons/';
+import { useNavigation } from '@react-navigation/native';
+import { AppStackScreenProps } from '@types';
 
 const AppStack = createStackNavigator();
 const AppNavigator = () => {
+  const navigation = useNavigation<AppStackScreenProps>();
+
   return (
     <AppStack.Navigator
       initialRouteName="Main"
       screenOptions={{
         header: (props) => <Header {...props} />,
+        headerLeft: ({ canGoBack }) =>
+          canGoBack ? (
+            <Pressable
+              style={{ width: 30, height: 30, justifyContent: 'center', alignItems: 'center' }}
+              onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back" size={24} color="black" />
+            </Pressable>
+          ) : null,
       }}
     >
       <AppStack.Screen
@@ -22,6 +37,7 @@ const AppNavigator = () => {
         name="Board"
         component={BoardScreen}
         options={{
+          headerTitle: '게시글',
           animation: 'scale_from_center'
         }}
       />
@@ -36,6 +52,11 @@ const AppNavigator = () => {
       <AppStack.Screen
         name="ProfileEdit"
         component={ProfileEditScreen}
+        options={{ headerTitle: '프로필 수정' }}
+      />
+      <AppStack.Screen
+        name="BoardAction"
+        component={BoardActionScreen}
       />
     </AppStack.Navigator>
   )

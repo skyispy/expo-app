@@ -3,3 +3,4 @@ export * from './FormInput';
 export * from './ProfileImage';
 export * from './CommentInput';
 export * from './EllipsisModal';
+export * from './CustomLoading';

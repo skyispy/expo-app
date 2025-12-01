@@ -39,6 +39,7 @@ const BottomTabNavigator = () => {
           tabBarLabel: '홈',
           tabBarActiveTintColor: '#6A49E9',
           tabBarInactiveTintColor: 'gray',
+          headerTitle: '홈',
         }}
       />
       <BottomTab.Screen
@@ -50,6 +51,7 @@ const BottomTabNavigator = () => {
           tabBarLabel: '게시판',
           tabBarActiveTintColor: '#6A49E9',
           tabBarInactiveTintColor: 'gray',
+          headerTitle: '게시판',
         }}
       />
       <BottomTab.Screen
@@ -81,6 +83,7 @@ const BottomTabNavigator = () => {
           tabBarLabel: '알림',
           tabBarActiveTintColor: '#6A49E9',
           tabBarInactiveTintColor: 'gray',
+          headerTitle: '알림',
         }}
       />
       <BottomTab.Screen
@@ -92,6 +95,7 @@ const BottomTabNavigator = () => {
           tabBarLabel: '프로필',
           tabBarActiveTintColor: '#6A49E9',
           tabBarInactiveTintColor: 'gray',
+          headerTitle: '프로필',
         }}
       />
     </BottomTab.Navigator>

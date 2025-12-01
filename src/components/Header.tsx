@@ -1,73 +1,17 @@
-import { StyleSheet, View, Text, Pressable } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons/';
 import { StackHeaderProps } from '@react-navigation/stack';
 import { BottomTabHeaderProps } from '@react-navigation/bottom-tabs';
 
-const headerConfig: Record<
-  string,
-  {
-    title?: string;
-    showBackButton?: boolean;
-  }
-> = {
-  Signup: {
-    title: '회원가입',
-    showBackButton: true,
-  },
-  Login: {
-    title: '로그인',
-  },
-  Home: {
-    title: '홈',
-  },
-  Profile: {
-    title: '프로필',
-  },
-  ProfileEdit: {
-    title: '프로필 수정',
-    showBackButton: true,
-  },
-  BoardList: {
-    title: '게시판',
-  },
-  Board: {
-    title: '게시글',
-    showBackButton: true,
-  },
-  BoardStep1: {
-    title: '게시글 작성',
-    showBackButton: true,
-  },
-  BoardStep2: {
-    title: '게시글 작성',
-    showBackButton: true,
-  }
-};
-
 export const Header = ({
-  navigation,
-  route,
   options,
 }: StackHeaderProps | BottomTabHeaderProps) => {
   const { top } = useSafeAreaInsets();
-  const config = headerConfig[route.name] || {};
-
-  const renderLeft = () => {
-    if (config.showBackButton) {
-      return (
-        <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="black" />
-        </Pressable>
-      );
-    }
-    return <View style={styles.side} />;
-  };
 
   return (
     <View style={[styles.container, { marginTop: top }]}>
-      {renderLeft()}
-      <Text style={styles.title}>{config.title}</Text>
+      {options?.headerLeft ? options.headerLeft({ canGoBack: true }) : <View style={styles.side} />}
+      <Text style={styles.title}>{options?.headerTitle as string}</Text>
       {options?.headerRight ? options.headerRight({ canGoBack: true }) : <View style={styles.side} />}
     </View>
   );

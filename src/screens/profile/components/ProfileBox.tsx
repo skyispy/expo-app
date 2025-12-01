@@ -3,17 +3,17 @@ import { useNavigation } from '@react-navigation/native';
 import { ProfileImage } from '@components';
 import type { AppStackScreenProps, User } from '@types';
 import { useAuthStore } from '@store';
+import { useLogoutUser } from '@hooks';
 
 export const ProfileBox = () => {
-  const user = useAuthStore((state) => state.user) as User;
   const navigation = useNavigation<AppStackScreenProps>();
+  const { logoutUser } = useLogoutUser();
+
+  const user = useAuthStore((state) => state.user) as User;
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
-        <ProfileImage
-          size={80}
-          uri={user.profileImageUrl}
-        />
+        <ProfileImage size={80} uri={user.profileImageUrl} />
         <View style={styles.profileDetailsContainer}>
           <View style={styles.userInfoContainer}>
             <Text style={styles.nickname}>{user.nickname}</Text>
@@ -31,8 +31,8 @@ export const ProfileBox = () => {
         >
           <Text style={styles.actionButtonText}>프로필 수정</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionButtonText}>내 글 보기</Text>
+        <TouchableOpacity style={styles.actionButton} onPress={() => logoutUser()}>
+          <Text style={styles.actionButtonText}>로그아웃</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -85,6 +85,8 @@ const styles = StyleSheet.create({
   introductionContainer: {
     marginTop: 4,
     maxWidth: '80%',
+    padding: 6,
+    backgroundColor: '#f0f0f0',
   },
   introduction: {
     fontSize: 14,

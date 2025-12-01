@@ -51,6 +51,7 @@ export const BoardStep1Screen = () => {
   // 헤더에 저장 버튼 추가
   useEffect(() => {
     navigation.setOptions({
+      headerTitle: board ? '게시글 수정 1 / 2' : '게시글 작성 1 / 2',
       headerRight: () => (
         <Pressable onPress={goToStep2}>
           <Text style={
@@ -63,7 +64,7 @@ export const BoardStep1Screen = () => {
         </Pressable>
       )
     })
-  }, [goToStep2, navigation, title]);
+  }, [goToStep2, navigation, title, board]);
 
   return (
     <KeyboardLayout>

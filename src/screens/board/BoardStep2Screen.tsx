@@ -103,6 +103,7 @@ export const BoardStep2Screen = () => {
   // 헤더에 저장 버튼 추가
   useEffect(() => {
     navigation.setOptions({
+      headerTitle: 'boardId' in board ? '게시글 수정 2 / 2' : '게시글 작성 2 / 2',
       headerRight: () => (
         <Pressable onPress={saveBoard}>
           <Text style={
@@ -115,7 +116,7 @@ export const BoardStep2Screen = () => {
         </Pressable>
       )
     })
-  }, [saveBoard, navigation, categoryId]);
+  }, [saveBoard, navigation, categoryId, board]);
 
   // 채널리스트에서 카테고리 id로 채널명이랑 카테고리 명 찾기
   // 선택된 채널

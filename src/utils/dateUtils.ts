@@ -50,3 +50,24 @@ export const timeSince = (createDate: Date | string, updateDate: Date | string) 
   }
   return result;
 }
+
+// 날짜 라벨 함수
+export const getDateLabel = (date: string | Date): string => {
+  const view = new Date(date);
+  const now = new Date();
+
+  const isToday = view.getFullYear() === now.getFullYear() &&
+    view.getMonth() === now.getMonth() &&
+    view.getDate() === now.getDate();
+
+  const yesterday = new Date();
+  yesterday.setDate(now.getDate() - 1);
+
+  const isYesterday = view.getFullYear() === yesterday.getFullYear() &&
+    view.getMonth() === yesterday.getMonth() &&
+    view.getDate() === yesterday.getDate();
+
+  if (isToday) return '오늘';
+  if (isYesterday) return '어제';
+  return view.toLocaleDateString(); // 그 외 날짜
+};

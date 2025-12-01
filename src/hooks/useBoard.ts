@@ -130,10 +130,10 @@ export const useBoardLike = () => {
     mutationFn: async ({ boardId, isLiked }: Pick<Board, 'boardId' | 'isLiked'>) => {
       if(isLiked) {
         // 좋아요 취소
-        await apiClient.delete(`/board/${boardId}/action`, { data: { actionType: 'like' } });
+        await apiClient.delete(`/board/${boardId}/like`);
       } else {
         // 좋아요 추가
-        await apiClient.post(`/board/${boardId}/action`, { actionType: 'like' });
+        await apiClient.post(`/board/${boardId}/like`);
       }
     },
     // Optimistic Update
@@ -207,10 +207,10 @@ export const useBoardHide = () => {
     mutationFn: async ({ boardId, isHidden }: Pick<Board, 'boardId' | 'isHidden'> & Pick<Category, 'categoryId'>) => {
       if (!!isHidden) {
         // 숨김 해제
-        await apiClient.delete(`/board/${boardId}/action`, { data: { actionType: 'hide' } });
+        await apiClient.delete(`/board/${boardId}/hide`);
       } else {
         // 숨김 처리
-        await apiClient.post(`/board/${boardId}/action`, { actionType: 'hide' });
+        await apiClient.post(`/board/${boardId}/hide`);
       }
     },
     onMutate: async ({ boardId, isHidden, categoryId }) => {
@@ -247,11 +247,11 @@ export const useBoardHide = () => {
     },
     onError: (err, { categoryId }, context) => {
       if (context?.previousBoardList) {
-        // // 실패 시 롤백
-        // queryClient.setQueryData<{ pageParams: number[]; pages: InfiniteQueryResponse<Board>[] }>(
-        //   ['board', { categoryId }],
-        //   context.previousBoardList,
-        // );
+        // 실패 시 롤백
+        queryClient.setQueryData<{ pageParams: number[]; pages: InfiniteQueryResponse<Board>[] }>(
+          ['board', { categoryId }],
+          context.previousBoardList,
+        );
       }
       if (__DEV__) {
         console.error('useBoardHide -> Failed to hide board', err);
