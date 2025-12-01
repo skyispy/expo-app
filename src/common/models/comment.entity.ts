@@ -1,8 +1,9 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { UserEntity } from '../../user/models';
+import { TimestampEntity } from './timestamp.entity';
 
 @Entity('COMMENT')
-export class CommentEntity {
+export class CommentEntity extends TimestampEntity {
   @PrimaryGeneratedColumn()
   commentId: number;
 
@@ -46,23 +47,4 @@ export class CommentEntity {
   // 대댓글
   @OneToMany(() => CommentEntity, (comment) => comment.parent)
   children?: CommentEntity[];
-
-  // 작성 일자
-  @Column({
-    type: 'datetime',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createDate: Date;
-
-  // 수정 일자(댓글 수정 시 수정중 표시)
-  @Column({
-    type: 'datetime',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  updateDate: Date;
-
-  // 삭제 일자
-  @Column({ type: 'datetime', nullable: true })
-  deleteDate: Date;
 }

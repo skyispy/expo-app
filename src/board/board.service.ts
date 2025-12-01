@@ -11,10 +11,10 @@ import { Repository } from 'typeorm';
 import type { BoardCreateDto } from './dto/board.dto';
 import { ConfigService } from '@nestjs/config';
 import { saveFileToDist } from '../common/utils';
-import { UserService } from '../user/service/user.service';
+import { UserService } from '../user/user.service';
 import { CommonService } from '../common/common.service';
 import { CategoryEntity } from './models/category.entity';
-import { ActionHistoryService } from '../user/service/action_history.service';
+import { ActionService } from '../action/action.service';
 
 type BoardExtraInfo = {
   commentCount: number;
@@ -34,7 +34,7 @@ export class BoardService {
     private readonly userService: UserService,
     private readonly configService: ConfigService,
     private readonly commonService: CommonService,
-    private readonly actionHistoryService: ActionHistoryService,
+    private readonly actionService: ActionService,
   ) {}
 
   private readonly logger = new Logger(BoardService.name);
@@ -109,7 +109,7 @@ export class BoardService {
     if (!board) {
       throw new BadRequestException('존재하지 않는 게시판입니다.');
     }
-    await this.actionHistoryService.recordViewHistory('board_view', boardId, userId);
+    await this.actionService.addView('board', boardId, userId);
     return board;
   }
 
@@ -118,27 +118,19 @@ export class BoardService {
     // 댓글 개수 조회
     const commentCount = await this.commonService.countCommentListByTarget(boardId, 'board');
     // 조회수 조회
-    const views = await this.actionHistoryService.countActionHistoryByTarget('board_view', boardId);
+    const views = await this.actionService.countViews('board', boardId);
     // 좋아요 수 조회
-    const likes = await this.actionHistoryService.countActionHistoryByTarget('board_like', boardId);
+    const likes = await this.actionService.countLikes('board', boardId);
     // 좋아요 여부
-    const userLiked = await this.actionHistoryService.getActionHistory(
-      'board_like',
-      boardId,
-      userId,
-    );
+    const isLiked = await this.actionService.isLiked('board', boardId, userId);
     // 숨김 여부
-    const userHidden = await this.actionHistoryService.getActionHistory(
-      'board_hide',
-      boardId,
-      userId,
-    );
+    const isHidden = await this.actionService.isHidden('board', boardId, userId);
     return {
       commentCount,
       views,
       likes,
-      isLiked: !!userLiked,
-      isHidden: !!userHidden,
+      isLiked,
+      isHidden,
     };
   }
 
@@ -181,41 +173,5 @@ export class BoardService {
     }
     // 상태를 'deleted'로 변경하고 삭제 일자 기록
     await this.boardRepository.update({ boardId }, { status: 'deleted', deleteDate: new Date() });
-  }
-
-  // 좋아요/신고/숨기기 추가
-  async handleBoardAction(
-    boardId: number,
-    userId: number,
-    actionType: 'like' | 'report' | 'hide',
-  ): Promise<void> {
-    const targetType = `board_${actionType}`;
-    const existingAction = await this.actionHistoryService.getActionHistory(
-      targetType,
-      boardId,
-      userId,
-    );
-    if (existingAction) {
-      throw new BadRequestException('이미 해당 게시판에 대한 행동을 수행하였습니다.');
-    }
-    await this.actionHistoryService.recordActionHistory(targetType, boardId, userId);
-  }
-
-  // 좋아요/신고/숨기기 취소
-  async unHandleBoardAction(
-    boardId: number,
-    userId: number,
-    actionType: 'like' | 'report' | 'hide',
-  ): Promise<void> {
-    const targetType = `board_${actionType}`;
-    const existingAction = await this.actionHistoryService.getActionHistory(
-      targetType,
-      boardId,
-      userId,
-    );
-    if (!existingAction) {
-      throw new BadRequestException('해당 게시판에 대한 행동 기록이 존재하지 않습니다.');
-    }
-    await this.actionHistoryService.removeActionHistory(targetType, boardId, userId);
   }
 }

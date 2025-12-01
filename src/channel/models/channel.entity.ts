@@ -1,8 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { CategoryEntity } from '../../board/models/category.entity';
+import { TimestampEntity } from '../../common/models';
 
 @Entity('CHANNEL')
-export class ChannelEntity {
+export class ChannelEntity extends TimestampEntity {
   // 채널 고유 ID
   @PrimaryGeneratedColumn()
   channelId: number;
@@ -22,25 +23,6 @@ export class ChannelEntity {
   // 채널 상태 (예: 'active', 'inactive', 'deleted' 등)
   @Column({ default: 'active' })
   status: string;
-
-  // 생성 일자
-  @Column({
-    type: 'datetime',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createDate: Date;
-
-  // 수정 일자
-  @Column({
-    type: 'datetime',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  updateDate: Date;
-
-  // 삭제 일자
-  @Column({ type: 'datetime', nullable: true })
-  deleteDate: Date;
 
   // 채널 카테고리 목록
   @OneToMany(() => CategoryEntity, (category) => category.channel)

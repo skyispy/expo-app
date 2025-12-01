@@ -24,11 +24,11 @@ export const BoardResponseSchema = z.object({
   // 댓글 수
   commentCount: z.number().optional().nullable(),
   // 조회수
-  views: z.number(),
+  views: z.number().optional(),
   // 좋아요 수
-  likes: z.number(),
+  likes: z.number().optional(),
   // 좋아요 여부 (현재 사용자가 좋아요를 눌렀는지)
-  isLiked: z.boolean(),
+  isLiked: z.boolean().optional(),
   // 숨김 여부 (현재 사용자가 게시글을 숨겼는지)
   isHidden: z.boolean().optional(),
 });

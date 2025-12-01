@@ -21,10 +21,14 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { InfiniteQueryResponse } from '../common/dto/response.dto';
 import { JwtAuthGuard, UserPayload } from '../auth/guards';
 import type { Request } from 'express';
+import { ActionService } from '../action/action.service';
 
 @Controller('board')
 export class BoardController {
-  constructor(private readonly boardService: BoardService) {}
+  constructor(
+    private readonly boardService: BoardService,
+    private readonly actionService: ActionService,
+  ) {}
   private readonly logger = new Logger(BoardController.name);
 
   // 게시판 목록 조회
@@ -122,27 +126,47 @@ export class BoardController {
     await this.boardService.deleteBoard(boardId, userId);
   }
 
-  // 좋아요/싫어요/신고/숨기기 추가
-  @Post('/:boardId/action')
+  // 좋아요/숨기기/신고/차단 추가
+  @Post('/:boardId/:actionType')
   @UseGuards(JwtAuthGuard)
-  async handleBoardAction(
+  async addAction(
     @Param('boardId') boardId: number,
-    @Body('actionType') actionType: 'like' | 'report' | 'hide',
+    @Param('actionType') actionType: 'like' | 'hide' | 'report' | 'block',
     @Req() req: Request,
   ): Promise<void> {
     const { userId } = req.user as UserPayload;
-    await this.boardService.handleBoardAction(boardId, userId, actionType);
+    switch (actionType) {
+      case 'like':
+        await this.actionService.addLike('board', boardId, userId);
+        break;
+      case 'hide':
+        await this.actionService.addHide('board', boardId, userId);
+        break;
+      // 추가적인 action 타입 처리 가능
+      default:
+        throw new BadRequestException('유효하지 않은 액션 타입입니다.');
+    }
   }
 
-  // 좋아요/싫어요/신고/숨기기 취소
-  @Delete('/:boardId/action')
+  // 좋아요/숨기기/신고/차단 제거
+  @Delete('/:boardId/:action')
   @UseGuards(JwtAuthGuard)
-  async unHandleBoardAction(
+  async removeAction(
     @Param('boardId') boardId: number,
-    @Body('actionType') actionType: 'like' | 'report' | 'hide',
+    @Param('action') action: 'like' | 'hide' | 'report' | 'block',
     @Req() req: Request,
   ): Promise<void> {
     const { userId } = req.user as UserPayload;
-    await this.boardService.unHandleBoardAction(boardId, userId, actionType);
+    switch (action) {
+      case 'like':
+        await this.actionService.removeLike('board', boardId, userId);
+        break;
+      case 'hide':
+        await this.actionService.removeHide('board', boardId, userId);
+        break;
+      // 추가적인 action 타입 처리 가능
+      default:
+        throw new BadRequestException('유효하지 않은 액션 타입입니다.');
+    }
   }
 }

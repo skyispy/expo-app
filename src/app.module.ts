@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BoardModule } from './board/board.module';
 import { ChannelModule } from './channel/channel.module';
+import { ActionModule } from './action/action.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ChannelModule } from './channel/channel.module';
     AuthModule,
     BoardModule,
     ChannelModule,
+    ActionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

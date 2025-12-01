@@ -1,11 +1,11 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { RefreshTokensEntity } from '../../auth/models';
 import { BoardEntity } from '../../board/models';
-import { CommentEntity } from '../../common/models';
-import { ActionHistoryEntity } from './action_history.entity';
+import { CommentEntity, TimestampEntity } from '../../common/models';
+import { LikeEntity, HiddenEntity, ViewHistoryEntity } from '../../action/models';
 
 @Entity('USER')
-export class UserEntity {
+export class UserEntity extends TimestampEntity {
   @PrimaryGeneratedColumn()
   userId: number;
 
@@ -29,34 +29,27 @@ export class UserEntity {
   @Column({ nullable: true })
   introduction: string;
 
-  // 생성 일자
-  @Column({
-    type: 'datetime',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createDate: Date;
-
-  // 수정 일자
-  @Column({
-    type: 'datetime',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  updateDate: Date;
-
-  // RefreshTokensEntity와의 1:N 관계 설정
+  // 리프레시 토큰 목록
   @OneToMany(() => RefreshTokensEntity, (refreshToken) => refreshToken.user)
   refreshTokens: RefreshTokensEntity[];
 
-  // BoardEntity와의 1:N 관계 설정
+  // 게시글 목록
   @OneToMany(() => BoardEntity, (board) => board.user)
   boardList: BoardEntity[];
 
-  // CommentEntity와의 1:N 관계 설정
+  // 댓글 목록
   @OneToMany(() => CommentEntity, (comment) => comment.user)
   commentList: CommentEntity[];
 
-  // ActionHistoryEntity와의 1:N 관계 설정
-  @OneToMany(() => ActionHistoryEntity, (view) => view.user)
-  actionHistoryList: ActionHistoryEntity[];
+  // 최근 본 기록 목록
+  @OneToMany(() => ViewHistoryEntity, (viewHistory) => viewHistory.user)
+  viewHistoryList: ViewHistoryEntity[];
+
+  // 좋아요 목록
+  @OneToMany(() => LikeEntity, (like) => like.user)
+  likeList: LikeEntity[];
+
+  // 숨김 목록
+  @OneToMany(() => HiddenEntity, (hidden) => hidden.user)
+  hiddenList: HiddenEntity[];
 }

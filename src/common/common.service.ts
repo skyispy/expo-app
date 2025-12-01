@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CommentEntity } from './models';
-import { UserService } from '../user/service/user.service';
+import { UserService } from '../user/user.service';
 import type { CommentCreateDto } from './dto/comment.dto';
 
 @Injectable()
