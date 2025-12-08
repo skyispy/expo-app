@@ -49,7 +49,7 @@ export const BoardScreen = () => {
     })
 
     return navigation.addListener('transitionEnd', () => setIsLoading(false));
-  }, [navigation]);
+  }, [navigation, boardMenuOptions]);
 
   useEffect(() => {
     // 댓글 타겟 설정
