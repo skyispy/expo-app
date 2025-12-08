@@ -19,7 +19,7 @@ export type SignStackScreenProps = StackScreenProps<SignStackParamList>;
 export type MainTabParamList = {
   Home: undefined;
   BoardList: undefined;
-  Notification: undefined;
+  Message: undefined;
   Profile: undefined;
 }
 
@@ -31,9 +31,10 @@ export type AppStackParamList = {
   ProfileEdit: undefined;
   BoardList: undefined;
   Board: { boardId: number };
-  BoardStep1: { board?: Board };
+  BoardStep1: { boardId?: number };
   BoardStep2: { board: Board & { imageUri: string | null; categoryId: number } | { title: string; content: string; imageUri: string | null }  };
   BoardAction: { actionType: 'board' | 'view' | 'like' | 'hide' };
+  Settings: undefined;
 };
 export type AppStackScreenProps = StackScreenProps<AppStackParamList>;
 

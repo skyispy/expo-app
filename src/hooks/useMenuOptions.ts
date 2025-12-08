@@ -19,7 +19,7 @@ export const useBoardMenuOptions = (board: Board | undefined, user: User) => {
     label: '게시글 수정',
     icon: 'pencil-outline',
     action: () => {
-      navigation.navigate('BoardStep1', { board });
+      navigation.navigate('BoardStep1', { boardId: board.boardId });
     },
   };
   const deleteOption = {
