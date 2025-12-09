@@ -13,25 +13,38 @@ import { Ionicons } from '@expo/vector-icons/';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { AppRouteScreenProps, AppStackScreenProps, Board } from '@types';
-import { FormInput } from '@components';
-import { useImagePicker } from '@hooks';
+import { CustomLoading, FormInput } from '@components';
+import { useGetBoard, useImagePicker } from '@hooks';
 import { KeyboardLayout } from '@layout';
 import { useQueryClient } from '@tanstack/react-query';
 
 export const BoardStep1Screen = () => {
   // 수정할 게시글 정보 (없으면 새 글 작성)
-  const queryClient = useQueryClient();
   const route = useRoute<AppRouteScreenProps<'BoardStep1'>>();
   const navigation = useNavigation<AppStackScreenProps>();
   const { bottom } = useSafeAreaInsets();
   const { imageUri, pickImage, removeImage } = useImagePicker();
 
   const boardId = route.params?.boardId;
-  const board = queryClient.getQueryData<Board>(['board', { boardId }]);
+  const { board, boardIsLoading } = useGetBoard(boardId);
 
-  const [title, setTitle] = useState<string>(board?.title ?? '');
-  const [content, setContent] = useState<string>(board?.content ?? '');
+  const [title, setTitle] = useState<string>('');
+  const [content, setContent] = useState<string>('');
   const [contentHeight, setContentHeight] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    return navigation.addListener('transitionEnd', () => {
+      setIsLoading(false);
+    })
+  }, [navigation]);
+
+  useEffect(() => {
+    if (!boardIsLoading && board) {
+      setTitle(board.title);
+      setContent(board.content);
+    }
+  }, [boardIsLoading]);
 
   // 안드로이드에서 TextInput의 contentSize 변경 감지 함수
   // iOS는 자동으로 높이 조절됨
@@ -70,10 +83,14 @@ export const BoardStep1Screen = () => {
     })
   }, [goToStep2, navigation, title, board]);
 
+  if (boardIsLoading || isLoading) return (
+    <CustomLoading />
+  );
+
   return (
     <KeyboardLayout>
       <ScrollView
-        style={[styles.container]}
+        style={styles.container}
         contentContainerStyle={{ paddingBottom: bottom, flexGrow: 1 }}
         nestedScrollEnabled={false}
         keyboardShouldPersistTaps="handled"

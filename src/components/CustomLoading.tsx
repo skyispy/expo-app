@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, InteractionManager } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { AppStackScreenProps } from '@types';
@@ -23,10 +23,8 @@ export const CustomLoading = () => {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: 0, left: 0, right: 0, bottom: 0,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff'
   }
 })

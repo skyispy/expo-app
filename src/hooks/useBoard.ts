@@ -50,8 +50,8 @@ export const useCreateBoard = () => {
 }
 
 // 게시글 상세 조회
-export const useGetBoard = (boardId: number) => {
-  const { data, refetch } = useQuery({
+export const useGetBoard = (boardId?: number) => {
+  const { data, isLoading } = useQuery({
     queryKey: ['board', { boardId }],
     queryFn: async () => {
       const response: ApiResponse<Board> = await apiClient.get(`/board/${boardId}`);
@@ -61,7 +61,7 @@ export const useGetBoard = (boardId: number) => {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  return { board: data, boardRefetch: refetch };
+  return { board: data, boardIsLoading: isLoading };
 }
 
 // 게시글 수정
