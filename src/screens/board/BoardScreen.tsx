@@ -33,7 +33,7 @@ export const BoardScreen = () => {
   const boardMenuOptions = useBoardMenuOptions(board, user);
   const { boardLike } = useBoardLike();
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     // 헤더 우측 더보기 버튼 설정
@@ -119,7 +119,9 @@ export const BoardScreen = () => {
                 />
               </View>
               <Text style={styles.content}>{board.content}</Text>
-              <Pressable style={styles.metaContainer} onPress={() => boardLike({ boardId: board.boardId, isLiked: board.isLiked })}>
+              <Pressable style={styles.metaContainer} onPress={() => {
+                return boardLike({ boardId: board.boardId, isLiked: board.isLiked, categoryId: board.category.categoryId })
+              }}>
                 <Ionicons name={board.isLiked ? 'heart' : 'heart-outline'} size={24} color={board.isLiked ? 'red' : 'black'} />
                 <Text style={styles.metaCount}>{board.likes}</Text>
               </Pressable>

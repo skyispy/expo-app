@@ -127,7 +127,7 @@ export const useDeleteBoard = () => {
 export const useBoardLike = () => {
   const queryClient = useQueryClient();
   const { mutateAsync: boardLike } = useMutation({
-    mutationFn: async ({ boardId, isLiked }: Pick<Board, 'boardId' | 'isLiked'>) => {
+    mutationFn: async ({ boardId, isLiked }: Pick<Board, 'boardId' | 'isLiked'> & Pick<Category, 'categoryId'>) => {
       if(isLiked) {
         // 좋아요 취소
         await apiClient.delete(`/board/${boardId}/like`);
@@ -137,26 +137,14 @@ export const useBoardLike = () => {
       }
     },
     // Optimistic Update
-    onMutate: async ({ boardId, isLiked }) => {
-      await queryClient.cancelQueries({ queryKey: ['board', { boardId }] });
-      const previousBoard = queryClient.getQueryData<Board>(['board', { boardId }]);
-      if(!previousBoard) throw new Error('useBoardLike -> board Detail is undefined');
-
-      queryClient.setQueryData<Board>(['board', { boardId }], (oldBoard) => {
-        if (!oldBoard) return oldBoard;
-        return {
-          ...oldBoard,
-          isLiked: !isLiked,
-          likes: isLiked ? oldBoard.likes - 1 : oldBoard.likes + 1,
-        };
-      });
-      // 게시글 목록 캐시도 업데이트
-      await queryClient.cancelQueries({ queryKey: ['board', { categoryId: previousBoard.category.categoryId }] });
+    onMutate: async ({ boardId, isLiked, categoryId }) => {
+      // 게시글 목록 캐시 업데이트
+      await queryClient.cancelQueries({ queryKey: ['board', { categoryId }] });
       const previousBoardList = queryClient.getQueryData<{ pageParams: number[]; pages: InfiniteQueryResponse<Board>[] }>(
-        ['board', { categoryId: previousBoard.category.categoryId }]
+        ['board', { categoryId }]
       );
       queryClient.setQueryData<{ pageParams: number[]; pages: InfiniteQueryResponse<Board>[] }>(
-        ['board', { categoryId: previousBoard.category.categoryId }],
+        ['board', { categoryId }],
         (oldData) => {
           if (!oldData) return oldData;
           const pageIndex = oldData.pages.findIndex(page =>
@@ -178,18 +166,32 @@ export const useBoardLike = () => {
         }
       );
 
-      return { previousBoard, previousBoardList };
+      // 게시글 상세 캐시도 있으면 업데이트
+      await queryClient.cancelQueries({ queryKey: ['board', { boardId }] });
+      const previousBoard = queryClient.getQueryData<Board>(['board', { boardId }]);
+      if(previousBoard) {
+        queryClient.setQueryData<Board>(['board', { boardId }], (oldBoard) => {
+          if (!oldBoard) return oldBoard;
+          return {
+            ...oldBoard,
+            isLiked: !isLiked,
+            likes: isLiked ? oldBoard.likes - 1 : oldBoard.likes + 1,
+          };
+        });
+      }
+
+      return { previousBoardList, previousBoard };
     },
-    onError: (err, { boardId }, context) => {
+    onError: (err, { boardId, categoryId }, context) => {
       // 실패시 롤백
+      if (context?.previousBoardList) {
+        queryClient.setQueryData<{ pageParams: number[]; pages: InfiniteQueryResponse<Board>[] }>(
+          ['board', { categoryId }],
+          context.previousBoardList,
+        );
+      }
       if (context?.previousBoard) {
         queryClient.setQueryData<Board>(['board', { boardId }], context.previousBoard);
-        if (context?.previousBoardList) {
-          queryClient.setQueryData<{ pageParams: number[]; pages: InfiniteQueryResponse<Board>[] }>(
-            ['board', { categoryId: context.previousBoard.category.categoryId }],
-            context.previousBoardList
-          );
-        }
       }
       if (__DEV__) {
         console.error('useBoardLike -> Failed to update board', err);
