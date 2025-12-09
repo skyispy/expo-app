@@ -1,11 +1,8 @@
-import { Pressable, ScrollView, View, Text, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { AppStackScreenProps } from '@types';
+import { Pressable, ScrollView, Text, StyleSheet } from 'react-native';
 import { SettingMenuSection } from '@screens/settings/sections';
 import { useLogoutUser } from '@hooks';
 
 export const SettingScreen = () => {
-  const navigation = useNavigation<AppStackScreenProps>();
   const { logoutUser } = useLogoutUser();
   return (
     <ScrollView style={styles.container}>

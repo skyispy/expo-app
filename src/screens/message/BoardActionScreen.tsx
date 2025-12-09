@@ -12,8 +12,8 @@ export const BoardActionScreen = () => {
   const navigation = useNavigation<AppStackScreenProps>();
   const { actionType } = route.params;
 
-  const { boardList } = useGetBoardActionList(actionType);
-  const [isLoading, setIsLoading] = useState(true);
+  const { boardList, boardActionIsLoading } = useGetBoardActionList(actionType);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if(actionType === 'view') {
@@ -23,12 +23,13 @@ export const BoardActionScreen = () => {
     } else if(actionType === 'hide') {
       navigation.setOptions({ headerTitle: '숨김 처리한 게시물' });
     }
-    const loadingTimeout = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500); // 1.5초 후에 로딩 해제
+  }, [actionType]);
 
-    return () => clearTimeout(loadingTimeout);
-  }, [actionType])
+  useEffect(() => {
+    return navigation.addListener('transitionEnd', () => {
+      setIsLoading(false);
+    });
+  }, [navigation]);
 
   // 게시물을 날짜별로 그룹화하는 함수
   const groupByDate = (boards: (Board & { lastActionDate: Date })[] | undefined) => {
@@ -49,7 +50,7 @@ export const BoardActionScreen = () => {
 
   return (
     <>
-      {isLoading ? (
+      {(isLoading || boardActionIsLoading) ? (
         <CustomLoading />
       ) : (
         <ScrollView style={styles.container}>

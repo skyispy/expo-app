@@ -12,11 +12,10 @@ import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons/';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { AppRouteScreenProps, AppStackScreenProps, Board } from '@types';
+import { AppRouteScreenProps, AppStackScreenProps } from '@types';
 import { CustomLoading, FormInput } from '@components';
 import { useGetBoard, useImagePicker } from '@hooks';
 import { KeyboardLayout } from '@layout';
-import { useQueryClient } from '@tanstack/react-query';
 
 export const BoardStep1Screen = () => {
   // 수정할 게시글 정보 (없으면 새 글 작성)

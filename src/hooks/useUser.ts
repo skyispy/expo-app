@@ -87,7 +87,7 @@ export const useUpdateProfile = () => {
 
 // 행동 기록 조회(게시글)
 export const useGetBoardActionList = (actionType: string) => {
-  const { data, refetch } = useInfiniteQuery({
+  const { data, refetch, isLoading } = useInfiniteQuery({
     queryKey: ['boardAction', { actionType }],
     queryFn: async ({ pageParam }) => {
       const response: ApiResponse<InfiniteQueryResponse<Board & { lastActionDate: Date }>>
@@ -103,5 +103,5 @@ export const useGetBoardActionList = (actionType: string) => {
 
   const boardList = data?.pages.flatMap(page => page.itemList);
 
-  return { boardList: boardList, boardActionRefetch: refetch };
+  return { boardList: boardList, boardActionRefetch: refetch, boardActionIsLoading: isLoading };
 }

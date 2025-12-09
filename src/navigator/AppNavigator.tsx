@@ -6,8 +6,9 @@ import { Ionicons } from '@expo/vector-icons/';
 import { useNavigation } from '@react-navigation/native';
 import { AppStackScreenProps } from '@types';
 import { BoardScreen, BoardStep1Screen, BoardStep2Screen } from '@screens/board';
-import { ProfileEditScreen, BoardActionScreen } from '@screens/profile';
+import { ProfileEditScreen } from '@screens/profile';
 import { SettingScreen } from '@screens/settings';
+import { BoardActionScreen } from '@screens/message';
 
 const AppStack = createStackNavigator();
 const AppNavigator = () => {
