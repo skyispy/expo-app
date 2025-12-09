@@ -1,13 +1,11 @@
 import { Text, TouchableOpacity, ScrollView, View, StyleSheet } from 'react-native';
-import { ProfileBox } from './components/ProfileBox';
-import { ProfileActions } from '@screens/profile/components/ProfileActions';
+import { ProfileSection } from './sections';
 
 export const ProfileScreen = () => {
 
   return (
     <ScrollView>
-      <ProfileBox />
-      <ProfileActions />
+      <ProfileSection />
     </ScrollView>
   );
 };

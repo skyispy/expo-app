@@ -1,14 +1,9 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, StyleSheet } from 'react-native';
 import { ProfileImage } from '@components';
-import type { AppStackScreenProps, User } from '@types';
+import type { User } from '@types';
 import { useAuthStore } from '@store';
-import { useLogoutUser } from '@hooks';
 
-export const ProfileBox = () => {
-  const navigation = useNavigation<AppStackScreenProps>();
-  const { logoutUser } = useLogoutUser();
-
+export const ProfileSection = () => {
   const user = useAuthStore((state) => state.user) as User;
   return (
     <View style={styles.container}>
@@ -23,17 +18,6 @@ export const ProfileBox = () => {
             <Text style={styles.introduction}>{user.introduction}</Text>
           </View>
         </View>
-      </View>
-      <View style={styles.actionsContainer}>
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => navigation.navigate('ProfileEdit')}
-        >
-          <Text style={styles.actionButtonText}>프로필 수정</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton} onPress={() => logoutUser()}>
-          <Text style={styles.actionButtonText}>로그아웃</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -92,19 +76,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
     lineHeight: 20,
-  },
-  actionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  actionButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 40,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: 5,
-  },
-  actionButtonText: {
-    fontSize: 14,
   },
 });

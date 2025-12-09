@@ -8,6 +8,7 @@ import { Header } from '@components';
 import { AppStackScreenProps } from '@types';
 import { Pressable } from 'react-native';
 import { BottomTabHeaderProps } from '@react-navigation/bottom-tabs';
+import { MessageScreen } from '@screens/message';
 
 const BottomTab = createBottomTabNavigator();
 
@@ -75,15 +76,15 @@ const BottomTabNavigator = () => {
         {() => null}
       </BottomTab.Screen>
       <BottomTab.Screen
-        name="Notification"
-        component={BoardListScreen}
+        name="Message"
+        component={MessageScreen}
         options={{
           tabBarIcon: ({ color, size }) =>
             <Ionicons name="mail" size={size} color={color} />,
-          tabBarLabel: '알림',
+          tabBarLabel: '메세지',
           tabBarActiveTintColor: '#6A49E9',
           tabBarInactiveTintColor: 'gray',
-          headerTitle: '알림',
+          headerTitle: '메세지',
         }}
       />
       <BottomTab.Screen
@@ -96,6 +97,14 @@ const BottomTabNavigator = () => {
           tabBarActiveTintColor: '#6A49E9',
           tabBarInactiveTintColor: 'gray',
           headerTitle: '프로필',
+          headerRight: () => (
+            <Pressable
+              onPress={() => navigation.navigate("Settings")}
+              style={{ marginRight: 16 }}
+            >
+              <Ionicons name="settings-outline" size={24} color="black" />
+            </Pressable>
+          )
         }}
       />
     </BottomTab.Navigator>

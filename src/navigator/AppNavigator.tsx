@@ -1,13 +1,13 @@
 import { createStackNavigator } from '@react-navigation/stack';
-import { ProfileEditScreen } from '@screens/profile';
 import { Header } from '@components';
-import { BoardScreen, BoardStep1Screen, BoardStep2Screen } from '@screens/board';
 import BottomTabNavigator from './BottomTabNavigator';
-import { BoardActionScreen } from '@screens/profile/BoardActionScreen';
 import { Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons/';
 import { useNavigation } from '@react-navigation/native';
 import { AppStackScreenProps } from '@types';
+import { BoardScreen, BoardStep1Screen, BoardStep2Screen } from '@screens/board';
+import { ProfileEditScreen, BoardActionScreen } from '@screens/profile';
+import { SettingScreen } from '@screens/settings';
 
 const AppStack = createStackNavigator();
 const AppNavigator = () => {
@@ -57,6 +57,11 @@ const AppNavigator = () => {
       <AppStack.Screen
         name="BoardAction"
         component={BoardActionScreen}
+      />
+      <AppStack.Screen
+        name={"Settings"}
+        component={SettingScreen}
+        options={{ headerTitle: '설정' }}
       />
     </AppStack.Navigator>
   )
