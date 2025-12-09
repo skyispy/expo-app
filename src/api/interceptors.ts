@@ -60,6 +60,9 @@ export const refreshAccessToken = async (error: AxiosError, axiosInstance: Axios
         }
         return Promise.reject(refreshError);
       }
+    } else {
+      await SecureStore.deleteItemAsync('accessToken');
+      useAuthStore.getState().clearUser();
     }
   }
   return Promise.reject(error);
