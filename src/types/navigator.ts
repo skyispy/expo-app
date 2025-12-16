@@ -1,6 +1,7 @@
 import type { StackNavigationProp } from '@react-navigation/stack';
 import { Board } from './model';
 import { RouteProp } from '@react-navigation/native';
+import { BoardAction } from './common';
 
 type StackScreenProps<
   ParamList extends Record<string, object | undefined>,
@@ -32,7 +33,7 @@ export type AppStackParamList = {
   Board: { boardId: number };
   BoardStep1: { boardId?: number };
   BoardStep2: { board: Board & { imageUri: string | null; categoryId: number } | { title: string; content: string; imageUri: string | null }  };
-  BoardAction: { actionType: 'board' | 'view' | 'like' | 'hide' };
+  BoardAction: { actionType: BoardAction };
   Settings: undefined;
 };
 export type AppStackScreenProps = StackScreenProps<AppStackParamList>;
