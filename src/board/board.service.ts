@@ -15,14 +15,7 @@ import { UserService } from '../user/user.service';
 import { CommonService } from '../common/common.service';
 import { CategoryEntity } from './models/category.entity';
 import { ActionService } from '../action/action.service';
-
-type BoardExtraInfo = {
-  commentCount: number;
-  views: number;
-  likes: number;
-  isLiked: boolean;
-  isHidden: boolean;
-};
+import { BoardExtraInfo, SortOrder } from '../common/types';
 
 @Injectable()
 export class BoardService {
@@ -117,20 +110,10 @@ export class BoardService {
   async getBoardExtraInfo(boardId: number, userId: number): Promise<BoardExtraInfo> {
     // 댓글 개수 조회
     const commentCount = await this.commonService.countCommentListByTarget(boardId, 'board');
-    // 조회수 조회
-    const views = await this.actionService.countViews('board', boardId);
-    // 좋아요 수 조회
-    const likes = await this.actionService.countLikes('board', boardId);
-    // 좋아요 여부
-    const isLiked = await this.actionService.isLiked('board', boardId, userId);
-    // 숨김 여부
-    const isHidden = await this.actionService.isHidden('board', boardId, userId);
+    const actions = await this.actionService.getActionSummary('board', boardId, userId);
     return {
+      ...actions,
       commentCount,
-      views,
-      likes,
-      isLiked,
-      isHidden,
     };
   }
 

@@ -18,7 +18,8 @@ import { ZodValidationPipe } from 'src/common/pipes';
 import { UserProfileUpdateSchema, UserResponseSchema, UserSignupSchema } from './dto/user.schema';
 import type { UserProfileUpdateDto, UserResponseDto, UserSignupDto } from './dto/user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { JwtAuthGuard, UserPayload } from '../auth/guards';
+import { JwtAuthGuard } from '../auth/guards';
+import type { UserPayload } from '../common/types';
 import type { Request } from 'express';
 
 @Controller('user')

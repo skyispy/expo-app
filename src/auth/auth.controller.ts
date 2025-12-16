@@ -13,7 +13,8 @@ import { UserLoginSchema, UserResponseSchema } from '../user/dto/user.schema';
 import type { UserLoginDto, UserResponseDto } from '../user/dto/user.dto';
 import type { Request } from 'express';
 import { AuthService } from './auth.service';
-import { JwtAuthGuard, UserPayload } from './guards';
+import { JwtAuthGuard } from './guards';
+import type { UserPayload } from '../common/types';
 
 @Controller('auth')
 export class AuthController {

@@ -19,9 +19,10 @@ import type { BoardCreateDto, BoardResponseDto } from './dto/board.dto';
 import { BoardCreateSchema, BoardResponseSchema } from './dto/board.schema';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { InfiniteQueryResponse } from '../common/dto/response.dto';
-import { JwtAuthGuard, UserPayload } from '../auth/guards';
+import { JwtAuthGuard } from '../auth/guards';
 import type { Request } from 'express';
 import { ActionService } from '../action/action.service';
+import type { UserPayload } from '../common/types';
 
 @Controller('board')
 export class BoardController {

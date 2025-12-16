@@ -21,6 +21,7 @@ export const BoardResponseSchema = z.object({
   endDate: z.date().nullable(),
   createDate: z.date(),
   updateDate: z.date(),
+  deleteDate: z.date().nullable(),
   // 댓글 수
   commentCount: z.number().optional().nullable(),
   // 조회수

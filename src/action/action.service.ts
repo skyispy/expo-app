@@ -3,18 +3,22 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { HiddenEntity, LikeEntity, ViewHistoryEntity } from './models';
 import { Repository } from 'typeorm';
 import { BoardEntity } from '../board/models';
+import { BoardExtraInfo, SortOrder } from '../common/types';
+import { CommentEntity } from '../common/models';
 
 @Injectable()
 export class ActionService {
   constructor(
-    @InjectRepository(BoardEntity)
-    private readonly boardRepository: Repository<BoardEntity>,
     @InjectRepository(ViewHistoryEntity)
     private readonly viewHistoryRepository: Repository<ViewHistoryEntity>,
     @InjectRepository(LikeEntity)
     private readonly likeRepository: Repository<LikeEntity>,
     @InjectRepository(HiddenEntity)
     private readonly hiddenRepository: Repository<HiddenEntity>,
+    @InjectRepository(BoardEntity)
+    private readonly boardRepository: Repository<BoardEntity>,
+    @InjectRepository(CommentEntity)
+    private readonly commentRepository: Repository<CommentEntity>,
   ) {}
 
   // 조회 기록 추가
@@ -48,6 +52,7 @@ export class ActionService {
     userId: number,
     page: number,
     limit: number,
+    sortOrder: 'latest' | 'oldest',
   ): Promise<{ itemList: (BoardEntity & { lastActionDate: Date })[]; totalCount: number }> {
     const distinctSubQuery = this.viewHistoryRepository
       .createQueryBuilder('v')
@@ -64,7 +69,7 @@ export class ActionService {
       .addSelect('vh.lastActionDate', 'lastActionDate')
       .innerJoin(`(` + distinctSubQuery.getQuery() + `)`, 'vh', 'vh.targetId = board.boardId')
       .setParameters(distinctSubQuery.getParameters())
-      .orderBy('lastActionDate', 'DESC')
+      .orderBy('lastActionDate', sortOrder === 'latest' ? 'DESC' : 'ASC')
       .skip((page - 1) * limit)
       .take(limit);
 
@@ -109,6 +114,7 @@ export class ActionService {
     userId: number,
     page: number,
     limit: number,
+    sortOrder: 'latest' | 'oldest',
   ): Promise<{ itemList: (BoardEntity & { lastActionDate: Date })[]; totalCount: number }> {
     const distinctSubQuery = this.likeRepository
       .createQueryBuilder('l')
@@ -125,7 +131,7 @@ export class ActionService {
       .addSelect('lk.lastActionDate', 'lastActionDate')
       .innerJoin('(' + distinctSubQuery.getQuery() + ')', 'lk', 'lk.targetId = board.boardId')
       .setParameters(distinctSubQuery.getParameters())
-      .orderBy('lastActionDate', 'DESC')
+      .orderBy('lastActionDate', sortOrder === 'latest' ? 'DESC' : 'ASC')
       .skip((page - 1) * limit)
       .take(limit);
 
@@ -179,6 +185,7 @@ export class ActionService {
     userId: number,
     page: number,
     limit: number,
+    sortOrder: 'latest' | 'oldest',
   ): Promise<{ itemList: (BoardEntity & { lastActionDate: Date })[]; totalCount: number }> {
     const distinctSubQuery = this.hiddenRepository
       .createQueryBuilder('h')
@@ -195,17 +202,67 @@ export class ActionService {
       .addSelect('hd.lastActionDate', 'lastActionDate')
       .innerJoin('(' + distinctSubQuery.getQuery() + ')', 'hd', 'hd.targetId = board.boardId')
       .setParameters(distinctSubQuery.getParameters())
-      .orderBy('lastActionDate', 'DESC')
+      .orderBy('lastActionDate', sortOrder === 'latest' ? 'DESC' : 'ASC')
       .skip((page - 1) * limit)
       .take(limit);
 
     const { entities, raw } = await qb.getRawAndEntities();
     const itemList = entities.map((board, index) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      const lastActionDate = raw[index].lastActionDate as Date;
+      const lastActionDate = (raw[index] as { lastActionDate: Date }).lastActionDate;
       return { ...board, lastActionDate };
     });
     const totalCount = await distinctSubQuery.getCount();
     return { itemList, totalCount };
   }
+
+  // 액션 요약 정보 조회
+  async getActionSummary(
+    targetType: string,
+    targetId: number,
+    userId: number,
+  ): Promise<Omit<BoardExtraInfo, 'commentCount'>> {
+    // 조회수 조회
+    const views = await this.countViews(targetType, targetId);
+    // 좋아요 수 조회
+    const likes = await this.countLikes(targetType, targetId);
+    // 좋아요 여부
+    const isLiked = await this.isLiked(targetType, targetId, userId);
+    // 숨김 여부
+    const isHidden = await this.isHidden(targetType, targetId, userId);
+    return {
+      views,
+      likes,
+      isLiked,
+      isHidden,
+    };
+  }
+
+  // 나의 게시물 조회
+  // 내 게시판 조회
+  async getMyBoards(
+    userId: number,
+    page: number,
+    limit: number,
+    sortOrder: SortOrder,
+  ): Promise<{ boardList: (BoardEntity & BoardExtraInfo)[]; totalCount: number }> {
+    const [boardList, totalCount] = await this.boardRepository.findAndCount({
+      where: { user: { userId }, status: 'active' },
+      relations: ['user', 'category'],
+      order: { createDate: sortOrder === 'latest' ? 'DESC' : 'ASC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+    const boardListWithExtraInfo = await Promise.all(
+      boardList.map(async (board) => {
+        const commentCount = await this.commentRepository.count({
+          where: { targetType: 'board', targetId: board.boardId, status: 'active' },
+        });
+        const extraInfo = await this.getActionSummary('board', board.boardId, userId);
+        return { ...board, ...extraInfo, commentCount };
+      }),
+    );
+    return { boardList: boardListWithExtraInfo, totalCount };
+  }
+
+  async getMyComments(userId: number): Promise<any> {}
 }

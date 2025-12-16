@@ -4,9 +4,18 @@ import { ActionController } from './action.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HiddenEntity, LikeEntity, ViewHistoryEntity } from './models';
 import { BoardEntity } from '../board/models';
+import { CommentEntity } from '../common/models';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BoardEntity, ViewHistoryEntity, LikeEntity, HiddenEntity])],
+  imports: [
+    TypeOrmModule.forFeature([
+      ViewHistoryEntity,
+      LikeEntity,
+      HiddenEntity,
+      BoardEntity,
+      CommentEntity,
+    ]),
+  ],
   controllers: [ActionController],
   providers: [ActionService],
   exports: [ActionService],

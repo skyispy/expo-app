@@ -1,12 +1,13 @@
 import { BadRequestException, Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
 import { ActionService } from './action.service';
-import { JwtAuthGuard, UserPayload } from '../auth/guards';
+import { JwtAuthGuard } from '../auth/guards';
 import type { Request } from 'express';
 import { z } from 'zod';
 import { InfiniteQueryResponse } from '../common/dto/response.dto';
 import { BoardActionResponseSchema } from './dto/action.schema';
 import { BoardActionResponseDto } from './dto/action.dto';
 import { BoardEntity } from '../board/models';
+import type { UserPayload } from '../common/types';
 
 @Controller('action')
 export class ActionController {
@@ -19,6 +20,7 @@ export class ActionController {
     @Param('actionType') actionType: 'view' | 'like' | 'hide',
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
+    @Query('sortOrder') sortOrder: 'latest' | 'oldest' = 'latest',
     @Req() req: Request,
   ): Promise<InfiniteQueryResponse<BoardActionResponseDto>> {
     const { userId } = req.user as UserPayload;
@@ -27,23 +29,19 @@ export class ActionController {
     let totalCount = 0;
     switch (actionType) {
       case 'view': {
-        const result = await this.actionService.getRecentBoards(
-          userId,
-          page,
-          limit,
-        );
+        const result = await this.actionService.getRecentBoards(userId, page, limit, sortOrder);
         itemList = result.itemList;
         totalCount = result.totalCount;
         break;
       }
       case 'like': {
-        const result = await this.actionService.getLikedBoards(userId, page, limit);
+        const result = await this.actionService.getLikedBoards(userId, page, limit, sortOrder);
         itemList = result.itemList;
         totalCount = result.totalCount;
         break;
       }
       case 'hide': {
-        const result = await this.actionService.getHiddenBoards(userId, page, limit);
+        const result = await this.actionService.getHiddenBoards(userId, page, limit, sortOrder);
         itemList = result.itemList;
         totalCount = result.totalCount;
         break;
@@ -61,22 +59,35 @@ export class ActionController {
     };
   }
 
-  // 좋아요 누른 게시물
-  @Get('/like')
+  @Get('/me/board')
   @UseGuards(JwtAuthGuard)
-  async getLikedBoards(
+  async getMyBoard(
+    @Req() req: Request,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
-    @Req() req: Request,
+    @Query('sortOrder') sortOrder: 'latest' | 'oldest' = 'latest',
   ): Promise<InfiniteQueryResponse<BoardActionResponseDto>> {
-    const { userId } = req.user as UserPayload;
     [page, limit] = [Number(page), Number(limit)];
-    const { itemList, totalCount } = await this.actionService.getLikedBoards(userId, page, limit);
-    const { success, data, error } = z.array(BoardActionResponseSchema).safeParse(itemList);
+    const { userId } = req.user as UserPayload;
+    const { boardList, totalCount } = await this.actionService.getMyBoards(
+      userId,
+      page,
+      limit,
+      sortOrder,
+    );
+    const { success, data, error } = z.array(BoardActionResponseSchema).safeParse(boardList);
     if (!success) {
-      throw new BadRequestException('게시판 응답 데이터 검증 실패', error);
+      throw new BadRequestException('내 게시판 응답 데이터 검증 실패', error);
     }
     const hasNextPage = page * limit < totalCount;
     return { itemList: data, nextPage: hasNextPage ? page + 1 : null, totalCount };
+  }
+
+  // 내 댓글 조회
+  @Get('/me/comments')
+  @UseGuards(JwtAuthGuard)
+  async getMyComments(@Req() req: Request): Promise<any> {
+    const { userId } = req.user as UserPayload;
+    return await this.actionService.getMyComments(userId);
   }
 }

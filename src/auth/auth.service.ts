@@ -7,7 +7,7 @@ import { UserEntity } from '../user/models';
 import { RefreshTokensEntity } from './models';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserPayload } from './guards';
+import type { UserPayload } from '../common/types';
 
 @Injectable()
 export class AuthService {

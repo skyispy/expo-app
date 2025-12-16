@@ -12,7 +12,8 @@ import {
   Delete,
 } from '@nestjs/common';
 import { CommonService } from './common.service';
-import { JwtAuthGuard, UserPayload } from '../auth/guards';
+import { JwtAuthGuard } from '../auth/guards';
+import type { UserPayload } from './types';
 import type { CommentCreateDto } from './dto/comment.dto';
 import { CommentCreateSchema } from './dto/comment.schema';
 import type { Request } from 'express';
