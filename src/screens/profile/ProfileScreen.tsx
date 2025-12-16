@@ -1,11 +1,12 @@
-import { ScrollView } from 'react-native';
+import { View } from 'react-native';
 import { ProfileSection } from './sections';
+import ProfileActionNavigator from '../../navigator/ProfileActionNavigator';
 
 export const ProfileScreen = () => {
-
   return (
-    <ScrollView>
+    <View style={{ flex: 1 }}>
       <ProfileSection />
-    </ScrollView>
+      <ProfileActionNavigator />
+    </View>
   );
 };

@@ -60,7 +60,7 @@ export const BoardPreview = ({ board }: { board: Board }) => {
         <View style={styles.thumbnailImageContainer}>
           <Image
             style={styles.thumbnailImage}
-            source={board.thumbnailImageUrl ? { uri: board.thumbnailImageUrl } : null}
+            source={{ uri: board.thumbnailImageUrl ?? undefined }}
             placeholder={require('@assets/event2.png')}
             transition={300}
             contentFit="cover"
