@@ -69,5 +69,6 @@ export const getDateLabel = (date: string | Date): string => {
 
   if (isToday) return '오늘';
   if (isYesterday) return '어제';
-  return view.toLocaleDateString(); // 그 외 날짜
+  // 그 외 날짜
+  return view.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })
 };
