@@ -54,8 +54,8 @@ export const BoardPreview = ({ board }: { board: Board }) => {
       </View>
       <View style={styles.main}>
         <View>
-          <Text style={styles.title}>{board.title}</Text>
-          <Text style={styles.content}>{board.content}</Text>
+          <Text numberOfLines={2} ellipsizeMode={'tail'} style={styles.title}>{board.title}</Text>
+          <Text numberOfLines={2} ellipsizeMode={'tail'} style={styles.content}>{board.content}</Text>
         </View>
         <View style={styles.thumbnailImageContainer}>
           <Image
