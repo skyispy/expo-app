@@ -56,19 +56,32 @@ export const getDateLabel = (date: string | Date): string => {
   const view = new Date(date);
   const now = new Date();
 
-  const isToday = view.getFullYear() === now.getFullYear() &&
+  const isToday =
+    view.getFullYear() === now.getFullYear() &&
     view.getMonth() === now.getMonth() &&
     view.getDate() === now.getDate();
 
-  const yesterday = new Date();
-  yesterday.setDate(now.getDate() - 1);
-
-  const isYesterday = view.getFullYear() === yesterday.getFullYear() &&
-    view.getMonth() === yesterday.getMonth() &&
-    view.getDate() === yesterday.getDate();
-
   if (isToday) return '오늘';
-  if (isYesterday) return '어제';
-  // 그 외 날짜
-  return view.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })
+
+  const viewMonth = view.getMonth();
+  return String(viewMonth + 1);
 };
+
+export const getMonthShortName = (month: string): string => {
+  if (isNaN(Number(month))) return '';
+  const MONTHS_SHORT = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  return MONTHS_SHORT[Number(month) - 1];
+}

@@ -1,7 +1,7 @@
 import { FlatList, Pressable, Text, View, StyleSheet } from 'react-native';
 import { useState } from 'react';
 import { useGetMyBoardList } from '@hooks';
-import { CustomLoading } from '../../../components';
+import { CustomLoading, EllipsisModal } from '../../../components';
 import { BoardPreview } from '@screens/board/components/BoardPreview';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -21,13 +21,14 @@ export const ProfileMyBoard = () => {
     setRefreshing(true);
     // 여기에 새로고침 로직 추가 (예: refetch)
     if (!myBoardIsFetchingNextPage) {
-      await queryClient.refetchQueries({ queryKey: ['board'] });
+      await queryClient.refetchQueries({ queryKey: ['myBoard'] });
     }
     setRefreshing(false);
   };
 
   return (
-    <View>
+    <View style={{ flex: 1 }}>
+      <EllipsisModal />
       <View style={styles.sortingHeader}>
         <Pressable
           style={
@@ -87,7 +88,7 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    marginTop: 10,
+    marginTop: 4,
   },
   sortingContainer: {
     paddingVertical: 5,
