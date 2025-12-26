@@ -21,6 +21,7 @@ import { BadRequestException } from '@nestjs/common';
 import type { InfiniteQueryResponse } from './dto/response.dto';
 import type { CommentResponseDto } from './dto/comment.dto';
 import { CommentResponseSchema } from './dto/comment.schema';
+import { z } from 'zod';
 
 @Controller('common')
 export class CommonController {
@@ -59,14 +60,14 @@ export class CommonController {
       page,
       limit,
     );
-    const validateCommentList = commentList
-      .map((comment) => CommentResponseSchema.safeParse(comment))
-      .filter((result) => result.success)
-      .map((result) => result.data);
+    const { success, data, error } = z.array(CommentResponseSchema).safeParse(commentList);
+    if (!success) {
+      throw new BadRequestException('댓글 목록 응답 데이터 검증 실패', error);
+    }
     const totalCount = await this.commonService.countCommentListByTarget(targetId, targetType);
     const hasNextPage = page * limit < totalCount;
     return {
-      itemList: validateCommentList,
+      itemList: data,
       nextPage: hasNextPage ? page + 1 : null,
       totalCount,
     };

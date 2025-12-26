@@ -57,7 +57,6 @@ export class CommonService {
       .andWhere('comment.targetType = :targetType', { targetType })
       .andWhere('comment.status = :status', { status: 'active' })
       .andWhere('comment.parent IS NULL')
-      .orderBy('comment.likes', 'DESC')
       .addOrderBy('comment.createDate', 'DESC')
       .skip((page - 1) * limit)
       .take(limit)

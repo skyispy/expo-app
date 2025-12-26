@@ -11,13 +11,10 @@ export class ChannelService {
 
   // 채널 목록 조회
   async selectChannelList(): Promise<ChannelEntity[]> {
-    return await this.channelRepository
-      .createQueryBuilder('channel')
-      .leftJoinAndSelect('channel.categoryList', 'categoryList')
-      .where('channel.status = :status', { status: 'active' })
-      .andWhere('categoryList.status = :status', { status: 'active' })
-      .orderBy('channel.channelId', 'ASC')
-      .addOrderBy('categoryList.categoryId', 'ASC')
-      .getMany();
+    return await this.channelRepository.find({
+      where: { status: 'active', categoryList: { status: 'active' } },
+      relations: ['categoryList'],
+      order: { channelId: 'ASC', categoryList: { categoryId: 'ASC' } },
+    });
   }
 }

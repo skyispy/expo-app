@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { CategoryResponseSchema } from '../../board/dto/category.schema';
 
-export const ChannelResponseSchema = z.object({
+export const ChannelResponseSchema: z.ZodObject = z.object({
   // 채널 ID
   channelId: z.number().min(1, '유효하지 않은 요청입니다.'),
   // 채널 이름
@@ -19,5 +19,5 @@ export const ChannelResponseSchema = z.object({
   // 삭제 일자
   deleteDate: z.date().nullable(),
   // 카테고리 목록
-  categoryList: z.array(CategoryResponseSchema).optional(),
+  categoryList: z.lazy(() => CategoryResponseSchema.array()).optional(),
 });

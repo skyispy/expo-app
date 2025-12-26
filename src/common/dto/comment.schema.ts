@@ -1,22 +1,17 @@
 import { z } from 'zod';
 import { UserResponseSchema } from '../../user/dto/user.schema';
+import { BoardResponseSchema } from '../../board/dto/board.schema';
 
 // 댓글 조회 응답 스키마
-export const CommentResponseSchema = z.object({
+export const CommentResponseSchema: z.ZodObject = z.object({
   commentId: z.number(),
   targetId: z.number(),
   targetType: z.string(),
   user: UserResponseSchema,
   content: z.string().max(500, '댓글은 500자 이내로 입력해주세요.'),
-  likes: z.number(),
-  dislikes: z.number(),
   status: z.string(),
-  children: z
-    .array(z.lazy(() => CommentResponseSchema as z.ZodType<z.infer<typeof CommentResponseSchema>>))
-    .optional(),
-  parent: z.lazy(() =>
-    (CommentResponseSchema as z.ZodType<z.infer<typeof CommentResponseSchema>>).optional(),
-  ),
+  children: z.array(z.lazy(() => CommentResponseSchema)).optional(),
+  parent: z.lazy(() => CommentResponseSchema.optional().nullable()),
   createDate: z.date(),
   updateDate: z.date(),
 });
@@ -27,4 +22,9 @@ export const CommentCreateSchema = z.object({
   targetId: z.number(),
   targetType: z.string(),
   parentCommentId: z.number().optional(),
+});
+
+// 게시판 포함 댓글 조회
+export const CommentWithBoardResponseSchema = CommentResponseSchema.extend({
+  target: BoardResponseSchema,
 });

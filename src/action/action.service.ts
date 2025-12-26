@@ -52,7 +52,7 @@ export class ActionService {
     userId: number,
     page: number,
     limit: number,
-    sortOrder: 'latest' | 'oldest',
+    sortOrder: SortOrder,
   ): Promise<{ itemList: (BoardEntity & { lastActionDate: Date })[]; totalCount: number }> {
     const distinctSubQuery = this.viewHistoryRepository
       .createQueryBuilder('v')
@@ -75,8 +75,7 @@ export class ActionService {
 
     const { entities, raw } = await qb.getRawAndEntities();
     const itemList = entities.map((board, index) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      const lastActionDate = raw[index].lastActionDate as Date;
+      const lastActionDate = (raw[index] as { lastActionDate: Date }).lastActionDate;
       return { ...board, lastActionDate };
     });
     const totalCount = await distinctSubQuery.getCount();
@@ -137,8 +136,7 @@ export class ActionService {
 
     const { entities, raw } = await qb.getRawAndEntities();
     const itemList = entities.map((board, index) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      const lastActionDate = raw[index].lastActionDate as Date;
+      const lastActionDate = (raw[index] as { lastActionDate: Date }).lastActionDate;
       return { ...board, lastActionDate };
     });
     const totalCount = await distinctSubQuery.getCount();
@@ -237,9 +235,8 @@ export class ActionService {
     };
   }
 
-  // 나의 게시물 조회
-  // 내 게시판 조회
-  async getMyBoards(
+  // 사용자 게시물 조회
+  async getUserBoards(
     userId: number,
     page: number,
     limit: number,
@@ -264,5 +261,40 @@ export class ActionService {
     return { boardList: boardListWithExtraInfo, totalCount };
   }
 
-  async getMyComments(userId: number): Promise<any> {}
+  async getUserComments(
+    userId: number,
+    page: number,
+    limit: number,
+    sortOrder: SortOrder,
+  ): Promise<{
+    commentList: (CommentEntity & { target: BoardEntity })[];
+    totalCount: number;
+  }> {
+    const [commentList, totalCount] = await this.commentRepository.findAndCount({
+      where: { user: { userId }, status: 'active' },
+      relations: ['user', 'parent', 'parent.user'],
+      order: { createDate: sortOrder === 'latest' ? 'DESC' : 'ASC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+    const commentListWithExtraInfo = await Promise.all(
+      commentList.map(async (comment) => {
+        // 추가적인 액션 요약 정보를 여기에 포함시킬 수 있습니다.
+        if (comment.targetType === 'board') {
+          const board = await this.boardRepository.findOne({
+            where: { boardId: comment.targetId },
+            relations: ['user', 'category', 'category.channel'],
+          });
+          // 삭제된 게시물인 경우 null로 나옴
+          return { ...comment, target: board };
+        }
+        return { ...comment, target: null };
+      }),
+    );
+    // null인 target를 가진 댓글은 필터링
+    const filteredCommentList = commentListWithExtraInfo.filter(
+      (comment) => comment.target !== null,
+    ) as (CommentEntity & { target: BoardEntity })[];
+    return { commentList: filteredCommentList, totalCount };
+  }
 }

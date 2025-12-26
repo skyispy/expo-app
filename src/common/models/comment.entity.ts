@@ -24,14 +24,6 @@ export class CommentEntity extends TimestampEntity {
   @Column()
   content: string;
 
-  // 좋아요
-  @Column({ default: 0 })
-  likes: number;
-
-  // 싫어요
-  @Column({ default: 0 })
-  dislikes: number;
-
   // 댓글 상태
   @Column({ default: 'active' })
   status: string; // 'active', 'deleted' 등

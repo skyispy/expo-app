@@ -7,7 +7,9 @@ import { InfiniteQueryResponse } from '../common/dto/response.dto';
 import { BoardActionResponseSchema } from './dto/action.schema';
 import { BoardActionResponseDto } from './dto/action.dto';
 import { BoardEntity } from '../board/models';
-import type { UserPayload } from '../common/types';
+import type { SortOrder, UserPayload } from '../common/types';
+import { CommentResponseDto } from '../common/dto/comment.dto';
+import { CommentWithBoardResponseSchema } from '../common/dto/comment.schema';
 
 @Controller('action')
 export class ActionController {
@@ -17,13 +19,14 @@ export class ActionController {
   @Get('/board/:actionType')
   @UseGuards(JwtAuthGuard)
   async getBoardActions(
+    @Req() req: Request,
     @Param('actionType') actionType: 'view' | 'like' | 'hide',
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
-    @Query('sortOrder') sortOrder: 'latest' | 'oldest' = 'latest',
-    @Req() req: Request,
+    @Query('sortOrder') sortOrder: SortOrder = 'latest',
+    @Query('targetUserId') targetUserId: number | null,
   ): Promise<InfiniteQueryResponse<BoardActionResponseDto>> {
-    const { userId } = req.user as UserPayload;
+    const userId = targetUserId ? Number(targetUserId) : (req.user as UserPayload).userId;
     [page, limit] = [Number(page), Number(limit)];
     let itemList: (BoardEntity & { lastActionDate: Date })[] = [];
     let totalCount = 0;
@@ -59,17 +62,19 @@ export class ActionController {
     };
   }
 
-  @Get('/me/board')
+  // 유저 게시물 조회
+  @Get('/board')
   @UseGuards(JwtAuthGuard)
-  async getMyBoard(
+  async getUserBoard(
     @Req() req: Request,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
-    @Query('sortOrder') sortOrder: 'latest' | 'oldest' = 'latest',
+    @Query('sortOrder') sortOrder: SortOrder = 'latest',
+    @Query('targetUserId') targetUserId: number | null,
   ): Promise<InfiniteQueryResponse<BoardActionResponseDto>> {
+    const userId = targetUserId ? Number(targetUserId) : (req.user as UserPayload).userId;
     [page, limit] = [Number(page), Number(limit)];
-    const { userId } = req.user as UserPayload;
-    const { boardList, totalCount } = await this.actionService.getMyBoards(
+    const { boardList, totalCount } = await this.actionService.getUserBoards(
       userId,
       page,
       limit,
@@ -83,11 +88,28 @@ export class ActionController {
     return { itemList: data, nextPage: hasNextPage ? page + 1 : null, totalCount };
   }
 
-  // 내 댓글 조회
-  @Get('/me/comments')
+  // 유저 댓글 조회
+  @Get('/comment')
   @UseGuards(JwtAuthGuard)
-  async getMyComments(@Req() req: Request): Promise<any> {
-    const { userId } = req.user as UserPayload;
-    return await this.actionService.getMyComments(userId);
+  async getUserComments(
+    @Req() req: Request,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('sortOrder') sortOrder: SortOrder = 'latest',
+    @Query('targetUserId') targetUserId: number | null,
+  ): Promise<InfiniteQueryResponse<CommentResponseDto>> {
+    const userId = targetUserId ? Number(targetUserId) : (req.user as UserPayload).userId;
+    const { commentList, totalCount } = await this.actionService.getUserComments(
+      userId,
+      page,
+      limit,
+      sortOrder,
+    );
+    const { success, data, error } = z.array(CommentWithBoardResponseSchema).safeParse(commentList);
+    if (!success) {
+      throw new BadRequestException('내 댓글 응답 데이터 검증 실패', error);
+    }
+    const hasNextPage = page * limit < totalCount;
+    return { itemList: data, nextPage: hasNextPage ? page + 1 : null, totalCount };
   }
 }
