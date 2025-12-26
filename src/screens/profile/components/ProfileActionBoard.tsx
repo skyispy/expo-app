@@ -17,7 +17,7 @@ export const ProfileActionBoard = () => {
     userBoardRefetch,
   } = useGetUserBoardList({ sortOrder });
 
-  if(userBoardIsLoading) {
+  if (userBoardIsLoading) {
     return <CustomLoading />;
   }
 
@@ -31,7 +31,7 @@ export const ProfileActionBoard = () => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+    <View style={{ flex: 1, backgroundColor: '#F9F9F9' }}>
       <EllipsisModal />
       <SortOrderPicker sortOrder={sortOrder} setSortOrder={setSortOrder} />
       <FlatList
@@ -51,4 +51,4 @@ export const ProfileActionBoard = () => {
       />
     </View>
   );
-}
+};

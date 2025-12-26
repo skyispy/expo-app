@@ -1,10 +1,5 @@
-import { useMutation } from '@tanstack/react-query';
-import {
-  ApiResponse,
-  SignStackScreenProps,
-  SignupRequest,
-  User,
-} from '@types';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { ApiResponse, SignStackScreenProps, SignupRequest, User } from '@types';
 import apiClient from '../api/config';
 import { Alert } from 'react-native';
 import { useAuthStore } from '@store';
@@ -24,7 +19,7 @@ export const useSignupUser = () => {
       navigation.navigate('Login');
     },
     onError: (error) => {
-      if(error instanceof ApiError) {
+      if (error instanceof ApiError) {
         if (error.status === 409) {
           Alert.alert('회원가입 실패', `${error.message}`);
           return;
@@ -42,17 +37,19 @@ export const useCheckDuplicateNickname = () => {
   const { mutateAsync } = useMutation({
     mutationFn: async (nickname: string) => {
       const response: ApiResponse<boolean> = await apiClient.get('/user/check-nickname', {
-          params: { nickname },
-        },
-      );
+        params: { nickname },
+      });
       return response.data.result;
     },
     onSuccess: (isDuplicate) => {
-      Alert.alert('중복확인 완료', isDuplicate ? '이미 사용중인 닉네임입니다.' : '사용 가능한 닉네임입니다.');
+      Alert.alert(
+        '중복확인 완료',
+        isDuplicate ? '이미 사용중인 닉네임입니다.' : '사용 가능한 닉네임입니다.',
+      );
     },
     onError: () => {
       Alert.alert('중복확인 실패', '요청에 실패했습니다. 잠시 후 다시 시도해주세요.');
-    }
+    },
   });
 
   return { nicknameCheck: mutateAsync };
@@ -72,15 +69,28 @@ export const useUpdateProfile = () => {
       Alert.alert('프로필 수정 완료', '프로필이 성공적으로 수정되었습니다.');
     },
     onError: (error) => {
-      if(error instanceof ApiError) {
+      if (error instanceof ApiError) {
         if (error.status === 409) {
           Alert.alert('프로필 수정 실패', `${error.message}`);
           return;
         }
       }
       Alert.alert('프로필 수정 실패', '요청에 실패했습니다. 잠시 후 다시 시도해주세요.');
-    }
+    },
   });
 
   return { updateProfile: mutateAsync };
-}
+};
+
+// 유저 조회
+export const useGetUser = (userId: number) => {
+  const { data } = useQuery<User>({
+    queryKey: ['user', userId],
+    queryFn: async () => {
+      const response: ApiResponse<User> = await apiClient.get(`/user/${userId}`);
+      return response.data.result;
+    },
+  });
+
+  return { user: data };
+};

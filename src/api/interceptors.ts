@@ -16,7 +16,7 @@ export const addAccessTokenHeader = async (config: InternalAxiosRequestConfig) =
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
-}
+};
 
 // userAgent 생성 후 헤더에 추가
 export const addUserAgentHeader = (config: InternalAxiosRequestConfig) => {
@@ -26,7 +26,7 @@ export const addUserAgentHeader = (config: InternalAxiosRequestConfig) => {
   const platform = Device.osName ?? 'unknown-os';
   config.headers['User-Agent'] = `${appName}/${appVersion} (${platform}; ${deviceId})`;
   return config;
-}
+};
 
 // refreshToken으로 토큰 갱신
 export const refreshAccessToken = async (error: AxiosError, axiosInstance: AxiosInstance) => {
@@ -66,4 +66,4 @@ export const refreshAccessToken = async (error: AxiosError, axiosInstance: Axios
     }
   }
   return Promise.reject(error);
-}
+};

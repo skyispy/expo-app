@@ -8,7 +8,13 @@ import { useGetBoardActionList } from '@hooks';
 import { useNavigation } from '@react-navigation/native';
 import { useMemo, useState } from 'react';
 
-export const BoardActionList = ({ actionType, userId }: { actionType: BoardAction, userId?: number }) => {
+export const BoardActionList = ({
+  actionType,
+  userId,
+}: {
+  actionType: BoardAction;
+  userId?: number;
+}) => {
   const navigation = useNavigation<AppStackScreenProps>();
   const [sortOrder, setSortOrder] = useState<'latest' | 'oldest'>('latest');
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -29,7 +35,7 @@ export const BoardActionList = ({ actionType, userId }: { actionType: BoardActio
       await boardActionRefetch();
     }
     setRefreshing(false);
-  }
+  };
 
   // (일별 그룹핑)
   const sections = useMemo(() => {
@@ -52,7 +58,9 @@ export const BoardActionList = ({ actionType, userId }: { actionType: BoardActio
     return entries.map(([label, data]) => ({ label, data }));
   }, [boardList]);
 
-  return (boardActionIsLoading) ? <CustomLoading /> : (
+  return boardActionIsLoading ? (
+    <CustomLoading />
+  ) : (
     <View style={styles.container}>
       <SortOrderPicker sortOrder={sortOrder} setSortOrder={setSortOrder} />
       <SectionList
@@ -120,12 +128,12 @@ export const BoardActionList = ({ actionType, userId }: { actionType: BoardActio
       />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F9F9F9',
   },
   sectionContainer: {
     flex: 1,

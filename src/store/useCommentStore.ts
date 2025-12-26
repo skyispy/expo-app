@@ -33,10 +33,11 @@ export const useCommentInputStore = create<CommentInputStore>((set) => ({
   setCommentId: (id) => set({ commentId: id }),
   headerText: undefined,
   setHeaderText: (text) => set({ headerText: text }),
-  clear: () => set({
-    mode: 'create',
-    value: '',
-    parentCommentId: undefined,
-    headerText: undefined,
-   }),
+  clear: () =>
+    set({
+      mode: 'create',
+      value: '',
+      parentCommentId: undefined,
+      headerText: undefined,
+    }),
 }));

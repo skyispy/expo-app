@@ -20,23 +20,22 @@ const BottomTabNavigator = () => {
   return (
     <BottomTab.Navigator
       screenOptions={({ route }) => {
-        const routeName = getFocusedRouteNameFromRoute(route)
+        const routeName = getFocusedRouteNameFromRoute(route);
         const tabBarStyle = { display: 'flex' as 'flex' | 'none' };
-        if(routeName && hideOnScreens.includes(routeName)) {
+        if (routeName && hideOnScreens.includes(routeName)) {
           tabBarStyle.display = 'none';
         }
         return {
           header: (props: BottomTabHeaderProps) => <Header {...props} />,
           tabBarStyle,
-        }
+        };
       }}
     >
       <BottomTab.Screen
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ color, size }) =>
-            <Ionicons name="home" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
           tabBarLabel: '홈',
           tabBarActiveTintColor: '#6A49E9',
           tabBarInactiveTintColor: 'gray',
@@ -47,8 +46,9 @@ const BottomTabNavigator = () => {
         name="BoardList"
         component={BoardListScreen}
         options={{
-          tabBarIcon: ({ color, size }) =>
-            <Ionicons name="musical-note" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="musical-note" size={size} color={color} />
+          ),
           tabBarLabel: '게시판',
           tabBarActiveTintColor: '#6A49E9',
           tabBarInactiveTintColor: 'gray',
@@ -63,11 +63,7 @@ const BottomTabNavigator = () => {
               onPress={() => navigation.navigate({ name: 'BoardStep1', params: {} })}
               style={{ alignItems: 'center', justifyContent: 'center', marginTop: -16 }}
             >
-              <Ionicons
-                name="add-circle"
-                size={64}
-                color="#6A49E9"
-              />
+              <Ionicons name="add-circle" size={64} color="#6A49E9" />
             </Pressable>
           ),
           tabBarLabel: '',
@@ -79,8 +75,7 @@ const BottomTabNavigator = () => {
         name="Message"
         component={MessageScreen}
         options={{
-          tabBarIcon: ({ color, size }) =>
-            <Ionicons name="mail" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <Ionicons name="mail" size={size} color={color} />,
           tabBarLabel: '메세지',
           tabBarActiveTintColor: '#6A49E9',
           tabBarInactiveTintColor: 'gray',
@@ -91,24 +86,20 @@ const BottomTabNavigator = () => {
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarIcon: ({ color, size }) =>
-            <Ionicons name="person" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
           tabBarLabel: '프로필',
           tabBarActiveTintColor: '#6A49E9',
           tabBarInactiveTintColor: 'gray',
           headerTitle: '프로필',
           headerRight: () => (
-            <Pressable
-              onPress={() => navigation.navigate("Settings")}
-              style={{ marginRight: 16 }}
-            >
+            <Pressable onPress={() => navigation.navigate('Settings')} style={{ marginRight: 16 }}>
               <Ionicons name="settings-outline" size={24} color="black" />
             </Pressable>
-          )
+          ),
         }}
       />
     </BottomTab.Navigator>
-  )
-}
+  );
+};
 
 export default BottomTabNavigator;

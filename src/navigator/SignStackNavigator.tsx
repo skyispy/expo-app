@@ -25,11 +25,7 @@ const SignStackNavigator = () => {
           ) : null,
       }}
     >
-      <SignStack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{ headerTitle: '로그인' }}
-      />
+      <SignStack.Screen name="Login" component={LoginScreen} options={{ headerTitle: '로그인' }} />
       <SignStack.Screen
         name="Signup"
         component={SignupScreen}

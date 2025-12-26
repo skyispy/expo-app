@@ -27,7 +27,11 @@ export const BoardScreen = () => {
 
   const user = useAuthStore((state) => state.user) as User;
   const { show: showEllipsisModal, setMenuOptions } = useEllipsisModalStore((state) => state);
-  const { setTargetType: setCommentTargetType, setTargetId: setCommentTargetId, mode } = useCommentInputStore();
+  const {
+    setTargetType: setCommentTargetType,
+    setTargetId: setCommentTargetId,
+    mode,
+  } = useCommentInputStore();
 
   const { board } = useGetBoard(route.params.boardId);
   const boardMenuOptions = useBoardMenuOptions(board, user);
@@ -39,32 +43,35 @@ export const BoardScreen = () => {
     // 헤더 우측 더보기 버튼 설정
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity style={{ marginRight: 16 }} onPress={() => {
-          setMenuOptions(boardMenuOptions);
-          showEllipsisModal();
-        }}>
+        <TouchableOpacity
+          style={{ marginRight: 16 }}
+          onPress={() => {
+            setMenuOptions(boardMenuOptions);
+            showEllipsisModal();
+          }}
+        >
           <Ionicons name="ellipsis-horizontal" size={24} color="black" />
         </TouchableOpacity>
       ),
-    })
+    });
 
     return navigation.addListener('transitionEnd', () => setIsLoading(false));
   }, [navigation, boardMenuOptions]);
 
   useEffect(() => {
     // 댓글 타겟 설정
-    if(board) {
+    if (board) {
       setCommentTargetType('board');
       setCommentTargetId(board.boardId);
     }
-  }, [board])
+  }, [board]);
 
   useEffect(() => {
-    if(mode === 'edit' || mode === 'reply') {
+    if (mode === 'edit' || mode === 'reply') {
       // 댓글 입력창 포커스
       commentInputRef.current?.focus();
     }
-  }, [mode])
+  }, [mode]);
 
   return (
     <>
@@ -84,11 +91,13 @@ export const BoardScreen = () => {
               <Text style={styles.title}>{board.title}</Text>
               <View style={styles.infoRow}>
                 <View style={styles.infoItem}>
-                  <Ionicons name='time' size={18} color="gray" />
-                  <Text style={{ fontSize: 14, color: '#666' }}>{timeSince(board.createDate, board.updateDate)}</Text>
+                  <Ionicons name="time" size={18} color="gray" />
+                  <Text style={{ fontSize: 14, color: '#666' }}>
+                    {timeSince(board.createDate, board.updateDate)}
+                  </Text>
                 </View>
                 <View style={styles.infoItem}>
-                  <Ionicons name='eye' size={18} color="gray" />
+                  <Ionicons name="eye" size={18} color="gray" />
                   <Text style={{ fontSize: 14, color: '#666' }}>{board.views}</Text>
                 </View>
               </View>
@@ -115,19 +124,30 @@ export const BoardScreen = () => {
                   placeholder={require('@assets/event2.png')}
                   transition={300}
                   contentFit={'cover'}
-                  cachePolicy={"disk"}
+                  cachePolicy={'disk'}
                 />
               </View>
               <Text style={styles.content}>{board.content}</Text>
-              <Pressable style={styles.metaContainer} onPress={() => {
-                return boardLike({ boardId: board.boardId, isLiked: board.isLiked, categoryId: board.category.categoryId })
-              }}>
-                <Ionicons name={board.isLiked ? 'heart' : 'heart-outline'} size={24} color={board.isLiked ? 'red' : 'black'} />
+              <Pressable
+                style={styles.metaContainer}
+                onPress={() => {
+                  return boardLike({
+                    boardId: board.boardId,
+                    isLiked: board.isLiked,
+                    categoryId: board.category.categoryId,
+                  });
+                }}
+              >
+                <Ionicons
+                  name={board.isLiked ? 'heart' : 'heart-outline'}
+                  size={24}
+                  color={board.isLiked ? 'red' : 'black'}
+                />
                 <Text style={styles.metaCount}>{board.likes}</Text>
               </Pressable>
             </View>
             {/* 댓글 컴포넌트 */}
-            <BoardComment board={board}  />
+            <BoardComment board={board} />
           </ScrollView>
           {/*댓글 입력 컴포넌트*/}
           <CommentInput ref={commentInputRef} />
@@ -135,7 +155,7 @@ export const BoardScreen = () => {
       )}
     </>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -143,7 +163,7 @@ const styles = StyleSheet.create({
   },
   boardContainer: {
     gap: 20,
-    backgroundColor: '#FFF',
+    backgroundColor: '#F9F9F9',
     paddingHorizontal: 20,
     paddingVertical: 20,
   },
@@ -229,5 +249,5 @@ const styles = StyleSheet.create({
   metaCount: {
     fontSize: 16,
     color: '#666',
-  }
-})
+  },
+});

@@ -12,7 +12,7 @@ export const useBoardMenuOptions = (board: Board | undefined, user: User) => {
   const { deleteBoard } = useDeleteBoard();
   const { boardHide } = useBoardHide();
 
-  if(!board) return [];
+  if (!board) return [];
   const isAuthor = user.userId === board.user.userId;
   const menuOptions = [];
   const editOption = {
@@ -42,43 +42,45 @@ export const useBoardMenuOptions = (board: Board | undefined, user: User) => {
     label: '신고하기',
     icon: 'flag-outline',
     action: () => console.log(''),
-  }
+  };
   const hideOption = {
     label: '게시글 숨기기',
     icon: 'eye-off-outline',
     action: async () => {
-      const { boardId, category: { categoryId } } = board;
+      const {
+        boardId,
+        category: { categoryId },
+      } = board;
       // 숨기기
       await boardHide({ boardId, categoryId, isHidden: false });
-    }
-  }
+    },
+  };
   const shareOption = {
     label: '게시글 공유',
     icon: 'share-social-outline',
     action: () => console.log(''),
-  }
+  };
   const followOption = {
     label: '팔로우하기',
     icon: 'person-add-outline',
     action: () => console.log(''),
-  }
+  };
   if (isAuthor) {
     menuOptions.push(editOption, deleteOption);
   } else {
-    if(route.name === 'BoardList') {
+    if (route.name === 'BoardList') {
       menuOptions.push(reportOption, hideOption, shareOption, followOption);
     } else {
       menuOptions.push(reportOption, shareOption, followOption);
     }
   }
   return menuOptions;
-
-}
+};
 
 export const useCommentMenuOptions = (user: User) => {
   const queryClient = useQueryClient();
   const { setMode, setValue, setCommentId, setHeaderText } = useCommentInputStore();
-    const { deleteComment } = useDeleteComment();
+  const { deleteComment } = useDeleteComment();
   return (comment: Comment) => {
     const isAuthor = user.userId === comment.user.userId;
     const menuOptions = [];
@@ -101,11 +103,17 @@ export const useCommentMenuOptions = (user: User) => {
             text: '확인',
             onPress: async () => {
               await deleteComment(comment.commentId, {
-                onSettled: () => queryClient.invalidateQueries({ queryKey: ['commentList', { targetType: comment.targetType, targetId: comment.targetId }] })
+                onSettled: () =>
+                  queryClient.invalidateQueries({
+                    queryKey: [
+                      'commentList',
+                      { targetType: comment.targetType, targetId: comment.targetId },
+                    ],
+                  }),
               });
-            }
+            },
           },
-          { text: '취소', style: 'cancel' }
+          { text: '취소', style: 'cancel' },
         ]);
       },
     };
@@ -113,17 +121,17 @@ export const useCommentMenuOptions = (user: User) => {
       label: '신고하기',
       icon: 'flag-outline',
       action: () => console.log('Report comment'),
-    }
+    };
     const followOption = {
       label: '팔로우하기',
       icon: 'person-add-outline',
       action: () => console.log('Follow comment author'),
-    }
+    };
     if (isAuthor) {
       menuOptions.push(editOption, deleteOption);
     } else {
       menuOptions.push(reportOption, followOption);
     }
     return menuOptions;
-  }
-}
+  };
+};

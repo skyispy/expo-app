@@ -35,7 +35,7 @@ export const BoardStep1Screen = () => {
   useEffect(() => {
     return navigation.addListener('transitionEnd', () => {
       setIsLoading(false);
-    })
+    });
   }, [navigation]);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export const BoardStep1Screen = () => {
     if (Platform.OS === 'android') {
       setContentHeight(event.nativeEvent.contentSize.height);
     }
-  }
+  };
 
   // 2단계로 이동
   const goToStep2 = useCallback(() => {
@@ -60,7 +60,7 @@ export const BoardStep1Screen = () => {
       title,
       content,
       imageUri,
-    }
+    };
     navigation.navigate('BoardStep2', { board: param });
   }, [title, content, imageUri, navigation, board]);
 
@@ -70,21 +70,21 @@ export const BoardStep1Screen = () => {
       headerTitle: board ? '게시글 수정 1 / 2' : '게시글 작성 1 / 2',
       headerRight: () => (
         <Pressable onPress={goToStep2}>
-          <Text style={
-            title.trim().length === 0 ?
-              [styles.rightButtonText, { color: '#ccc' }]
-              : styles.rightButtonText
-          }>
+          <Text
+            style={
+              title.trim().length === 0
+                ? [styles.rightButtonText, { color: '#ccc' }]
+                : styles.rightButtonText
+            }
+          >
             다음
           </Text>
         </Pressable>
-      )
-    })
+      ),
+    });
   }, [goToStep2, navigation, title, board]);
 
-  if (boardIsLoading || isLoading) return (
-    <CustomLoading />
-  );
+  if (boardIsLoading || isLoading) return <CustomLoading />;
 
   return (
     <KeyboardLayout>
@@ -96,7 +96,7 @@ export const BoardStep1Screen = () => {
       >
         {board?.thumbnailImageUrl && !imageUri && (
           <>
-            <Text style={{ fontSize: 18, marginBottom: 8}}>현재 썸네일 이미지</Text>
+            <Text style={{ fontSize: 18, marginBottom: 8 }}>현재 썸네일 이미지</Text>
             <View style={styles.imageContainer}>
               <Image style={styles.image} source={{ uri: board.thumbnailImageUrl }} />
             </View>
@@ -110,10 +110,7 @@ export const BoardStep1Screen = () => {
         ) : (
           <View style={styles.imageContainer}>
             <Image style={styles.image} source={{ uri: imageUri }} />
-            <Pressable
-              onPress={removeImage}
-              style={styles.deleteImageButton}
-            >
+            <Pressable onPress={removeImage} style={styles.deleteImageButton}>
               <Ionicons name="trash-outline" size={24} color="black" />
             </Pressable>
           </View>
@@ -144,12 +141,13 @@ export const BoardStep1Screen = () => {
       </ScrollView>
     </KeyboardLayout>
   );
-}
+};
 
-const styles  = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
+    backgroundColor: '#F9F9F9',
   },
   selectImageButton: {
     flexDirection: 'row',
@@ -198,7 +196,7 @@ const styles  = StyleSheet.create({
     borderBottomWidth: 1,
     fontSize: 16,
     marginBottom: 16,
-    height: undefined
+    height: undefined,
   },
   contentInput: {
     borderWidth: 0,
@@ -212,5 +210,5 @@ const styles  = StyleSheet.create({
     color: '#007AFF',
     fontWeight: '500',
     textAlign: 'center',
-  }
-})
+  },
+});

@@ -20,4 +20,4 @@ export const useImagePicker = () => {
   };
 
   return { imageUri, pickImage, removeImage };
-}
+};

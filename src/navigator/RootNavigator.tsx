@@ -37,13 +37,9 @@ const RootNavigator = () => {
     <NavigationContainer>
       {/* 바텀 내비게이션 바 백그라운드 컴포넌트 */}
       <BottomBackground />
-      {user ? (
-        <AppNavigator />
-      ) : (
-        <SignStackNavigator />
-      )}
+      {user ? <AppNavigator /> : <SignStackNavigator />}
     </NavigationContainer>
   );
 };
 
-  export default RootNavigator;
+export default RootNavigator;

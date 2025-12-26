@@ -15,7 +15,10 @@ export const BoardActionCancel = ({ board }: { board: Board }) => {
         <Pressable
           style={styles.cancelButton}
           onPress={async () => {
-            const { boardId, category: { categoryId } } = board;
+            const {
+              boardId,
+              category: { categoryId },
+            } = board;
             // 취소
             await boardHide({ boardId, categoryId, isHidden: true });
           }}
@@ -25,8 +28,8 @@ export const BoardActionCancel = ({ board }: { board: Board }) => {
       </View>
       <View></View>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -34,6 +37,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: '#efefef',
   },
   cancelContainer: {
     width: '100%',
@@ -61,5 +65,5 @@ const styles = StyleSheet.create({
     color: '#6A49E9',
     fontWeight: 'bold',
     fontSize: 16,
-  }
-})
+  },
+});

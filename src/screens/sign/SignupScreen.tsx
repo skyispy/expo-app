@@ -41,7 +41,12 @@ export const SignupScreen = () => {
   };
 
   const hasError =
-    Object.values(errors).some((v) => !!v) || !nickname || !email || !password || !confirmPassword || !isNicknameChecked;
+    Object.values(errors).some((v) => !!v) ||
+    !nickname ||
+    !email ||
+    !password ||
+    !confirmPassword ||
+    !isNicknameChecked;
 
   // 회원가입
   const { signupUser } = useSignupUser();
@@ -139,7 +144,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     paddingTop: 40,
     gap: 16,
-    paddingBottom: 20
+    paddingBottom: 20,
   },
   button: {
     backgroundColor: '#6A49E9',

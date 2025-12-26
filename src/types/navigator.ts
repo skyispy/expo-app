@@ -21,7 +21,7 @@ export type MainTabParamList = {
   BoardList: undefined;
   Message: undefined;
   Profile: undefined;
-}
+};
 
 // 메인
 export type AppStackParamList = {
@@ -32,11 +32,17 @@ export type AppStackParamList = {
   BoardList: undefined;
   Board: { boardId: number };
   BoardStep1: { boardId?: number };
-  BoardStep2: { board: Board & { imageUri: string | null; categoryId: number } | { title: string; content: string; imageUri: string | null }  };
+  BoardStep2: {
+    board:
+      | (Board & { imageUri: string | null; categoryId: number })
+      | { title: string; content: string; imageUri: string | null };
+  };
   BoardAction: { actionType: BoardAction };
   Settings: undefined;
 };
 export type AppStackScreenProps = StackScreenProps<AppStackParamList>;
 
-export type AppRouteScreenProps<RouteName extends keyof AppStackParamList>
-  = RouteProp<AppStackParamList, RouteName>;
+export type AppRouteScreenProps<RouteName extends keyof AppStackParamList> = RouteProp<
+  AppStackParamList,
+  RouteName
+>;

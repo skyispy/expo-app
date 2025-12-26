@@ -3,16 +3,18 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StackHeaderProps } from '@react-navigation/stack';
 import { BottomTabHeaderProps } from '@react-navigation/bottom-tabs';
 
-export const Header = ({
-  options,
-}: StackHeaderProps | BottomTabHeaderProps) => {
+export const Header = ({ options }: StackHeaderProps | BottomTabHeaderProps) => {
   const { top } = useSafeAreaInsets();
 
   return (
     <View style={[styles.container, { marginTop: top }]}>
       {options?.headerLeft ? options.headerLeft({ canGoBack: true }) : <View style={styles.side} />}
       <Text style={styles.title}>{options?.headerTitle as string}</Text>
-      {options?.headerRight ? options.headerRight({ canGoBack: true }) : <View style={styles.side} />}
+      {options?.headerRight ? (
+        options.headerRight({ canGoBack: true })
+      ) : (
+        <View style={styles.side} />
+      )}
     </View>
   );
 };
@@ -49,5 +51,5 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     fontWeight: '500',
     textAlign: 'center',
-  }
+  },
 });

@@ -25,12 +25,14 @@ export const EventBanner = () => {
             <View style={styles.itemContainer}>
               <Pressable
                 style={styles.itemImageContainer}
-                onPress={() =>
-                  navigation?.navigate('Board', { boardId: item.boardId } )
-                }
+                onPress={() => navigation?.navigate('Board', { boardId: item.boardId })}
               >
                 <Image
-                  source={item.thumbnailImageUrl ? { uri: item.thumbnailImageUrl } : require('@assets/event2.png')}
+                  source={
+                    item.thumbnailImageUrl
+                      ? { uri: item.thumbnailImageUrl }
+                      : require('@assets/event2.png')
+                  }
                   style={styles.itemImage}
                   contentFit="cover"
                 />
@@ -41,7 +43,7 @@ export const EventBanner = () => {
       )}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -63,5 +65,5 @@ const styles = StyleSheet.create({
   },
   itemImage: {
     flex: 1,
-  }
-})
+  },
+});

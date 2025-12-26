@@ -62,7 +62,10 @@ export const ProfileActionComment = () => {
                   <Text style={styles.parentCommentText}>답글: {item.parent.content}</Text>
                 )}
                 {item.targetType === 'board' && (
-                  <Pressable style={styles.targetContainer} onPress={() => navigation.navigate('Board', { boardId: item.target.boardId })}>
+                  <Pressable
+                    style={styles.targetContainer}
+                    onPress={() => navigation.navigate('Board', { boardId: item.target.boardId })}
+                  >
                     <View style={styles.thumbnailContainer}>
                       <Image
                         source={{ uri: item.target.thumbnailImageUrl ?? undefined }}
@@ -95,12 +98,12 @@ export const ProfileActionComment = () => {
       />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F9F9F9',
   },
   commentContainer: {
     paddingVertical: 10,

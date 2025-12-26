@@ -11,7 +11,7 @@ export const CustomLoading = () => {
   useEffect(() => {
     return navigation.addListener('transitionEnd', () => {
       setIsLoading(false);
-    })
+    });
   }, [navigation]);
 
   return isLoading ? (
@@ -19,12 +19,12 @@ export const CustomLoading = () => {
       <Text>로딩 중...</Text>
     </View>
   ) : null;
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  }
-})
+  },
+});

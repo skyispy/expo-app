@@ -7,12 +7,7 @@ interface ProfileImageProps extends ImageProps {
   wrapperStyle?: ViewStyle;
 }
 
-export const ProfileImage = ({
-  uri,
-  size,
-  wrapperStyle,
-  ...props
-}: ProfileImageProps) => {
+export const ProfileImage = ({ uri, size, wrapperStyle, ...props }: ProfileImageProps) => {
   const defaultUserImage = require('@assets/user.png');
   const { style: imageStyle, ...restProps } = props;
   return (
@@ -20,19 +15,20 @@ export const ProfileImage = ({
       style={[
         styles.container,
         { width: size, height: size, borderRadius: size / 2 },
-        wrapperStyle
-      ]}>
-        <Image
-          style={[styles.profileImage, imageStyle]}
-          source={uri ? { uri } : null}
-          cachePolicy={"none"}
-          placeholder={defaultUserImage}
-          transition={300}
-          {...restProps}
-        />
+        wrapperStyle,
+      ]}
+    >
+      <Image
+        style={[styles.profileImage, imageStyle]}
+        source={uri ? { uri } : null}
+        cachePolicy={'none'}
+        placeholder={defaultUserImage}
+        transition={300}
+        {...restProps}
+      />
     </Pressable>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -41,5 +37,5 @@ const styles = StyleSheet.create({
   profileImage: {
     width: '100%',
     height: '100%',
-  }
-})
+  },
+});

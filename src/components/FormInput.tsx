@@ -49,9 +49,13 @@ export const FormInput = ({
           <Text style={styles.errorText}>{error}</Text>
         </View>
       )}
-      {maxLength && <Text style={styles.charCountText}>{value.length} / {maxLength}자</Text>}
+      {maxLength && (
+        <Text style={styles.charCountText}>
+          {value.length} / {maxLength}자
+        </Text>
+      )}
     </>
-  )
+  );
 };
 
 interface FormInputWithButtonProps extends FormInputProps {
@@ -76,7 +80,13 @@ export const FormInputWithButton = ({
   return (
     <>
       <Text style={[styles.label, labelStyle]}>{label}</Text>
-      <View style={[styles.inputContainer, { flexDirection: 'row', alignItems: 'center' }, inputWrapperStyle]}>
+      <View
+        style={[
+          styles.inputContainer,
+          { flexDirection: 'row', alignItems: 'center' },
+          inputWrapperStyle,
+        ]}
+      >
         <TextInput
           style={[styles.input, { flex: 1 }, inputStyle]}
           value={value}
@@ -85,7 +95,11 @@ export const FormInputWithButton = ({
           {...restProps}
         />
         <TouchableOpacity
-          style={disabled ? [styles.button, { backgroundColor: 'gray', borderColor: 'gray' }] : styles.button}
+          style={
+            disabled
+              ? [styles.button, { backgroundColor: 'gray', borderColor: 'gray' }]
+              : styles.button
+          }
           onPress={onButtonPress}
           disabled={disabled}
         >
@@ -100,7 +114,7 @@ export const FormInputWithButton = ({
         </View>
       )}
     </>
-  )
+  );
 };
 
 const styles = StyleSheet.create({

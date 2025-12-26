@@ -12,14 +12,14 @@ export const useCreateComment = () => {
       return response.data.result;
     },
     onError: (err) => {
-      if(err instanceof ApiError && __DEV__) {
+      if (err instanceof ApiError && __DEV__) {
         console.error('useCreateComment -> Failed to create comment', err.message);
       }
-    }
+    },
   });
 
   return { createComment: mutateAsync };
-}
+};
 
 // 댓글 목록 조회
 export const useGetCommentList = (targetType: string, targetId: number) => {
@@ -40,28 +40,36 @@ export const useGetCommentList = (targetType: string, targetId: number) => {
     staleTime: 5 * 60 * 1000,
   });
 
-  const commentList = data?.pages.flatMap(page => page.itemList);
-  const totalCount = data?.pages.flatMap(page => page.totalCount);
+  const commentList = data?.pages.flatMap((page) => page.itemList);
+  const totalCount = data?.pages.flatMap((page) => page.totalCount);
 
-  return { commentList, commentCount: totalCount, commentFetchNextPage: fetchNextPage, commentRefetch: refetch };
-}
+  return {
+    commentList,
+    commentCount: totalCount,
+    commentFetchNextPage: fetchNextPage,
+    commentRefetch: refetch,
+  };
+};
 
 // 댓글 수정
 export const useUpdateComment = () => {
   const { mutateAsync } = useMutation({
     mutationFn: async (param: { commentId: number; content: string }) => {
-      const response: ApiResponse<null> = await apiClient.put(`/common/comment/${param.commentId}`, param);
+      const response: ApiResponse<null> = await apiClient.put(
+        `/common/comment/${param.commentId}`,
+        param,
+      );
       return response.data.result;
     },
     onError: (err) => {
-      if(err instanceof ApiError && __DEV__) {
+      if (err instanceof ApiError && __DEV__) {
         console.error('useUpdateComment -> Failed to edit comment', err.message);
       }
-    }
+    },
   });
 
   return { updateComment: mutateAsync };
-}
+};
 
 // 댓글 삭제
 export const useDeleteComment = () => {
@@ -74,12 +82,12 @@ export const useDeleteComment = () => {
       Alert.alert('댓글 삭제 성공', '댓글이 삭제되었습니다.');
     },
     onError: (err) => {
-      if(err instanceof ApiError && __DEV__) {
+      if (err instanceof ApiError && __DEV__) {
         console.error('useDeleteComment -> Failed to delete comment', err.message);
       }
-      Alert.alert('댓글 삭제 실패', '댓글 삭제에 실패했습니다. 다시 시도해주세요.')
-    }
+      Alert.alert('댓글 삭제 실패', '댓글 삭제에 실패했습니다. 다시 시도해주세요.');
+    },
   });
 
   return { deleteComment: mutateAsync };
-}
+};

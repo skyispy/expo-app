@@ -9,25 +9,25 @@ export const SettingMenuSection = () => {
     <View style={styles.container}>
       <Pressable style={styles.actionContainer} onPress={() => navigation.navigate('ProfileEdit')}>
         <View style={styles.textContainer}>
-          <Ionicons name="person-outline" size={20} color={"black"} />
+          <Ionicons name="person-outline" size={20} color={'black'} />
           <Text style={styles.actionText}>프로필 수정</Text>
         </View>
         <View>
-          <Ionicons name="chevron-forward" size={24} color={"black"} />
+          <Ionicons name="chevron-forward" size={24} color={'black'} />
         </View>
       </Pressable>
       <Pressable style={styles.actionContainer}>
         <View style={styles.textContainer}>
-          <Ionicons name="notifications-outline" size={20} color={"black"} />
+          <Ionicons name="notifications-outline" size={20} color={'black'} />
           <Text style={styles.actionText}>푸시알림 관리</Text>
         </View>
         <View>
-          <Ionicons name="chevron-forward" size={24} color={"black"} />
+          <Ionicons name="chevron-forward" size={24} color={'black'} />
         </View>
       </Pressable>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -57,6 +57,6 @@ const styles = StyleSheet.create({
   },
   actionText: {
     fontSize: 16,
-    marginLeft: 2
+    marginLeft: 2,
   },
-})
+});

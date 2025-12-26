@@ -6,26 +6,27 @@ import { SlideModalLayout } from '@layout';
 export const EllipsisModal = () => {
   const ellipsisModalStore = useEllipsisModalStore();
   return (
-    <SlideModalLayout
-      modalStore={ellipsisModalStore}
-      title={"더보기"}
-    >
+    <SlideModalLayout modalStore={ellipsisModalStore} title={'더보기'}>
       <View style={styles.menuContainer}>
         {ellipsisModalStore.menuOptions?.map((item, i) => (
-          <Pressable key={i} style={styles.menuButton} onPress={() => {
-            item.action();
-            ellipsisModalStore.hide();
-          }}>
+          <Pressable
+            key={i}
+            style={styles.menuButton}
+            onPress={() => {
+              item.action();
+              ellipsisModalStore.hide();
+            }}
+          >
             <View style={styles.iconContainer}>
-              <Ionicons name={item.icon as any} size={24} color='black' />
+              <Ionicons name={item.icon as any} size={24} color="black" />
             </View>
             <Text style={styles.menuButtonText}>{item.label}</Text>
           </Pressable>
         ))}
       </View>
     </SlideModalLayout>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   menuContainer: {
@@ -51,4 +52,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-})
+});

@@ -28,7 +28,7 @@ export type Channel = {
   deleteDate: string | null;
   // 카테고리 목록
   categoryList?: Category[];
-}
+};
 
 export type Category = {
   // 카테고리 ID
@@ -47,7 +47,7 @@ export type Category = {
   deleteDate: string | null;
   // 소속 채널 정보 (nullable)
   channel?: Channel | null;
-}
+};
 
 export type Board = {
   // 게시글 ID
@@ -84,7 +84,7 @@ export type Board = {
   commentCount: number;
   // 숨김 여부 (서버에서 가져올 때는 없음)
   isHidden?: boolean;
-}
+};
 
 export type Comment = {
   // 댓글 ID
@@ -109,4 +109,4 @@ export type Comment = {
   updateDate: string;
   // 삭제 일시
   deleteDate: string | null;
-}
+};

@@ -20,11 +20,16 @@ export const BoardStep2Screen = () => {
   const { updateBoard } = useUpdateBoard();
   const { channelList } = useGetChannelList();
 
-  const { categoryId, setCategoryId, show: showCategoryModal, clear: clearCategoryStore } = useCategoryModalStore();
+  const {
+    categoryId,
+    setCategoryId,
+    show: showCategoryModal,
+    clear: clearCategoryStore,
+  } = useCategoryModalStore();
 
   useEffect(() => {
-    if(categoryId === undefined && 'category' in board) {
-    // 수정 모드일 때는 기존 카테고리 id로 설정
+    if (categoryId === undefined && 'category' in board) {
+      // 수정 모드일 때는 기존 카테고리 id로 설정
       setCategoryId(board.category.categoryId);
     } else {
       clearCategoryStore();
@@ -66,23 +71,24 @@ export const BoardStep2Screen = () => {
       await updateBoard(formData, {
         onSuccess: async () => {
           // 수정한 게시글 상세 캐시 업데이트
-          await queryClient.invalidateQueries({ queryKey: ['board', { boardId: board.boardId }] })
+          await queryClient.invalidateQueries({ queryKey: ['board', { boardId: board.boardId }] });
           // 게시판 캐시 업데이트
           await queryClient.invalidateQueries({ queryKey: ['board', { categoryId: categoryId }] });
-          if(board.category.categoryId !== categoryId) {
+          if (board.category.categoryId !== categoryId) {
             // 카테고리 변경 시
             // 이전 카테고리 캐시도 업데이트
-            await queryClient.invalidateQueries({ queryKey: ['board', { categoryId: board.category.categoryId }] })
+            await queryClient.invalidateQueries({
+              queryKey: ['board', { categoryId: board.category.categoryId }],
+            });
           }
           Alert.alert('게시글 수정 성공', '게시글이 수정되었습니다.', [
-            { text: '확인', onPress: () => navigation.goBack() }
+            { text: '확인', onPress: () => navigation.goBack() },
           ]);
         },
         onError: () => {
           Alert.alert('게시글 수정 실패', '게시글 수정에 실패했습니다. 다시 시도해주세요.');
-        }
+        },
       });
-
     } else {
       // 생성
       await createBoard(formData, {
@@ -90,12 +96,12 @@ export const BoardStep2Screen = () => {
           // 게시판 캐시 업데이트
           await queryClient.invalidateQueries({ queryKey: ['board', { categoryId: categoryId }] });
           Alert.alert('게시글 생성 성공', '게시글이 생성되었습니다.', [
-            { text: '확인', onPress: () => navigation.goBack() }
+            { text: '확인', onPress: () => navigation.goBack() },
           ]);
         },
         onError: () => {
           Alert.alert('게시글 생성 실패', '게시글 생성에 실패했습니다. 다시 시도해주세요.');
-        }
+        },
       });
     }
   }, [categoryId, board, createBoard, updateBoard, navigation, queryClient]);
@@ -106,25 +112,29 @@ export const BoardStep2Screen = () => {
       headerTitle: 'boardId' in board ? '게시글 수정 2 / 2' : '게시글 작성 2 / 2',
       headerRight: () => (
         <Pressable onPress={saveBoard}>
-          <Text style={
-            categoryId === undefined ?
-              [styles.rightButtonText, { color: '#ccc' }]
-              : styles.rightButtonText
-          }>
+          <Text
+            style={
+              categoryId === undefined
+                ? [styles.rightButtonText, { color: '#ccc' }]
+                : styles.rightButtonText
+            }
+          >
             확인
           </Text>
         </Pressable>
-      )
-    })
+      ),
+    });
   }, [saveBoard, navigation, categoryId, board]);
 
   // 채널리스트에서 카테고리 id로 채널명이랑 카테고리 명 찾기
   // 선택된 채널
-  const selectedChannel = channelList?.find(channel =>
-    channel.categoryList?.some(category => category.categoryId === categoryId)
+  const selectedChannel = channelList?.find((channel) =>
+    channel.categoryList?.some((category) => category.categoryId === categoryId),
   );
   // 선택된 카테고리
-  const selectedCategory = selectedChannel?.categoryList?.find(category => category.categoryId === categoryId);
+  const selectedCategory = selectedChannel?.categoryList?.find(
+    (category) => category.categoryId === categoryId,
+  );
   return (
     <>
       <BoardCategoryModal />
@@ -147,9 +157,7 @@ export const BoardStep2Screen = () => {
             <View style={styles.separator} />
             <Pressable style={styles.selectButton} onPress={showCategoryModal}>
               <View style={styles.iconContainer}>
-                <Image
-                  style={styles.icon}
-                />
+                <Image style={styles.icon} />
               </View>
               <Text style={styles.selectButtonText}>{selectedCategory?.categoryName}</Text>
             </Pressable>
@@ -158,7 +166,7 @@ export const BoardStep2Screen = () => {
       </View>
     </>
   );
-}
+};
 
 const styles = StyleSheet.create({
   rightButtonText: {
@@ -219,5 +227,5 @@ const styles = StyleSheet.create({
     width: 8,
     height: 1,
     backgroundColor: 'black',
-  }
-})
+  },
+});

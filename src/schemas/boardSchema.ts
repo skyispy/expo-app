@@ -8,7 +8,7 @@ export const BoardCreateSchema = z.object({
   imageUrl: z.url('Invalid image URL').nullable(),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
-})
+});
 
 // 댓글 생성 스키마
 export const CommentCreateSchema = z.object({
@@ -16,4 +16,4 @@ export const CommentCreateSchema = z.object({
   targetId: z.number().min(1, '유효한 게시글 ID가 필요합니다.'),
   targetType: z.string(),
   parentCommentId: z.number().optional(),
-})
+});

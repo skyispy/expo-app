@@ -6,20 +6,19 @@ export const SettingScreen = () => {
   const { logoutUser } = useLogoutUser();
   return (
     <ScrollView style={styles.container}>
-
       <SettingMenuSection />
 
       <Pressable style={styles.logoutButton} onPress={() => logoutUser()}>
         <Text style={styles.logoutButtonText}>로그아웃</Text>
       </Pressable>
-
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F9F9F9',
   },
   logoutButton: {
     marginTop: 32,
@@ -33,5 +32,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  }
-})
+  },
+});

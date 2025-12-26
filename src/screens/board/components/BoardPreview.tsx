@@ -9,7 +9,7 @@ import { timeSince } from '@utils';
 import { useBoardLike, useBoardMenuOptions } from '@hooks';
 
 export const BoardPreview = ({ board }: { board: Board }) => {
-  const navigation = useNavigation<AppStackScreenProps>()
+  const navigation = useNavigation<AppStackScreenProps>();
   const user = useAuthStore((state) => state.user) as User;
   const { show: showEllipsisModal, setMenuOptions } = useEllipsisModalStore((state) => state);
 
@@ -54,8 +54,12 @@ export const BoardPreview = ({ board }: { board: Board }) => {
       </View>
       <View style={styles.main}>
         <View>
-          <Text numberOfLines={2} ellipsizeMode={'tail'} style={styles.title}>{board.title}</Text>
-          <Text numberOfLines={2} ellipsizeMode={'tail'} style={styles.content}>{board.content}</Text>
+          <Text numberOfLines={2} ellipsizeMode={'tail'} style={styles.title}>
+            {board.title}
+          </Text>
+          <Text numberOfLines={2} ellipsizeMode={'tail'} style={styles.content}>
+            {board.content}
+          </Text>
         </View>
         <View style={styles.thumbnailImageContainer}>
           <Image
@@ -77,21 +81,32 @@ export const BoardPreview = ({ board }: { board: Board }) => {
           <Ionicons name="chatbubble-ellipses-outline" size={24} color="black" />
           <Text style={styles.metaCount}>{board.commentCount}</Text>
         </Pressable>
-        <Pressable style={styles.metaContainer} onPress={() => {
-          return boardLike({ boardId: board.boardId, isLiked: board.isLiked, categoryId: board.category.categoryId })
-        }}>
-          <Ionicons name={board.isLiked ? 'heart' : 'heart-outline'} size={24} color={board.isLiked ? 'red' : 'black'} />
+        <Pressable
+          style={styles.metaContainer}
+          onPress={() => {
+            return boardLike({
+              boardId: board.boardId,
+              isLiked: board.isLiked,
+              categoryId: board.category.categoryId,
+            });
+          }}
+        >
+          <Ionicons
+            name={board.isLiked ? 'heart' : 'heart-outline'}
+            size={24}
+            color={board.isLiked ? 'red' : 'black'}
+          />
           <Text style={styles.metaCount}>{board.likes}</Text>
         </Pressable>
       </View>
     </Pressable>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#999',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
     paddingVertical: 10,
     paddingHorizontal: 20,
   },
@@ -106,7 +121,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   profileImageContainer: {
-    marginRight: 10
+    marginRight: 10,
   },
   profileTextContainer: {
     height: '100%',
@@ -147,7 +162,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   content: {
     fontSize: 16,
@@ -179,5 +194,5 @@ const styles = StyleSheet.create({
   metaCount: {
     fontSize: 16,
     color: '#666',
-  }
-})
+  },
+});

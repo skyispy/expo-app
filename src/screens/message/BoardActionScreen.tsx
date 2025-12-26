@@ -11,11 +11,11 @@ export const BoardActionScreen = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if(actionType === 'view') {
+    if (actionType === 'view') {
       navigation.setOptions({ headerTitle: '최근에 본 게시물' });
-    } else if(actionType === 'like') {
+    } else if (actionType === 'like') {
       navigation.setOptions({ headerTitle: '좋아요 누른 게시물' });
-    } else if(actionType === 'hide') {
+    } else if (actionType === 'hide') {
       navigation.setOptions({ headerTitle: '숨김 처리한 게시물' });
     }
   }, [actionType]);
@@ -30,7 +30,5 @@ export const BoardActionScreen = () => {
     return <CustomLoading />;
   }
 
-  return (
-    <BoardActionList actionType={actionType} />
-  );
-}
+  return <BoardActionList actionType={actionType} />;
+};

@@ -20,7 +20,7 @@ export const useGetBoardList = (categoryId: number, limit?: number, page?: numbe
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  const boardList = data?.pages.flatMap(page => page.itemList);
+  const boardList = data?.pages.flatMap((page) => page.itemList);
 
   return {
     boardList,
@@ -28,7 +28,7 @@ export const useGetBoardList = (categoryId: number, limit?: number, page?: numbe
     boardHasNextPage: hasNextPage,
     boardIsFetchingNextPage: isFetchingNextPage,
   };
-}
+};
 
 // 게시글 생성
 export const useCreateBoard = () => {
@@ -40,14 +40,14 @@ export const useCreateBoard = () => {
       return response.data.result;
     },
     onError: (err) => {
-      if(err instanceof ApiError && __DEV__) {
+      if (err instanceof ApiError && __DEV__) {
         console.error('useCreateBoard -> Failed to create board', err.message);
       }
-    }
+    },
   });
 
   return { createBoard: mutateAsync };
-}
+};
 
 // 게시글 상세 조회
 export const useGetBoard = (boardId?: number) => {
@@ -62,26 +62,30 @@ export const useGetBoard = (boardId?: number) => {
   });
 
   return { board: data, boardIsLoading: isLoading };
-}
+};
 
 // 게시글 수정
 export const useUpdateBoard = () => {
   const { mutateAsync } = useMutation({
     mutationFn: async (param: FormData) => {
-      const response: ApiResponse<null> = await apiClient.put(`/board/${param.get('boardId')}`, param, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response: ApiResponse<null> = await apiClient.put(
+        `/board/${param.get('boardId')}`,
+        param,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        },
+      );
       return response.data.result;
     },
     onError: (err) => {
-      if(err instanceof ApiError && __DEV__) {
+      if (err instanceof ApiError && __DEV__) {
         console.error('useUpdateBoard -> Failed to update board', err.message);
       }
-    }
+    },
   });
 
   return { updateBoard: mutateAsync };
-}
+};
 
 // 게시글 삭제
 export const useDeleteBoard = () => {
@@ -99,7 +103,9 @@ export const useDeleteBoard = () => {
           onPress: async () => {
             // 삭제한 게시글 상세 캐시 무효화
             const board = queryClient.getQueryData<Board>(['board', { boardId }]);
-            await queryClient.invalidateQueries({ queryKey: ['board', { categoryId: board?.category.categoryId }]})
+            await queryClient.invalidateQueries({
+              queryKey: ['board', { categoryId: board?.category.categoryId }],
+            });
             await queryClient.invalidateQueries({
               queryKey: ['board', { boardId: board?.boardId }],
             });
@@ -110,25 +116,25 @@ export const useDeleteBoard = () => {
       ]);
     },
     onError: (err) => {
-      if(err instanceof ApiError && __DEV__) {
+      if (err instanceof ApiError && __DEV__) {
         console.error('useDeleteBoard -> Failed to delete board', err.message);
       }
-      Alert.alert(
-        '게시글 삭제 실패',
-        '게시글 삭제에 실패했습니다. 다시 시도해주세요.',
-      );
-    }
+      Alert.alert('게시글 삭제 실패', '게시글 삭제에 실패했습니다. 다시 시도해주세요.');
+    },
   });
 
   return { deleteBoard: mutateAsync };
-}
+};
 
 // 게시글 좋아요
 export const useBoardLike = () => {
   const queryClient = useQueryClient();
   const { mutateAsync: boardLike } = useMutation({
-    mutationFn: async ({ boardId, isLiked }: Pick<Board, 'boardId' | 'isLiked'> & Pick<Category, 'categoryId'>) => {
-      if(isLiked) {
+    mutationFn: async ({
+      boardId,
+      isLiked,
+    }: Pick<Board, 'boardId' | 'isLiked'> & Pick<Category, 'categoryId'>) => {
+      if (isLiked) {
         // 좋아요 취소
         await apiClient.delete(`/board/${boardId}/like`);
       } else {
@@ -140,36 +146,41 @@ export const useBoardLike = () => {
     onMutate: async ({ boardId, isLiked, categoryId }) => {
       // 게시글 목록 캐시 업데이트
       await queryClient.cancelQueries({ queryKey: ['board', { categoryId }] });
-      const previousBoardList = queryClient.getQueryData<{ pageParams: number[]; pages: InfiniteQueryResponse<Board>[] }>(
-        ['board', { categoryId }]
-      );
+      const previousBoardList = queryClient.getQueryData<{
+        pageParams: number[];
+        pages: InfiniteQueryResponse<Board>[];
+      }>(['board', { categoryId }]);
       queryClient.setQueryData<{ pageParams: number[]; pages: InfiniteQueryResponse<Board>[] }>(
         ['board', { categoryId }],
         (oldData) => {
           if (!oldData) return oldData;
-          const pageIndex = oldData.pages.findIndex(page =>
-            page.itemList.some(board => board.boardId === boardId)
+          const pageIndex = oldData.pages.findIndex((page) =>
+            page.itemList.some((board) => board.boardId === boardId),
           );
           if (pageIndex !== -1) {
             const newPages = [...oldData.pages];
             newPages[pageIndex] = {
               ...newPages[pageIndex],
-              itemList: newPages[pageIndex].itemList.map(board =>
+              itemList: newPages[pageIndex].itemList.map((board) =>
                 board.boardId === boardId
-                  ? { ...board, isLiked: !isLiked, likes: isLiked ? board.likes - 1 : board.likes + 1 }
-                  : board
+                  ? {
+                      ...board,
+                      isLiked: !isLiked,
+                      likes: isLiked ? board.likes - 1 : board.likes + 1,
+                    }
+                  : board,
               ),
             };
             return { ...oldData, pages: newPages };
           }
           return oldData;
-        }
+        },
       );
 
       // 게시글 상세 캐시도 있으면 업데이트
       await queryClient.cancelQueries({ queryKey: ['board', { boardId }] });
       const previousBoard = queryClient.getQueryData<Board>(['board', { boardId }]);
-      if(previousBoard) {
+      if (previousBoard) {
         queryClient.setQueryData<Board>(['board', { boardId }], (oldBoard) => {
           if (!oldBoard) return oldBoard;
           return {
@@ -206,7 +217,10 @@ export const useBoardLike = () => {
 export const useBoardHide = () => {
   const queryClient = useQueryClient();
   const { mutateAsync: boardHide } = useMutation({
-    mutationFn: async ({ boardId, isHidden }: Pick<Board, 'boardId' | 'isHidden'> & Pick<Category, 'categoryId'>) => {
+    mutationFn: async ({
+      boardId,
+      isHidden,
+    }: Pick<Board, 'boardId' | 'isHidden'> & Pick<Category, 'categoryId'>) => {
       if (!!isHidden) {
         // 숨김 해제
         await apiClient.delete(`/board/${boardId}/hide`);
@@ -234,11 +248,9 @@ export const useBoardHide = () => {
             const newPages = [...oldData.pages];
             newPages[pageIndex] = {
               ...newPages[pageIndex],
-              itemList: newPages[pageIndex].itemList.map((board) =>
-                {
-                  return board.boardId === boardId ? { ...board, isHidden: !isHidden } : board
-                },
-              ),
+              itemList: newPages[pageIndex].itemList.map((board) => {
+                return board.boardId === boardId ? { ...board, isHidden: !isHidden } : board;
+              }),
             };
             return { ...oldData, pages: newPages };
           }
@@ -262,4 +274,4 @@ export const useBoardHide = () => {
   });
 
   return { boardHide };
-}
+};

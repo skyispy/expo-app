@@ -31,4 +31,4 @@ export const KeyboardLayout = ({ children }: { children: ReactNode }) => {
       {children}
     </KeyboardAvoidingView>
   );
-}
+};

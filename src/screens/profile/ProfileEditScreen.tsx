@@ -22,7 +22,7 @@ export const ProfileEditScreen = () => {
       setNickname(user.nickname);
       setIntroduction(user.introduction ?? '');
     }
-  }, [user])
+  }, [user]);
 
   // zod schema 검증 함수
   const validate = (fieldName: keyof UserProfileUpdateFields, value: string): boolean => {
@@ -60,16 +60,16 @@ export const ProfileEditScreen = () => {
 
     const formData = new FormData();
     formData.append('nickname', result.data.nickname);
-    if(result.data.introduction) {
+    if (result.data.introduction) {
       formData.append('introduction', result.data.introduction);
     }
-    if(result.data.profileImage) {
+    if (result.data.profileImage) {
       const dateTimeString = getDateTimeString();
       formData.append('profileImage', {
         uri: result.data.profileImage,
         name: 'profile_' + dateTimeString + '.jpg',
         type: 'image/jpeg',
-      } as any)
+      } as any);
     }
 
     await updateProfile(formData, {
@@ -77,8 +77,8 @@ export const ProfileEditScreen = () => {
         // 이미지 선택 초기화 -> 버튼 비활성화
         removeImage();
       },
-    })
-  }
+    });
+  };
 
   // 닉네임 중복확인
   const { nicknameCheck } = useCheckDuplicateNickname();
@@ -95,11 +95,10 @@ export const ProfileEditScreen = () => {
   // 저장 버튼 활성화 여부
   // 닉네임이 변경되었고, 중복확인이 되어야 활성화
   // 자기소개가 변경되었거나, 이미지가 변경되었을 때 활성화
-  const isSaveEnabled = (
+  const isSaveEnabled =
     (nickname !== user.nickname && isNicknameChecked) ||
     introduction !== (user.introduction ?? '') ||
-    imageUri !== null
-  );
+    imageUri !== null;
 
   return (
     <KeyboardLayout>
@@ -109,7 +108,7 @@ export const ProfileEditScreen = () => {
             style={{ width: '100%', height: '100%' }}
             source={{ uri: imageUri ?? user?.profileImageUrl ?? undefined }}
             placeholder={require('@assets/user.png')}
-            cachePolicy={"none"}
+            cachePolicy={'none'}
           />
         </TouchableOpacity>
         <FormInputWithButton
@@ -130,7 +129,7 @@ export const ProfileEditScreen = () => {
           label="자기소개"
           value={introduction}
           onChangeText={(text) => {
-            if(validate('introduction', text)) {
+            if (validate('introduction', text)) {
               setIntroduction(text);
             }
           }}
@@ -157,7 +156,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 40,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF',
     gap: 12,
   },
   profileImageButton: {
@@ -169,7 +168,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   inputGroup: {
-    marginTop: 20
+    marginTop: 20,
   },
   label: {
     fontSize: 14,
@@ -184,7 +183,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     padding: 10,
     borderRadius: 5,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F9F9F9',
   },
   errorContainer: {
     marginTop: 6,

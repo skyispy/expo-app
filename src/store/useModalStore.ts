@@ -15,14 +15,14 @@ type MenuOption = {
   icon: string;
   label: string;
   action: () => void;
-}
+};
 // 더보기 모달
 export const useEllipsisModalStore = create<EllipsisModalState>((set) => ({
   isVisible: false,
   show: () => set({ isVisible: true }),
   hide: () => set({ isVisible: false }),
   menuOptions: undefined,
-  setMenuOptions: (options) => set({ menuOptions: options })
+  setMenuOptions: (options) => set({ menuOptions: options }),
 }));
 
 interface CategoryModalState extends ModalState {

@@ -25,12 +25,9 @@ export const ProfileActionNavigator = () => {
         component={ProfileActionComment}
         options={{ tabBarLabel: '댓글' }}
       />
-      <ProfileActionTab.Screen
-        name="ProfileViewHistory"
-        options={{ tabBarLabel: '조회 기록' }}
-      >
+      <ProfileActionTab.Screen name="ProfileViewHistory" options={{ tabBarLabel: '조회 기록' }}>
         {() => <BoardActionList actionType={'view'} />}
       </ProfileActionTab.Screen>
     </ProfileActionTab.Navigator>
   );
-}
+};

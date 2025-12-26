@@ -27,7 +27,7 @@ export const useLoginUser = () => {
       setUser(data);
     },
     onError: (error: unknown) => {
-      if(error instanceof ApiError) {
+      if (error instanceof ApiError) {
         if (error.status === 401) {
           Alert.alert('로그인 실패', `${error.message}`);
         } else {
@@ -49,14 +49,18 @@ export const useTokenLoginUser = () => {
       const accessToken = await SecureStore.getItemAsync('accessToken');
       const refreshToken = await SecureStore.getItemAsync('refreshToken');
       // 둘 다 없으면 바로 로그아웃 처리
-      if(!accessToken && !refreshToken) {
+      if (!accessToken && !refreshToken) {
         clearUser();
         return;
       }
       const response: ApiResponse<LoginResponse> = await apiClient.post('/auth/token-login');
       if (!response.data.result) throw new Error('로그아웃 되었습니다.');
       // 로그인 성공 시, 토큰 저장
-      const { user, accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data.result;
+      const {
+        user,
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+      } = response.data.result;
       await SecureStore.setItemAsync('accessToken', newAccessToken);
       if (newRefreshToken) {
         await SecureStore.setItemAsync('refreshToken', newRefreshToken);
@@ -64,7 +68,7 @@ export const useTokenLoginUser = () => {
       setUser(user);
     },
     onError: async (error: unknown) => {
-      if(error instanceof ApiError) {
+      if (error instanceof ApiError) {
         if (error.status === 403) {
           // refreshToken이 유효하지 않은 경우
           clearUser();
@@ -75,7 +79,7 @@ export const useTokenLoginUser = () => {
       // 토큰이 유효하지 않거나, 기타 오류 시 토큰 삭제
       await SecureStore.deleteItemAsync('accessToken');
       clearUser();
-    }
+    },
   });
 
   return { tokenLoginUser: mutate, isTokenLoginPending: isPending };
@@ -87,7 +91,10 @@ export const useLogoutUser = () => {
       const refreshToken = await SecureStore.getItemAsync('refreshToken');
       if (refreshToken) {
         // 로그아웃 API 호출
-        const response: ApiResponse<LogoutResponse> = await apiClient.post('/auth/logout', {}, {
+        const response: ApiResponse<LogoutResponse> = await apiClient.post(
+          '/auth/logout',
+          {},
+          {
             headers: { 'x-refresh-token': refreshToken },
           },
         );
@@ -101,15 +108,20 @@ export const useLogoutUser = () => {
       return { message: '로그아웃 되었습니다.' };
     },
     onSuccess: (data) => {
-      Alert.alert('로그아웃', data.message, [
-        {
-          text: '확인',
-          onPress: () => useAuthStore.getState().clearUser()
-        }
-      ], { cancelable: false });
+      Alert.alert(
+        '로그아웃',
+        data.message,
+        [
+          {
+            text: '확인',
+            onPress: () => useAuthStore.getState().clearUser(),
+          },
+        ],
+        { cancelable: false },
+      );
     },
     onError: async (error: unknown) => {
-      if(error instanceof ApiError) {
+      if (error instanceof ApiError) {
         console.error('useUser -> Failed to logout user', error.message);
         await Promise.all([
           SecureStore.deleteItemAsync('accessToken'),

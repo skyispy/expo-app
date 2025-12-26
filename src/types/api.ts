@@ -1,9 +1,5 @@
 import { z } from 'zod';
-import {
-  CommentCreateSchema,
-  UserLoginSchema,
-  UserSignupSchema,
-} from '@schemas';
+import { CommentCreateSchema, UserLoginSchema, UserSignupSchema } from '@schemas';
 import { User } from './model';
 
 export type ApiResponse<T> = {
@@ -31,12 +27,12 @@ export type LogoutResponse = {
 export type TokenRefreshResponse = {
   accessToken: string;
   refreshToken: string;
-}
+};
 
 export type InfiniteQueryResponse<T> = {
   itemList: T[];
   nextPage: number | null;
   totalCount: number;
-}
+};
 
 export type CommentCreateRequest = z.infer<typeof CommentCreateSchema>;

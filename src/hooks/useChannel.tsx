@@ -13,4 +13,4 @@ export const useGetChannelList = () => {
     staleTime: Infinity,
   });
   return { channelList: data };
-}
+};

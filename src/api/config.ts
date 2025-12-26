@@ -34,7 +34,7 @@ apiClient.interceptors.response.use(
         return await refreshAccessToken(error, apiClient);
       } catch (err: unknown) {
         // 에러 커스텀 에러로 내보내기
-        if(axios.isAxiosError(err)) {
+        if (axios.isAxiosError(err)) {
           const message = err.response?.data?.message || err.message;
           const status = err.response?.status;
           const data = err?.response?.data;
@@ -43,7 +43,7 @@ apiClient.interceptors.response.use(
       }
     }
 
-    return Promise.reject(new ApiError("unknown error occurred"));
+    return Promise.reject(new ApiError('unknown error occurred'));
   },
 );
 

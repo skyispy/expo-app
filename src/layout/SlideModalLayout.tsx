@@ -9,9 +9,9 @@ type SlideModalLayoutProps = {
     isVisible: boolean;
     hide: () => void;
     show: () => void;
-  },
+  };
   title: string;
-}
+};
 
 export const SlideModalLayout = ({ children, modalStore, title }: SlideModalLayoutProps) => {
   const { isVisible, hide } = modalStore;
@@ -40,8 +40,8 @@ export const SlideModalLayout = ({ children, modalStore, title }: SlideModalLayo
         </View>
       </Modal>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -75,4 +75,4 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#ddd',
   },
-})
+});

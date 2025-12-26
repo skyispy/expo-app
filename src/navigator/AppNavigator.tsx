@@ -23,7 +23,8 @@ const AppNavigator = () => {
           canGoBack ? (
             <Pressable
               style={{ width: 30, height: 30, justifyContent: 'center', alignItems: 'center' }}
-              onPress={() => navigation.goBack()}>
+              onPress={() => navigation.goBack()}
+            >
               <Ionicons name="arrow-back" size={24} color="black" />
             </Pressable>
           ) : null,
@@ -39,33 +40,24 @@ const AppNavigator = () => {
         component={BoardScreen}
         options={{
           headerTitle: '게시글',
-          animation: 'scale_from_center'
+          animation: 'scale_from_center',
         }}
       />
-      <AppStack.Screen
-        name="BoardStep1"
-        component={BoardStep1Screen}
-      />
-      <AppStack.Screen
-        name={"BoardStep2"}
-        component={BoardStep2Screen}
-      />
+      <AppStack.Screen name="BoardStep1" component={BoardStep1Screen} />
+      <AppStack.Screen name={'BoardStep2'} component={BoardStep2Screen} />
       <AppStack.Screen
         name="ProfileEdit"
         component={ProfileEditScreen}
         options={{ headerTitle: '프로필 수정' }}
       />
+      <AppStack.Screen name="BoardAction" component={BoardActionScreen} />
       <AppStack.Screen
-        name="BoardAction"
-        component={BoardActionScreen}
-      />
-      <AppStack.Screen
-        name={"Settings"}
+        name={'Settings'}
         component={SettingScreen}
         options={{ headerTitle: '설정' }}
       />
     </AppStack.Navigator>
-  )
-}
+  );
+};
 
 export default AppNavigator;

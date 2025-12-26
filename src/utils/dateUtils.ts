@@ -49,7 +49,7 @@ export const timeSince = (createDate: Date | string, updateDate: Date | string) 
     result += ' · 수정됨';
   }
   return result;
-}
+};
 
 // 날짜 라벨 함수
 export const getDateLabel = (date: string | Date): string => {
@@ -84,4 +84,4 @@ export const getMonthShortName = (date: string): string => {
     'Dec',
   ];
   return MONTHS_SHORT[Number(month) - 1];
-}
+};

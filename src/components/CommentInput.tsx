@@ -12,7 +12,17 @@ export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => 
 
   const { bottom } = useSafeAreaInsets();
   const [bottomHeight, setBottomHeight] = useState(bottom);
-  const { mode, value, setValue, targetType, targetId, parentCommentId, commentId, headerText, clear } = useCommentInputStore();
+  const {
+    mode,
+    value,
+    setValue,
+    targetType,
+    targetId,
+    parentCommentId,
+    commentId,
+    headerText,
+    clear,
+  } = useCommentInputStore();
 
   // 버튼 타이틀 설정
   const title = mode === 'create' ? '작성' : mode === 'edit' ? '수정' : '작성';
@@ -27,7 +37,7 @@ export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => 
         content: value,
         targetType,
         targetId,
-      }
+      };
       const { success, data, error } = CommentCreateSchema.safeParse(param);
       if (!success) {
         Alert.alert('댓글 작성 실패', error.issues[0].message);
@@ -38,7 +48,9 @@ export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => 
         {
           text: '확인',
           onPress: async () => {
-            await queryClient.invalidateQueries({ queryKey: ['commentList', { targetType, targetId }] });
+            await queryClient.invalidateQueries({
+              queryKey: ['commentList', { targetType, targetId }],
+            });
             clear();
           },
         },
@@ -50,7 +62,7 @@ export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => 
         Alert.alert('댓글 수정 실패', error.issues[0].message);
         return;
       }
-      if(!commentId) {
+      if (!commentId) {
         Alert.alert('댓글 수정 실패', '수정할 댓글이 선택되지 않았습니다.');
         return;
       }
@@ -59,7 +71,9 @@ export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => 
         {
           text: '확인',
           onPress: async () => {
-            await queryClient.invalidateQueries({ queryKey: ['commentList', { targetType, targetId }] });
+            await queryClient.invalidateQueries({
+              queryKey: ['commentList', { targetType, targetId }],
+            });
             clear();
           },
         },
@@ -71,7 +85,7 @@ export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => 
         targetType,
         targetId,
         parentCommentId,
-      }
+      };
       const { success, data, error } = CommentCreateSchema.safeParse(param);
       if (!success) {
         Alert.alert('대댓글 작성 실패', error.issues[0].message);
@@ -82,19 +96,20 @@ export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => 
         {
           text: '확인',
           onPress: async () => {
-            await queryClient.invalidateQueries({ queryKey: ['commentList', { targetType, targetId }] });
+            await queryClient.invalidateQueries({
+              queryKey: ['commentList', { targetType, targetId }],
+            });
             clear();
           },
         },
       ]);
     }
-
-  }
+  };
 
   // 오프셋 설정
   useEffect(() => {
     const showSub = Keyboard.addListener('keyboardDidShow', () => {
-      setBottomHeight(0)
+      setBottomHeight(0);
     });
     const hideSub = Keyboard.addListener('keyboardDidHide', () => {
       setBottomHeight(bottom);
@@ -121,14 +136,14 @@ export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => 
           style={styles.input}
           value={value}
           onChangeText={setValue}
-          placeholder={"댓글을 입력하세요..."}
+          placeholder={'댓글을 입력하세요...'}
         />
         <Pressable style={styles.button} onPress={onSubmit}>
           <Text style={styles.buttonText}>{title}</Text>
         </Pressable>
       </View>
     </View>
-  )
+  );
 };
 
 const styles = StyleSheet.create({

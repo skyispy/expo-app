@@ -12,21 +12,22 @@ export const useGetBoardActionList = ({
   actionType: BoardAction;
   sortOrder: SortOrder;
 }) => {
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteQuery({
-    queryKey: userId
-      ? ['userBoardAction', { userId, actionType, sortOrder }]
-      : ['myBoardAction', { actionType, sortOrder }],
-    queryFn: async ({ pageParam }) => {
-      const response: ApiResponse<InfiniteQueryResponse<Board & { lastActionDate: Date }>> =
-        await apiClient.get(`/action/board/${actionType}`, {
-          params: { page: pageParam, limit: 10, sortOrder, targetUserId: userId ?? null },
-        });
-      return response.data.result;
-    },
-    initialPageParam: 1,
-    getNextPageParam: (lastPage) => lastPage.nextPage,
-    staleTime: userId ? 5 * 60 * 1000 : 0, // 사용자 행동 기록은 5분간 신선하게 유지, 내 행동 기록은 기본값 사용
-  });
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } =
+    useInfiniteQuery({
+      queryKey: userId
+        ? ['userBoardAction', { userId, actionType, sortOrder }]
+        : ['myBoardAction', { actionType, sortOrder }],
+      queryFn: async ({ pageParam }) => {
+        const response: ApiResponse<InfiniteQueryResponse<Board & { lastActionDate: Date }>> =
+          await apiClient.get(`/action/board/${actionType}`, {
+            params: { page: pageParam, limit: 10, sortOrder, targetUserId: userId ?? null },
+          });
+        return response.data.result;
+      },
+      initialPageParam: 1,
+      getNextPageParam: (lastPage) => lastPage.nextPage,
+      staleTime: userId ? 5 * 60 * 1000 : 0, // 사용자 행동 기록은 5분간 신선하게 유지, 내 행동 기록은 기본값 사용
+    });
 
   const boardList = data?.pages.flatMap((page) => page.itemList);
 
@@ -41,22 +42,29 @@ export const useGetBoardActionList = ({
 };
 
 // 내 게시글 조회
-export const useGetUserBoardList = ({ userId, sortOrder }: { userId?: number; sortOrder: SortOrder }) => {
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteQuery({
-    queryKey: userId ? ['userBoard', { userId, sortOrder }] : ['myBoard', { sortOrder }],
-    queryFn: async ({ pageParam }) => {
-      const response: ApiResponse<InfiniteQueryResponse<Board>> = await apiClient.get(
-        '/action/board',
-        {
-          params: { page: pageParam, limit: 10, sortOrder, targetUserId: userId ?? null },
-        },
-      );
-      return response.data.result;
-    },
-    initialPageParam: 1,
-    getNextPageParam: (lastPage) => lastPage.nextPage,
-    staleTime: userId ? 5 * 60 * 1000 : 0,
-  });
+export const useGetUserBoardList = ({
+  userId,
+  sortOrder,
+}: {
+  userId?: number;
+  sortOrder: SortOrder;
+}) => {
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } =
+    useInfiniteQuery({
+      queryKey: userId ? ['userBoard', { userId, sortOrder }] : ['myBoard', { sortOrder }],
+      queryFn: async ({ pageParam }) => {
+        const response: ApiResponse<InfiniteQueryResponse<Board>> = await apiClient.get(
+          '/action/board',
+          {
+            params: { page: pageParam, limit: 10, sortOrder, targetUserId: userId ?? null },
+          },
+        );
+        return response.data.result;
+      },
+      initialPageParam: 1,
+      getNextPageParam: (lastPage) => lastPage.nextPage,
+      staleTime: userId ? 5 * 60 * 1000 : 0,
+    });
 
   const boardList = data?.pages.flatMap((page) => page.itemList);
 
@@ -70,7 +78,6 @@ export const useGetUserBoardList = ({ userId, sortOrder }: { userId?: number; so
   };
 };
 
-
 // 내 댓글 조회
 export const useGetUserCommentList = ({
   userId,
@@ -79,21 +86,20 @@ export const useGetUserCommentList = ({
   userId?: number;
   sortOrder: SortOrder;
 }) => {
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useInfiniteQuery({
-    queryKey: userId
-      ? ['userComment', { userId, sortOrder }]
-      : ['myComment', { sortOrder }],
-    queryFn: async ({ pageParam }) => {
-      const response: ApiResponse<InfiniteQueryResponse<Comment & { target: Board }>> =
-        await apiClient.get('/action/comment', {
-          params: { page: pageParam, limit: 10, sortOrder, targetUserId: userId ?? null },
-        });
-      return response.data.result;
-    },
-    initialPageParam: 1,
-    getNextPageParam: (lastPage) => lastPage.nextPage,
-    staleTime: userId ? 5 * 60 * 1000 : 0,
-  });
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } =
+    useInfiniteQuery({
+      queryKey: userId ? ['userComment', { userId, sortOrder }] : ['myComment', { sortOrder }],
+      queryFn: async ({ pageParam }) => {
+        const response: ApiResponse<InfiniteQueryResponse<Comment & { target: Board }>> =
+          await apiClient.get('/action/comment', {
+            params: { page: pageParam, limit: 10, sortOrder, targetUserId: userId ?? null },
+          });
+        return response.data.result;
+      },
+      initialPageParam: 1,
+      getNextPageParam: (lastPage) => lastPage.nextPage,
+      staleTime: userId ? 5 * 60 * 1000 : 0,
+    });
 
   const commentList = data?.pages.flatMap((page) => page.itemList);
 

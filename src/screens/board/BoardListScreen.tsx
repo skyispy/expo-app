@@ -18,30 +18,26 @@ export const BoardListScreen = () => {
   const { channelList } = useGetChannelList();
 
   useEffect(() => {
-    AsyncStorage.getItem('boardSelection').then(value => {
+    AsyncStorage.getItem('boardSelection').then((value) => {
       if (value) {
         const boardItem = JSON.parse(value);
         setChannelId(boardItem.channelId);
         setCategoryId(boardItem.categoryId);
       }
-    })
+    });
   }, []);
 
-  const {
-    boardList,
-    boardFetchNextPage,
-    boardHasNextPage,
-    boardIsFetchingNextPage,
-  } = useGetBoardList(categoryId);
+  const { boardList, boardFetchNextPage, boardHasNextPage, boardIsFetchingNextPage } =
+    useGetBoardList(categoryId);
 
   const handleRefresh = async () => {
     setRefreshing(true);
     // 여기에 새로고침 로직 추가 (예: refetch)
-    if(!boardIsFetchingNextPage){
+    if (!boardIsFetchingNextPage) {
       await queryClient.refetchQueries({ queryKey: ['board'] });
     }
     setRefreshing(false);
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -52,9 +48,15 @@ export const BoardListScreen = () => {
           renderItem={({ item }) => (
             // 채널 아이템 컴포넌트로 교체 필요
             <Pressable
-              style={[styles.channelContainer, { transform: [{ scale: item.channelId === channelId ? 1.2 : 1 }] }]}
+              style={[
+                styles.channelContainer,
+                { transform: [{ scale: item.channelId === channelId ? 1.2 : 1 }] },
+              ]}
               onPress={async () => {
-                const boardItem = { channelId: item.channelId, categoryId: (item.categoryList as Category[])[0]?.categoryId }
+                const boardItem = {
+                  channelId: item.channelId,
+                  categoryId: (item.categoryList as Category[])[0]?.categoryId,
+                };
                 setChannelId(boardItem.channelId);
                 setCategoryId(boardItem.categoryId);
                 await AsyncStorage.setItem('boardSelection', JSON.stringify(boardItem));
@@ -75,7 +77,7 @@ export const BoardListScreen = () => {
       </View>
       <View style={styles.categoryListContainer}>
         <FlatList
-          data={channelList?.find(c => c.channelId === channelId)?.categoryList || []}
+          data={channelList?.find((c) => c.channelId === channelId)?.categoryList || []}
           horizontal
           renderItem={({ item }) => (
             // 카테고리 아이템 컴포넌트로 교체 필요
@@ -83,14 +85,19 @@ export const BoardListScreen = () => {
               style={styles.categoryContainer}
               onPress={async () => {
                 setCategoryId(item.categoryId);
-                const boardItem = { channelId: channelId, categoryId: item.categoryId }
+                const boardItem = { channelId: channelId, categoryId: item.categoryId };
                 await AsyncStorage.setItem('boardSelection', JSON.stringify(boardItem));
               }}
             >
               <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 <Text
-                  style={{ color: item.categoryId === categoryId ? 'blue' : 'black', fontWeight: item.categoryId === categoryId ? 'bold' : 'normal' }}
-                >{item.categoryName}</Text>
+                  style={{
+                    color: item.categoryId === categoryId ? 'blue' : 'black',
+                    fontWeight: item.categoryId === categoryId ? 'bold' : 'normal',
+                  }}
+                >
+                  {item.categoryName}
+                </Text>
               </View>
             </Pressable>
           )}
@@ -100,7 +107,9 @@ export const BoardListScreen = () => {
       </View>
       <FlatList
         data={boardList}
-        renderItem={({ item }) => !!item.isHidden ? <BoardActionCancel board={item} /> : <BoardPreview board={item} />}
+        renderItem={({ item }) =>
+          !!item.isHidden ? <BoardActionCancel board={item} /> : <BoardPreview board={item} />
+        }
         keyExtractor={(item) => item.boardId.toString()}
         onEndReached={async () => {
           if (boardHasNextPage && !boardIsFetchingNextPage) {
@@ -116,11 +125,12 @@ export const BoardListScreen = () => {
       <EllipsisModal />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F9F9F9',
   },
   channelListContainer: {
     width: '100%',
@@ -146,5 +156,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     justifyContent: 'center',
     alignItems: 'center',
-  }
-})
+  },
+});

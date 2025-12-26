@@ -43,7 +43,7 @@ export const SortOrderPicker = ({ sortOrder, setSortOrder }: SortOrderPickerProp
       </Pressable>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   sortingHeader: {
