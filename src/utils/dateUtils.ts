@@ -63,12 +63,12 @@ export const getDateLabel = (date: string | Date): string => {
 
   if (isToday) return '오늘';
 
-  const viewMonth = view.getMonth();
-  return String(viewMonth + 1);
+  return String(view.getDate());
 };
 
-export const getMonthShortName = (month: string): string => {
-  if (isNaN(Number(month))) return '';
+export const getMonthShortName = (date: string): string => {
+  const view = new Date(date);
+  const month = (view.getMonth() + 1).toString();
   const MONTHS_SHORT = [
     'Jan',
     'Feb',

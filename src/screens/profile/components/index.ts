@@ -1,1 +1,2 @@
-export * from './ProfileMyBoard';
+export * from './ProfileActionBoard';
+export * from './ProfileActionComment';

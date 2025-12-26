@@ -1,6 +1,5 @@
 import { View } from 'react-native';
-import { ProfileSection } from './sections';
-import ProfileActionNavigator from '../../navigator/ProfileActionNavigator';
+import { ProfileActionNavigator, ProfileSection } from './sections';
 
 export const ProfileScreen = () => {
   return (

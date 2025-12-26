@@ -1,10 +1,10 @@
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { BoardActionList } from '@screens/message/components';
-import { ProfileMyBoard } from '@screens/profile/components';
+import { ProfileActionBoard, ProfileActionComment } from '@screens/profile/components';
 
 const ProfileActionTab = createMaterialTopTabNavigator();
 
-const ProfileActionNavigator = () => {
+export const ProfileActionNavigator = () => {
   return (
     <ProfileActionTab.Navigator
       screenOptions={{
@@ -17,14 +17,14 @@ const ProfileActionNavigator = () => {
     >
       <ProfileActionTab.Screen
         name="ProfileMyBoard"
-        component={ProfileMyBoard}
+        component={ProfileActionBoard}
         options={{ tabBarLabel: '게시물' }}
       />
-      {/*<ProfileActionTab.Screen*/}
-      {/*  name="ProfileMyComments"*/}
-      {/*  component={View}*/}
-      {/*  options={{ tabBarLabel: '댓글' }}*/}
-      {/*/>*/}
+      <ProfileActionTab.Screen
+        name="ProfileMyComments"
+        component={ProfileActionComment}
+        options={{ tabBarLabel: '댓글' }}
+      />
       <ProfileActionTab.Screen
         name="ProfileViewHistory"
         options={{ tabBarLabel: '조회 기록' }}
@@ -34,5 +34,3 @@ const ProfileActionNavigator = () => {
     </ProfileActionTab.Navigator>
   );
 }
-
-export default ProfileActionNavigator;

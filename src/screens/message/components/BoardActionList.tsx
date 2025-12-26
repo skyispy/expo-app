@@ -2,110 +2,77 @@ import { AppStackScreenProps, Board, BoardAction } from '@types';
 import { getDateLabel, getMonthShortName, timeSince } from '@utils';
 import { Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
-import { CustomLoading, ProfileImage } from '../../../components';
+import { CustomLoading, ProfileImage, SortOrderPicker } from '@components';
 import { Ionicons } from '@expo/vector-icons';
 import { useGetBoardActionList } from '@hooks';
 import { useNavigation } from '@react-navigation/native';
-import { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMemo, useState } from 'react';
 
-export const BoardActionList = ({ actionType }: { actionType: BoardAction }) => {
+export const BoardActionList = ({ actionType, userId }: { actionType: BoardAction, userId?: number }) => {
   const navigation = useNavigation<AppStackScreenProps>();
-  const queryClient = useQueryClient();
   const [sortOrder, setSortOrder] = useState<'latest' | 'oldest'>('latest');
   const [refreshing, setRefreshing] = useState<boolean>(false);
+
+  const {
+    boardList,
+    boardActionIsLoading,
+    boardActionFetchNextPage,
+    boardActionHasNextPage,
+    boardActionIsFetchingNextPage,
+    boardActionRefetch,
+  } = useGetBoardActionList({ userId, actionType, sortOrder });
 
   const handleRefresh = async () => {
     setRefreshing(true);
     // 여기에 새로고침 로직 추가 (예: refetch)
-    await queryClient.refetchQueries({ queryKey: ['boardAction'] });
+    if (!boardActionIsFetchingNextPage) {
+      await boardActionRefetch();
+    }
     setRefreshing(false);
   }
 
-  const { boardList, boardActionIsLoading } = useGetBoardActionList(actionType, sortOrder);
+  // (일별 그룹핑)
+  const sections = useMemo(() => {
+    if (!boardList || boardList.length === 0) return [];
+    // 1. 일별 그룹핑 (Map 사용)
+    const grouped = boardList.reduce(
+      (acc: Map<string, (Board & { lastActionDate: Date })[]>, board) => {
+        const label = getDateLabel(board.lastActionDate);
+        if (!acc.has(label)) {
+          acc.set(label, []);
+        }
+        acc.get(label)!.push(board);
+        return acc;
+      },
+      new Map(),
+    );
+    // 2. 이중 배열로 변환
+    let entries = Array.from(grouped.entries());
+    // 3. SectionList용 변환
+    return entries.map(([label, data]) => ({ label, data }));
+  }, [boardList]);
 
-  // 게시물을 월별로 그룹화하는 함수
-  const groupByMonth = (boards: (Board & { lastActionDate: Date })[] | undefined) => {
-    if (!boards) return {};
-    return boards.reduce((acc: { [key: string]: (Board & { lastActionDate: Date })[] }, board) => {
-      // label : 오늘, 12월, 11월
-      const label = getDateLabel(board.lastActionDate);
-      acc[label] = acc[label] ? [...acc[label], board] : [board];
-      return acc;
-    }, {});
-  };
-
-  const groupedBoards = groupByMonth(boardList);
-
-  // SectionList용 데이터 변환
-  const todayLabel = '오늘';
-  const labels = Object.keys(groupedBoards);
-  let sections: { monthLabel: string; monthShortName: string; data: (Board & { lastActionDate: Date })[] }[] = [];
-  if (sortOrder === 'latest') {
-    sections = [
-      ...labels.filter(l => l === todayLabel),
-      ...labels.filter(l => l !== todayLabel),
-    ].map(label => ({ monthLabel: label, monthShortName: getMonthShortName(label), data: groupedBoards[label] }));
-  } else {
-    sections = [
-      ...labels.filter(l => l !== todayLabel),
-      ...labels.filter(l => l === todayLabel),
-    ].map(label => ({ monthLabel: label, monthShortName: getMonthShortName(label), data: groupedBoards[label] }));
-  }
-
-  if(boardActionIsLoading) {
-    return <CustomLoading />;
-  }
-
-  return (
-    <View style={{ flex: 1 }}>
-      <View style={styles.sortingHeader}>
-        <Pressable
-          style={
-            sortOrder === 'latest'
-              ? [styles.sortingContainer, { backgroundColor: '#A084E8', borderColor: '#A084E8' }]
-              : styles.sortingContainer
-          }
-          onPress={() => setSortOrder('latest')}
-        >
-          <Text
-            style={
-              sortOrder === 'latest' ? [styles.sortingText, { color: '#fff' }] : styles.sortingText
-            }
-          >
-            최신순
-          </Text>
-        </Pressable>
-        <Pressable
-          style={
-            sortOrder === 'oldest'
-              ? [styles.sortingContainer, { backgroundColor: '#A084E8', borderColor: '#A084E8' }]
-              : styles.sortingContainer
-          }
-          onPress={() => setSortOrder('oldest')}
-        >
-          <Text
-            style={
-              sortOrder === 'oldest' ? [styles.sortingText, { color: '#fff' }] : styles.sortingText
-            }
-          >
-            오래된 순
-          </Text>
-        </Pressable>
-      </View>
+  return (boardActionIsLoading) ? <CustomLoading /> : (
+    <View style={styles.container}>
+      <SortOrderPicker sortOrder={sortOrder} setSortOrder={setSortOrder} />
       <SectionList
-        style={styles.container}
+        style={styles.sectionContainer}
         sections={sections}
-        keyExtractor={(item) => 'board_action' + item.boardId}
-        renderSectionHeader={({ section: { monthLabel, monthShortName } }) => (
+        keyExtractor={(item) => 'board_action_' + item.boardId}
+        renderSectionHeader={({ section: { label, data } }) => (
           <View style={styles.sectionHeader}>
-            <Text style={styles.monthLabel}>{monthLabel}</Text>
-            <Text style={styles.monthShortName}>{monthShortName}</Text>
+            <Text style={styles.day}>{label}</Text>
+            <Text style={styles.month}>{getMonthShortName(data[0].lastActionDate)}</Text>
           </View>
         )}
         renderSectionFooter={() => <View style={styles.sectionFooter} />}
         refreshing={refreshing}
         onRefresh={handleRefresh}
+        onEndReached={async () => {
+          if (boardActionHasNextPage && !boardActionIsFetchingNextPage) {
+            await boardActionFetchNextPage();
+          }
+        }}
         renderItem={({ item: board }) => (
           <Pressable
             style={styles.boardContainer}
@@ -131,7 +98,7 @@ export const BoardActionList = ({ actionType }: { actionType: BoardAction }) => 
             </View>
             <View style={styles.boardFooterContainer}>
               <View style={styles.userContainer}>
-                <ProfileImage size={28} uri={board.user.profileImageUrl} />
+                <ProfileImage size={24} uri={board.user.profileImageUrl} />
                 <Text style={styles.nickname}>{board.user.nickname}</Text>
               </View>
               <View style={styles.timeContainer}>
@@ -158,18 +125,22 @@ export const BoardActionList = ({ actionType }: { actionType: BoardAction }) => 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+  },
+  sectionContainer: {
+    flex: 1,
     padding: 16,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    marginBottom: 20
+    marginBottom: 10,
   },
-  monthLabel: {
+  day: {
     fontWeight: 'bold',
     fontSize: 32,
   },
-  monthShortName: {
+  month: {
     fontSize: 16,
     color: '#666',
     marginLeft: 8,
@@ -181,7 +152,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   boardContainer: {
-    marginBottom: 20,
+    paddingVertical: 16,
   },
   thumbnailImageContainer: {
     width: 160,
@@ -208,7 +179,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 4,
-    alignItems: 'center',
   },
   userContainer: {
     flexDirection: 'row',
@@ -223,32 +193,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
   },
-  sortingHeader: {
-    flexDirection: 'row',
-    gap: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginTop: 4,
-  },
-  sortingContainer: {
-    paddingVertical: 5,
-    paddingHorizontal: 8,
-    justifyContent: 'center',
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: '#6A49E9',
-  },
-  sortingText: {
-    color: '#6A49E9',
-    fontSize: 12,
-  },
-  deleteButton: {
-    marginLeft: 'auto',
-    padding: 4,
-    borderRadius: '50%',
-    borderWidth: 1,
-    borderColor: '#FF3B30',
-  },
   timeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -258,4 +202,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#555',
   },
-})
+});

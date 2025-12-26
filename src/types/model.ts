@@ -45,6 +45,8 @@ export type Category = {
   updateDate: string;
   // 삭제 일시
   deleteDate: string | null;
+  // 소속 채널 정보 (nullable)
+  channel?: Channel | null;
 }
 
 export type Board = {
@@ -95,16 +97,12 @@ export type Comment = {
   user: User;
   // 댓글 내용
   content: string;
-  // 좋아요 수
-  likes: number;
-  // 싫어요 수
-  dislikes: number;
   // 댓글 상태 (예: 'active', 'deleted' 등)
   status: string;
   // 대댓글
   children?: Comment[];
   // 부모 댓글
-  parent?: Comment;
+  parent?: Comment | null;
   // 생성 일시
   createDate: string;
   // 수정 일시
