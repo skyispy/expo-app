@@ -1,10 +1,10 @@
-import { AppRouteScreenProps, AppStackScreenProps, Board, Comment, User } from '@types';
+import { AppRouteScreenProps, AppStackScreenProps, Board, Comment, MenuOption, User } from '@types';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import { useBoardHide, useDeleteBoard } from './useBoard';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCommentInputStore } from '@store';
-import { useDeleteComment } from './useCommon';
+import { useDeleteComment } from './useComment';
 
 export const useBoardMenuOptions = (board: Board | undefined, user: User) => {
   const navigation = useNavigation<AppStackScreenProps>();
@@ -14,15 +14,15 @@ export const useBoardMenuOptions = (board: Board | undefined, user: User) => {
 
   if (!board) return [];
   const isAuthor = user.userId === board.user.userId;
-  const menuOptions = [];
-  const editOption = {
+  const menuOptions: MenuOption[] = [];
+  const editOption: MenuOption = {
     label: '게시글 수정',
     icon: 'pencil-outline',
     action: () => {
       navigation.navigate('BoardStep1', { boardId: board.boardId });
     },
   };
-  const deleteOption = {
+  const deleteOption: MenuOption = {
     label: '게시글 삭제',
     icon: 'trash-outline',
     action: () => {
@@ -38,12 +38,12 @@ export const useBoardMenuOptions = (board: Board | undefined, user: User) => {
       ]);
     },
   };
-  const reportOption = {
+  const reportOption: MenuOption = {
     label: '신고하기',
     icon: 'flag-outline',
     action: () => console.log(''),
   };
-  const hideOption = {
+  const hideOption: MenuOption = {
     label: '게시글 숨기기',
     icon: 'eye-off-outline',
     action: async () => {
@@ -55,12 +55,12 @@ export const useBoardMenuOptions = (board: Board | undefined, user: User) => {
       await boardHide({ boardId, categoryId, isHidden: false });
     },
   };
-  const shareOption = {
+  const shareOption: MenuOption = {
     label: '게시글 공유',
     icon: 'share-social-outline',
     action: () => console.log(''),
   };
-  const followOption = {
+  const followOption: MenuOption = {
     label: '팔로우하기',
     icon: 'person-add-outline',
     action: () => console.log(''),
@@ -83,8 +83,8 @@ export const useCommentMenuOptions = (user: User) => {
   const { deleteComment } = useDeleteComment();
   return (comment: Comment) => {
     const isAuthor = user.userId === comment.user.userId;
-    const menuOptions = [];
-    const editOption = {
+    const menuOptions: MenuOption[] = [];
+    const editOption: MenuOption = {
       label: '댓글 수정',
       icon: 'pencil-outline',
       action: () => {
@@ -94,7 +94,7 @@ export const useCommentMenuOptions = (user: User) => {
         setHeaderText('댓글 입력');
       },
     };
-    const deleteOption = {
+    const deleteOption: MenuOption = {
       label: '댓글 삭제',
       icon: 'trash-outline',
       action: () => {
@@ -105,10 +105,7 @@ export const useCommentMenuOptions = (user: User) => {
               await deleteComment(comment.commentId, {
                 onSettled: () =>
                   queryClient.invalidateQueries({
-                    queryKey: [
-                      'commentList',
-                      { targetType: comment.targetType, targetId: comment.targetId },
-                    ],
+                    queryKey: ['commentList', { boardId: comment.board.boardId }],
                   }),
               });
             },
@@ -117,12 +114,12 @@ export const useCommentMenuOptions = (user: User) => {
         ]);
       },
     };
-    const reportOption = {
+    const reportOption: MenuOption = {
       label: '신고하기',
       icon: 'flag-outline',
       action: () => console.log('Report comment'),
     };
-    const followOption = {
+    const followOption: MenuOption = {
       label: '팔로우하기',
       icon: 'person-add-outline',
       action: () => console.log('Follow comment author'),

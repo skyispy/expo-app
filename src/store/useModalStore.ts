@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { MenuOption } from '@types';
 
 interface ModalState {
   isVisible: boolean;
@@ -10,12 +11,6 @@ interface EllipsisModalState extends ModalState {
   menuOptions?: MenuOption[];
   setMenuOptions: (options: MenuOption[]) => void;
 }
-// 메뉴 옵션 타입 정의
-type MenuOption = {
-  icon: string;
-  label: string;
-  action: () => void;
-};
 // 더보기 모달
 export const useEllipsisModalStore = create<EllipsisModalState>((set) => ({
   isVisible: false,
