@@ -89,10 +89,8 @@ export type Board = {
 export type Comment = {
   // 댓글 ID
   commentId: number;
-  // 대상 타입 (예: 'board', 'post' 등)
-  targetType: string;
-  // 대상 ID
-  targetId: number;
+  // 댓글이 속한 게시글 정보
+  board: Board
   // 댓글 작성자 정보
   user: User;
   // 댓글 내용
@@ -109,4 +107,8 @@ export type Comment = {
   updateDate: string;
   // 삭제 일시
   deleteDate: string | null;
+  // 좋아요 수
+  likes: number;
+  // 좋아요 여부
+  isLiked: boolean;
 };

@@ -5,10 +5,11 @@ import apiClient from '../api/config';
 import { ApiError } from '../errors/ApiError';
 import { Alert } from 'react-native';
 
+// 댓글 생성
 export const useCreateComment = () => {
   const { mutateAsync } = useMutation({
     mutationFn: async (param: CommentCreateRequest) => {
-      const response: ApiResponse<null> = await apiClient.post('/common/comment', param);
+      const response: ApiResponse<null> = await apiClient.post('/comment', param);
       return response.data.result;
     },
     onError: (err) => {
@@ -22,30 +23,31 @@ export const useCreateComment = () => {
 };
 
 // 댓글 목록 조회
-export const useGetCommentList = (targetType: string, targetId: number) => {
+export const useGetCommentList = (boardId: number) => {
   const { data, fetchNextPage, refetch } = useInfiniteQuery({
-    queryKey: ['commentList', { targetType, targetId }],
+    queryKey: ['commentList', { boardId }],
     queryFn: async ({ pageParam }) => {
       const response: ApiResponse<InfiniteQueryResponse<Comment>> = await apiClient.get(
-        `/common/comment`,
+        `/comment`,
         {
-          params: { targetType, targetId, page: pageParam, limit: 10 },
+          params: { boardId, page: pageParam, limit: 10 },
         },
       );
       return response.data.result;
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.nextPage,
-    enabled: !!targetId,
+    enabled: !!boardId,
     staleTime: 5 * 60 * 1000,
   });
 
+  console.log(data?.pages.flatMap(page => (page.totalCount)));
+
   const commentList = data?.pages.flatMap((page) => page.itemList);
-  const totalCount = data?.pages.flatMap((page) => page.totalCount);
 
   return {
     commentList,
-    commentCount: totalCount,
+    commentCount: data?.pages[0]?.totalCount || 0,
     commentFetchNextPage: fetchNextPage,
     commentRefetch: refetch,
   };
@@ -56,7 +58,7 @@ export const useUpdateComment = () => {
   const { mutateAsync } = useMutation({
     mutationFn: async (param: { commentId: number; content: string }) => {
       const response: ApiResponse<null> = await apiClient.put(
-        `/common/comment/${param.commentId}`,
+        `/comment/${param.commentId}`,
         param,
       );
       return response.data.result;
@@ -75,7 +77,7 @@ export const useUpdateComment = () => {
 export const useDeleteComment = () => {
   const { mutateAsync } = useMutation({
     mutationFn: async (commentId: number) => {
-      const response: ApiResponse<null> = await apiClient.delete(`/common/comment/${commentId}`);
+      const response: ApiResponse<null> = await apiClient.delete(`/comment/${commentId}`);
       return response.data.result;
     },
     onSuccess: async () => {

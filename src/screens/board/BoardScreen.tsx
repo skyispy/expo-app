@@ -15,7 +15,7 @@ import { AppRouteScreenProps, AppStackScreenProps, User } from '@types';
 import { CommentInput, ProfileImage, EllipsisModal } from '@components';
 import { useAuthStore, useCommentInputStore, useEllipsisModalStore } from '@store';
 import { timeSince } from '@utils';
-import { BoardComment } from './components/BoardComment';
+import { BoardCommentSection } from './sections';
 import { KeyboardLayout } from '@layout';
 import { useGetBoard, useBoardMenuOptions, useBoardLike } from '@hooks';
 
@@ -147,7 +147,7 @@ export const BoardScreen = () => {
               </Pressable>
             </View>
             {/* 댓글 컴포넌트 */}
-            <BoardComment board={board} />
+            <BoardCommentSection boardId={board.boardId} />
           </ScrollView>
           {/*댓글 입력 컴포넌트*/}
           <CommentInput ref={commentInputRef} />

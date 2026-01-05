@@ -1,17 +1,14 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Board, User, Comment } from '@types';
+import { User, Comment } from '@types';
 import { useCommentMenuOptions, useGetCommentList } from '@hooks';
-import { ProfileImage } from '../../../components';
+import { ProfileImage } from '@components';
 import { timeSince } from '@utils';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore, useCommentInputStore, useEllipsisModalStore } from '@store';
 import { Fragment } from 'react';
 
-export const BoardComment = ({ board }: { board: Board }) => {
-  const { commentList, commentCount, commentFetchNextPage, commentRefetch } = useGetCommentList(
-    'board',
-    board.boardId,
-  );
+export const BoardCommentSection = ({ boardId }: { boardId: number }) => {
+  const { commentList, commentCount, commentFetchNextPage, commentRefetch } = useGetCommentList(boardId);
 
   const user = useAuthStore((state) => state.user) as User;
   const { show: showEllipsisModal, setMenuOptions } = useEllipsisModalStore((state) => state);
@@ -29,14 +26,14 @@ export const BoardComment = ({ board }: { board: Board }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>댓글 {commentCount ?? 0}</Text>
+        <Text style={styles.headerText}>댓글 {commentCount}</Text>
       </View>
       <View>
         {commentList &&
           commentList.map(
             (comment) =>
               !comment.parent && (
-                <Fragment key={comment.commentId}>
+                <Fragment key={'comment_' + comment.commentId}>
                   <Pressable
                     style={styles.commentContainer}
                     onPress={() => handleReplyPress(comment)}
@@ -65,11 +62,27 @@ export const BoardComment = ({ board }: { board: Board }) => {
                     <View style={styles.main}>
                       <Text>{comment.content}</Text>
                     </View>
+                    <View style={styles.footer}>
+                      <View style={{ flexDirection: 'row', gap: 20 }}>
+                        <View style={{ flexDirection: 'row', gap: 4 }}>
+                          <Ionicons name={'chatbubble-ellipses-outline'} size={16} color="#666" />
+                          <Text>답글</Text>
+                        </View>
+                        <Pressable style={{ flexDirection: 'row', gap: 4 }}>
+                          <Ionicons
+                            name={comment.isLiked ? 'heart' : 'heart-outline'}
+                            size={16}
+                            color={comment.isLiked ? 'red' : 'black'}
+                          />
+                          <Text>{comment.likes}</Text>
+                        </Pressable>
+                      </View>
+                    </View>
                   </Pressable>
                   {comment.children &&
                     comment.children.map((reply) => (
                       <Pressable
-                        key={reply.commentId}
+                        key={'comment_' + reply.commentId}
                         style={[
                           styles.commentContainer,
                           { paddingLeft: 40, backgroundColor: '#eee' },
@@ -181,4 +194,9 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingLeft: 46,
   },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingRight: 10,
+  }
 });

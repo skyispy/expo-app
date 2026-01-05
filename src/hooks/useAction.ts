@@ -90,7 +90,7 @@ export const useGetUserCommentList = ({
     useInfiniteQuery({
       queryKey: userId ? ['userComment', { userId, sortOrder }] : ['myComment', { sortOrder }],
       queryFn: async ({ pageParam }) => {
-        const response: ApiResponse<InfiniteQueryResponse<Comment & { target: Board }>> =
+        const response: ApiResponse<InfiniteQueryResponse<Comment>> =
           await apiClient.get('/action/comment', {
             params: { page: pageParam, limit: 10, sortOrder, targetUserId: userId ?? null },
           });

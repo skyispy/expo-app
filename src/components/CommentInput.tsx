@@ -35,7 +35,6 @@ export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => 
       // 댓글 등록
       const param = {
         content: value,
-        targetType,
         targetId,
       };
       const { success, data, error } = CommentCreateSchema.safeParse(param);

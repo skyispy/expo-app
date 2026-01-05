@@ -32,9 +32,7 @@ export const ProfileActionComment = () => {
     userCommentRefetch,
   } = useGetUserCommentList({ sortOrder });
 
-  return userCommentIsLoading || !commentList ? (
-    <CustomLoading />
-  ) : (
+  return (
     <View style={styles.container}>
       <SortOrderPicker sortOrder={sortOrder} setSortOrder={setSortOrder} />
       <FlatList
@@ -45,6 +43,9 @@ export const ProfileActionComment = () => {
             await userCommentFetchNextPage();
           }
         }}
+        ListFooterComponent={
+          userCommentIsLoading || !commentList ? <CustomLoading /> : null
+        }
         onEndReachedThreshold={0.5}
         refreshing={refreshing}
         onRefresh={handleRefresh}
@@ -61,26 +62,24 @@ export const ProfileActionComment = () => {
                 {item.parent && (
                   <Text style={styles.parentCommentText}>답글: {item.parent.content}</Text>
                 )}
-                {item.targetType === 'board' && (
-                  <Pressable
-                    style={styles.targetContainer}
-                    onPress={() => navigation.navigate('Board', { boardId: item.target.boardId })}
-                  >
-                    <View style={styles.thumbnailContainer}>
-                      <Image
-                        source={{ uri: item.target.thumbnailImageUrl ?? undefined }}
-                        style={styles.thumbnailImage}
-                        contentFit="cover"
-                      />
-                    </View>
-                    <View style={styles.targetTextContainer}>
-                      <Text style={styles.targetTitle}>{item.target?.title}</Text>
-                    </View>
-                  </Pressable>
-                )}
+                <Pressable
+                  style={styles.targetContainer}
+                  onPress={() => navigation.navigate('Board', { boardId: item.board.boardId })}
+                >
+                  <View style={styles.thumbnailContainer}>
+                    <Image
+                      source={{ uri: item.board.thumbnailImageUrl ?? undefined }}
+                      style={styles.thumbnailImage}
+                      contentFit="cover"
+                    />
+                  </View>
+                  <View style={styles.targetTextContainer}>
+                    <Text style={styles.targetTitle}>{item.board.title}</Text>
+                  </View>
+                </Pressable>
               </View>
               <View style={styles.commentFooter}>
-                <Text>{item.target?.category.channel?.channelName}</Text>
+                <Text>{item.board.category.channel?.channelName}</Text>
                 <View style={styles.actionButtonContainer}>
                   <Pressable style={styles.actionButton}>
                     <Ionicons name={'chatbubble-ellipses-outline'} size={16} color="#666" />
