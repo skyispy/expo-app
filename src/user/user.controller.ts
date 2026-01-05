@@ -1,6 +1,5 @@
 import {
   Body,
-  ConflictException,
   Controller,
   Get,
   Logger,
@@ -12,6 +11,9 @@ import {
   UseGuards,
   UseInterceptors,
   UsePipes,
+  BadRequestException,
+  Param,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ZodValidationPipe } from 'src/common/pipes';
@@ -61,8 +63,20 @@ export class UserController {
     }
     const validateUser = UserResponseSchema.safeParse(user);
     if (!validateUser.success) {
-      throw new ConflictException('프로필 수정 후 유효성 검사에 실패했습니다.');
+      throw new BadRequestException('프로필 수정 후 유효성 검사에 실패했습니다.');
     }
     return validateUser.data;
+  }
+
+  // 유저 조회
+  @Get('/:userId')
+  async getUser(@Param('userId', ParseIntPipe) userId: number): Promise<UserResponseDto> {
+    this.logger.log('유저 조회 ID: ' + userId);
+    const user = await this.userService.findUserById(userId);
+    const { success, data, error } = UserResponseSchema.safeParse(user);
+    if (!success) {
+      throw new BadRequestException('유저 조회 후 유효성 검사에 실패했습니다.', error);
+    }
+    return data;
   }
 }

@@ -1,15 +1,18 @@
 import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CommentEntity } from './models';
-import { UserService } from '../user/user.service';
-import type { CommentCreateDto } from './dto/comment.dto';
+import { CommentEntity } from '../models';
+import { IsNull, Repository } from 'typeorm';
+import { UserService } from '../../user/user.service';
+import { CommentCreateDto } from '../dto';
+import { CommentExtraInfo } from '../../common/types';
+import { ActionService } from '../../action/action.service';
 
 @Injectable()
-export class CommonService {
+export class CommentService {
   constructor(
     @InjectRepository(CommentEntity) private readonly commentRepository: Repository<CommentEntity>,
     private readonly userService: UserService,
+    private readonly actionService: ActionService,
   ) {}
 
   // 댓글 생성
@@ -38,35 +41,47 @@ export class CommonService {
   }
 
   // 댓글 페이징 조회
-  async getCommentListByTarget(
-    targetId: number,
-    targetType: string,
-    page: number,
-    limit: number,
-  ): Promise<CommentEntity[]> {
-    return await this.commentRepository
-      .createQueryBuilder('comment')
-      .leftJoinAndSelect('comment.user', 'user')
-      .leftJoinAndSelect('comment.children', 'children', 'children.status = :childStatus', {
-        childStatus: 'active',
-      })
-      .leftJoinAndSelect('children.user', 'childrenUser')
-      .leftJoinAndSelect('children.parent', 'childrenParent')
-      .leftJoinAndSelect('childrenParent.user', 'childrenParentUser')
-      .where('comment.targetId = :targetId', { targetId })
-      .andWhere('comment.targetType = :targetType', { targetType })
-      .andWhere('comment.status = :status', { status: 'active' })
-      .andWhere('comment.parent IS NULL')
-      .addOrderBy('comment.createDate', 'DESC')
-      .skip((page - 1) * limit)
-      .take(limit)
-      .getMany();
+  async getCommentListByTarget({
+    userId,
+    boardId,
+    page,
+    limit,
+  }: {
+    userId: number;
+    boardId: number;
+    page: number;
+    limit: number;
+  }): Promise<{ commentList: (CommentEntity & CommentExtraInfo)[]; totalCount: number }> {
+    const [commentList, totalCount] = await this.commentRepository.findAndCount({
+      where: {
+        board: { boardId },
+        status: 'active',
+        parent: IsNull(),
+        children: { status: 'active' },
+      },
+      relations: ['user', 'children', 'children.user', 'children.parent', 'children.parent.user'],
+      order: { createDate: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    const commentExtraInfoList = await Promise.all(
+      commentList.map(async (comment) => {
+        const commentActions = await this.actionService.getCommentActionSummary(
+          comment.commentId,
+          userId,
+        );
+        return { ...comment, ...commentActions };
+      }),
+    );
+
+    return { commentList: commentExtraInfoList, totalCount };
   }
 
   // 댓글 개수 조회
-  async countCommentListByTarget(targetId: number, targetType: string): Promise<number> {
+  async countCommentListByTarget(boardId: number): Promise<number> {
     return await this.commentRepository.count({
-      where: { targetType, targetId, status: 'active' },
+      where: { board: { boardId }, status: 'active' },
     });
   }
 

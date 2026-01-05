@@ -14,15 +14,19 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { BoardService } from './board.service';
-import type { BoardCreateDto, BoardResponseDto } from './dto/board.dto';
-import { BoardCreateSchema, BoardResponseSchema } from './dto/board.schema';
+import { BoardService } from '../services';
+import {
+  BoardCreateSchema,
+  type BoardCreateDto,
+  BoardResponseSchema,
+  type BoardResponseDto,
+} from '../dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { InfiniteQueryResponse } from '../common/dto/response.dto';
-import { JwtAuthGuard } from '../auth/guards';
+import { InfiniteQueryResponse } from '../../common/dto';
+import { JwtAuthGuard } from '../../auth/guards';
 import type { Request } from 'express';
-import { ActionService } from '../action/action.service';
-import type { UserPayload } from '../common/types';
+import { ActionService } from '../../action/action.service';
+import type { BoardActionType, UserPayload } from '../../common/types';
 
 @Controller('board')
 export class BoardController {
@@ -132,7 +136,7 @@ export class BoardController {
   @UseGuards(JwtAuthGuard)
   async addAction(
     @Param('boardId') boardId: number,
-    @Param('actionType') actionType: 'like' | 'hide' | 'report' | 'block',
+    @Param('actionType') actionType: BoardActionType,
     @Req() req: Request,
   ): Promise<void> {
     const { userId } = req.user as UserPayload;
@@ -154,7 +158,7 @@ export class BoardController {
   @UseGuards(JwtAuthGuard)
   async removeAction(
     @Param('boardId') boardId: number,
-    @Param('action') action: 'like' | 'hide' | 'report' | 'block',
+    @Param('action') action: BoardActionType,
     @Req() req: Request,
   ): Promise<void> {
     const { userId } = req.user as UserPayload;

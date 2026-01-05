@@ -1,19 +1,16 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { UserEntity } from '../../user/models';
-import { TimestampEntity } from './timestamp.entity';
+import { TimestampEntity } from '../../common/models';
+import { BoardEntity } from './board.entity';
 
 @Entity('COMMENT')
 export class CommentEntity extends TimestampEntity {
   @PrimaryGeneratedColumn()
   commentId: number;
 
-  // 댓글 타입
-  @Column()
-  targetType: string; // 'board' 또는 'comment'
-
-  // 대상 ID (boardId)
-  @Column()
-  targetId: number;
+  @ManyToOne(() => BoardEntity, (board) => board.commentList, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'boardId' })
+  board: BoardEntity;
 
   // 댓글 작성자
   @ManyToOne(() => UserEntity, (user) => user.commentList, { onDelete: 'CASCADE' })

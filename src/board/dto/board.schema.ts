@@ -34,6 +34,8 @@ export const BoardResponseSchema = z.object({
   isHidden: z.boolean().optional(),
 });
 
+export type BoardResponseDto = z.infer<typeof BoardResponseSchema>;
+
 // 게시판 생성 요청 스키마
 export const BoardCreateSchema = z.object({
   // 카테고리 (예: '공지사항', '자유게시판' 등) number로 변환
@@ -49,3 +51,5 @@ export const BoardCreateSchema = z.object({
   startDate: z.date().optional(),
   endDate: z.date().optional(),
 });
+
+export type BoardCreateDto = z.infer<typeof BoardCreateSchema>;

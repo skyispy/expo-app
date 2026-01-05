@@ -1,35 +1,42 @@
 import {
-  Controller,
-  Logger,
-  Post,
-  Get,
-  UseGuards,
-  Req,
+  BadRequestException,
   Body,
-  Query,
-  Put,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Logger,
+  Param,
+  Post,
+  Put,
+  Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
-import { CommonService } from './common.service';
-import { JwtAuthGuard } from '../auth/guards';
-import type { UserPayload } from './types';
-import type { CommentCreateDto } from './dto/comment.dto';
-import { CommentCreateSchema } from './dto/comment.schema';
+import { JwtAuthGuard } from '../../auth/guards';
 import type { Request } from 'express';
-import { BadRequestException } from '@nestjs/common';
-import type { InfiniteQueryResponse } from './dto/response.dto';
-import type { CommentResponseDto } from './dto/comment.dto';
-import { CommentResponseSchema } from './dto/comment.schema';
+import {
+  type CommentCreateDto,
+  CommentCreateSchema,
+  type CommentResponseDto,
+  CommentResponseSchema,
+} from '../dto';
+import type { UserPayload } from '../../common/types';
 import { z } from 'zod';
+import {
+  InfiniteQueryRequestDto,
+  InfiniteQueryRequestSchema,
+  InfiniteQueryResponse,
+} from '../../common/dto';
+import { CommentService } from '../services';
+import { ZodValidationPipe } from '../../common/pipes';
 
-@Controller('common')
-export class CommonController {
-  constructor(private readonly commonService: CommonService) {}
-  private readonly logger = new Logger(CommonController.name);
+@Controller('comment')
+export class CommentController {
+  constructor(private readonly commentService: CommentService) {}
+  private readonly logger = new Logger(CommentController.name);
 
   // 댓글 생성
-  @Post('/comment')
+  @Post('/')
   @UseGuards(JwtAuthGuard)
   async createComment(
     @Req() req: Request,
@@ -41,40 +48,40 @@ export class CommonController {
       this.logger.warn('댓글 생성 요청 데이터 검증 실패', validatedRequest.error);
       throw new BadRequestException(validatedRequest.error.issues[0].message);
     }
-    await this.commonService.createComment(commentCreateDto, userId);
+    await this.commentService.createComment(commentCreateDto, userId);
   }
 
   // 댓글 목록 조회
-  @Get('/comment')
+  @Get('/')
+  @UseGuards(JwtAuthGuard)
   async getComments(
-    @Query('targetType') targetType: string,
-    @Query('targetId') targetId: number,
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
+    @Req() req: Request,
+    @Query(
+      new ZodValidationPipe(
+        InfiniteQueryRequestSchema.extend({
+          boardId: z.preprocess((val) => Number(val), z.number()),
+        }),
+      ),
+    )
+    query: InfiniteQueryRequestDto & { boardId: number },
   ): Promise<InfiniteQueryResponse<CommentResponseDto>> {
-    page = Number(page);
-    limit = Number(limit);
-    const commentList = await this.commonService.getCommentListByTarget(
-      targetId,
-      targetType,
-      page,
-      limit,
-    );
+    const { userId } = req.user as UserPayload;
+    const { commentList, totalCount } = await this.commentService.getCommentListByTarget({
+      userId,
+      boardId: query.boardId,
+      page: query.page,
+      limit: query.limit,
+    });
     const { success, data, error } = z.array(CommentResponseSchema).safeParse(commentList);
     if (!success) {
       throw new BadRequestException('댓글 목록 응답 데이터 검증 실패', error);
     }
-    const totalCount = await this.commonService.countCommentListByTarget(targetId, targetType);
-    const hasNextPage = page * limit < totalCount;
-    return {
-      itemList: data,
-      nextPage: hasNextPage ? page + 1 : null,
-      totalCount,
-    };
+    const hasNextPage = query.page * query.limit < totalCount;
+    return new InfiniteQueryResponse(data, hasNextPage ? query.page + 1 : null, totalCount);
   }
 
   // 댓글 수정
-  @Put('/comment/:commentId')
+  @Put('/:commentId')
   @UseGuards(JwtAuthGuard)
   async updateComment(
     @Req() req: Request,
@@ -87,14 +94,14 @@ export class CommonController {
       this.logger.warn('댓글 수정 요청 데이터 검증 실패', validatedRequest.error);
       throw new BadRequestException(validatedRequest.error.issues[0].message);
     }
-    await this.commonService.updateComment(validatedRequest.data, commentId, userId);
+    await this.commentService.updateComment(validatedRequest.data, commentId, userId);
   }
 
   // 댓글 삭제
-  @Delete('/comment/:commentId')
+  @Delete('/:commentId')
   @UseGuards(JwtAuthGuard)
   async deleteComment(@Req() req: Request, @Param('commentId') commentId: number): Promise<void> {
     const { userId } = req.user as UserPayload;
-    await this.commonService.deleteComment(commentId, userId);
+    await this.commentService.deleteComment(commentId, userId);
   }
 }

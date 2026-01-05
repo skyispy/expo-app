@@ -6,6 +6,8 @@ export interface UserPayload {
   exp: number; // 만료 시간
 }
 
+export type BoardActionType = 'view' | 'like' | 'hide';
+
 export type BoardExtraInfo = {
   commentCount: number;
   views: number;
@@ -15,3 +17,8 @@ export type BoardExtraInfo = {
 };
 
 export type SortOrder = 'latest' | 'oldest';
+
+export type CommentExtraInfo = {
+  likes: number;
+  isLiked: boolean;
+};

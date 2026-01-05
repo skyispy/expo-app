@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { HiddenEntity, LikeEntity, ViewHistoryEntity } from './models';
 import { Repository } from 'typeorm';
 import { BoardEntity } from '../board/models';
-import { BoardExtraInfo, SortOrder } from '../common/types';
-import { CommentEntity } from '../common/models';
+import { BoardExtraInfo, CommentExtraInfo, SortOrder } from '../common/types';
+import { CommentEntity } from '../board/models';
 
 @Injectable()
 export class ActionService {
@@ -113,7 +113,7 @@ export class ActionService {
     userId: number,
     page: number,
     limit: number,
-    sortOrder: 'latest' | 'oldest',
+    sortOrder: SortOrder,
   ): Promise<{ itemList: (BoardEntity & { lastActionDate: Date })[]; totalCount: number }> {
     const distinctSubQuery = this.likeRepository
       .createQueryBuilder('l')
@@ -183,7 +183,7 @@ export class ActionService {
     userId: number,
     page: number,
     limit: number,
-    sortOrder: 'latest' | 'oldest',
+    sortOrder: SortOrder,
   ): Promise<{ itemList: (BoardEntity & { lastActionDate: Date })[]; totalCount: number }> {
     const distinctSubQuery = this.hiddenRepository
       .createQueryBuilder('h')
@@ -213,25 +213,36 @@ export class ActionService {
     return { itemList, totalCount };
   }
 
-  // 액션 요약 정보 조회
-  async getActionSummary(
-    targetType: string,
-    targetId: number,
+  // 게시판 액션 요약 정보 조회
+  async getBoardActionSummary(
+    boardId: number,
     userId: number,
   ): Promise<Omit<BoardExtraInfo, 'commentCount'>> {
     // 조회수 조회
-    const views = await this.countViews(targetType, targetId);
+    const views = await this.countViews('board', boardId);
     // 좋아요 수 조회
-    const likes = await this.countLikes(targetType, targetId);
+    const likes = await this.countLikes('board', boardId);
     // 좋아요 여부
-    const isLiked = await this.isLiked(targetType, targetId, userId);
+    const isLiked = await this.isLiked('board', boardId, userId);
     // 숨김 여부
-    const isHidden = await this.isHidden(targetType, targetId, userId);
+    const isHidden = await this.isHidden('board', boardId, userId);
     return {
       views,
       likes,
       isLiked,
       isHidden,
+    };
+  }
+
+  // 댓글 액션 요약 정보 조회
+  async getCommentActionSummary(commentId: number, userId: number): Promise<CommentExtraInfo> {
+    // 좋아요 수 조회
+    const likes = await this.countLikes('comment', commentId);
+    // 좋아요 여부
+    const isLiked = await this.isLiked('comment', commentId, userId);
+    return {
+      likes,
+      isLiked,
     };
   }
 
@@ -252,9 +263,9 @@ export class ActionService {
     const boardListWithExtraInfo = await Promise.all(
       boardList.map(async (board) => {
         const commentCount = await this.commentRepository.count({
-          where: { targetType: 'board', targetId: board.boardId, status: 'active' },
+          where: { board: { boardId: board.boardId }, status: 'active' },
         });
-        const extraInfo = await this.getActionSummary('board', board.boardId, userId);
+        const extraInfo = await this.getBoardActionSummary(board.boardId, userId);
         return { ...board, ...extraInfo, commentCount };
       }),
     );
@@ -267,34 +278,22 @@ export class ActionService {
     limit: number,
     sortOrder: SortOrder,
   ): Promise<{
-    commentList: (CommentEntity & { target: BoardEntity })[];
+    commentList: (CommentEntity & CommentExtraInfo)[];
     totalCount: number;
   }> {
     const [commentList, totalCount] = await this.commentRepository.findAndCount({
       where: { user: { userId }, status: 'active' },
-      relations: ['user', 'parent', 'parent.user'],
+      relations: ['user', 'parent', 'parent.user', 'board', 'board.category', 'board.user'],
       order: { createDate: sortOrder === 'latest' ? 'DESC' : 'ASC' },
       skip: (page - 1) * limit,
       take: limit,
     });
     const commentListWithExtraInfo = await Promise.all(
       commentList.map(async (comment) => {
-        // 추가적인 액션 요약 정보를 여기에 포함시킬 수 있습니다.
-        if (comment.targetType === 'board') {
-          const board = await this.boardRepository.findOne({
-            where: { boardId: comment.targetId },
-            relations: ['user', 'category', 'category.channel'],
-          });
-          // 삭제된 게시물인 경우 null로 나옴
-          return { ...comment, target: board };
-        }
-        return { ...comment, target: null };
+        const commentActions = await this.getCommentActionSummary(comment.commentId, userId);
+        return { ...comment, ...commentActions, target: null };
       }),
     );
-    // null인 target를 가진 댓글은 필터링
-    const filteredCommentList = commentListWithExtraInfo.filter(
-      (comment) => comment.target !== null,
-    ) as (CommentEntity & { target: BoardEntity })[];
-    return { commentList: filteredCommentList, totalCount };
+    return { commentList: commentListWithExtraInfo, totalCount };
   }
 }

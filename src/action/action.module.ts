@@ -3,8 +3,7 @@ import { ActionService } from './action.service';
 import { ActionController } from './action.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HiddenEntity, LikeEntity, ViewHistoryEntity } from './models';
-import { BoardEntity } from '../board/models';
-import { CommentEntity } from '../common/models';
+import { BoardEntity, CommentEntity } from '../board/models';
 
 @Module({
   imports: [

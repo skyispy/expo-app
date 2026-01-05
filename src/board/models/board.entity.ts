@@ -1,7 +1,8 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { UserEntity } from '../../user/models';
 import { CategoryEntity } from './category.entity';
 import { TimestampEntity } from '../../common/models';
+import { CommentEntity } from './comment.entity';
 
 @Entity('BOARD')
 export class BoardEntity extends TimestampEntity {
@@ -40,4 +41,8 @@ export class BoardEntity extends TimestampEntity {
 
   @Column({ type: 'datetime', nullable: true })
   endDate: Date;
+
+  // 댓글과의 1:N 관계 설정
+  @OneToMany(() => CommentEntity, (comment) => comment.board)
+  commentList: CommentEntity[];
 }

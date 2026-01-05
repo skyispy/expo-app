@@ -3,24 +3,23 @@ import { ActionService } from './action.service';
 import { JwtAuthGuard } from '../auth/guards';
 import type { Request } from 'express';
 import { z } from 'zod';
-import { InfiniteQueryResponse } from '../common/dto/response.dto';
+import { CommentResponseSchema, type CommentResponseDto } from '../board/dto';
 import { BoardActionResponseSchema } from './dto/action.schema';
 import { BoardActionResponseDto } from './dto/action.dto';
 import { BoardEntity } from '../board/models';
-import type { SortOrder, UserPayload } from '../common/types';
-import { CommentResponseDto } from '../common/dto/comment.dto';
-import { CommentWithBoardResponseSchema } from '../common/dto/comment.schema';
+import type { BoardActionType, SortOrder, UserPayload } from '../common/types';
+import { InfiniteQueryResponse } from '../common/dto';
 
 @Controller('action')
 export class ActionController {
   constructor(private readonly actionService: ActionService) {}
 
-  // 유저 최근 본 기록 조회
+  // 유저 게시판 액션(최근 본, 좋아요, 숨김) 조회
   @Get('/board/:actionType')
   @UseGuards(JwtAuthGuard)
   async getBoardActions(
     @Req() req: Request,
-    @Param('actionType') actionType: 'view' | 'like' | 'hide',
+    @Param('actionType') actionType: BoardActionType,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
     @Query('sortOrder') sortOrder: SortOrder = 'latest',
@@ -105,7 +104,7 @@ export class ActionController {
       limit,
       sortOrder,
     );
-    const { success, data, error } = z.array(CommentWithBoardResponseSchema).safeParse(commentList);
+    const { success, data, error } = z.array(CommentResponseSchema).safeParse(commentList);
     if (!success) {
       throw new BadRequestException('내 댓글 응답 데이터 검증 실패', error);
     }

@@ -6,16 +6,16 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BoardEntity } from './models';
+import { BoardEntity } from '../models';
 import { Repository } from 'typeorm';
-import type { BoardCreateDto } from './dto/board.dto';
+import type { BoardCreateDto } from '../dto';
 import { ConfigService } from '@nestjs/config';
-import { saveFileToDist } from '../common/utils';
-import { UserService } from '../user/user.service';
-import { CommonService } from '../common/common.service';
-import { CategoryEntity } from './models/category.entity';
-import { ActionService } from '../action/action.service';
-import { BoardExtraInfo, SortOrder } from '../common/types';
+import { saveFileToDist } from '../../common/utils';
+import { UserService } from '../../user/user.service';
+import { CategoryEntity } from '../models';
+import { ActionService } from '../../action/action.service';
+import { BoardExtraInfo } from '../../common/types';
+import { CommentService } from './comment.service';
 
 @Injectable()
 export class BoardService {
@@ -24,9 +24,9 @@ export class BoardService {
     private readonly boardRepository: Repository<BoardEntity>,
     @InjectRepository(CategoryEntity)
     private readonly categoryRepository: Repository<CategoryEntity>,
+    private readonly commentService: CommentService,
     private readonly userService: UserService,
     private readonly configService: ConfigService,
-    private readonly commonService: CommonService,
     private readonly actionService: ActionService,
   ) {}
 
@@ -109,8 +109,8 @@ export class BoardService {
   // 게시판 추가 정보(댓글 수, 조회수, 좋아요 수 등) 조회
   async getBoardExtraInfo(boardId: number, userId: number): Promise<BoardExtraInfo> {
     // 댓글 개수 조회
-    const commentCount = await this.commonService.countCommentListByTarget(boardId, 'board');
-    const actions = await this.actionService.getActionSummary('board', boardId, userId);
+    const commentCount = await this.commentService.countCommentListByTarget(boardId);
+    const actions = await this.actionService.getBoardActionSummary(boardId, userId);
     return {
       ...actions,
       commentCount,
