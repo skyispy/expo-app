@@ -1,1 +1,2 @@
-export * from './BoardCommentSection';
+export * from './BoardSection';
+export * from './CommentSection';

@@ -33,6 +33,7 @@ export type InfiniteQueryResponse<T> = {
   itemList: T[];
   nextPage: number | null;
   totalCount: number;
+  totalPages?: number;
 };
 
 export type CommentCreateRequest = z.infer<typeof CommentCreateSchema>;

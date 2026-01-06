@@ -1,9 +1,10 @@
 // 댓글 생성
-import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { ApiResponse, CommentCreateRequest, InfiniteQueryResponse, Comment } from '@types';
 import apiClient from '../api/config';
 import { ApiError } from '../errors/ApiError';
 import { Alert } from 'react-native';
+import { CommentUpdateRequest } from '@schemas';
 
 // 댓글 생성
 export const useCreateComment = () => {
@@ -22,45 +23,45 @@ export const useCreateComment = () => {
   return { createComment: mutateAsync };
 };
 
-// 댓글 목록 조회
-export const useGetCommentList = (boardId: number) => {
-  const { data, fetchNextPage, refetch } = useInfiniteQuery({
-    queryKey: ['commentList', { boardId }],
-    queryFn: async ({ pageParam }) => {
+// 댓글 목록 조회 (페이지네이션 전용)
+export const useGetCommentList = ({
+  boardId,
+  page,
+  limit,
+}: {
+  boardId: number;
+  page: number;
+  limit: number;
+}) => {
+  const { data, refetch, isFetching } = useQuery({
+    queryKey: ['commentList', { boardId, page }],
+    queryFn: async () => {
       const response: ApiResponse<InfiniteQueryResponse<Comment>> = await apiClient.get(
         `/comment`,
         {
-          params: { boardId, page: pageParam, limit: 10 },
+          params: { boardId, page, limit },
         },
       );
       return response.data.result;
     },
-    initialPageParam: 1,
-    getNextPageParam: (lastPage) => lastPage.nextPage,
     enabled: !!boardId,
     staleTime: 5 * 60 * 1000,
   });
 
-  console.log(data?.pages.flatMap(page => (page.totalCount)));
-
-  const commentList = data?.pages.flatMap((page) => page.itemList);
-
   return {
-    commentList,
-    commentCount: data?.pages[0]?.totalCount || 0,
-    commentFetchNextPage: fetchNextPage,
+    commentList: data?.itemList || [],
+    commentCount: data?.totalCount || 0,
     commentRefetch: refetch,
+    isFetching,
+    totalPages: data?.totalPages || 0,
   };
 };
 
 // 댓글 수정
 export const useUpdateComment = () => {
   const { mutateAsync } = useMutation({
-    mutationFn: async (param: { commentId: number; content: string }) => {
-      const response: ApiResponse<null> = await apiClient.put(
-        `/comment/${param.commentId}`,
-        param,
-      );
+    mutationFn: async (param: CommentUpdateRequest) => {
+      const response: ApiResponse<null> = await apiClient.put(`/comment/${param.targetCommentId}`, param);
       return response.data.result;
     },
     onError: (err) => {

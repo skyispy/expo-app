@@ -1,28 +1,37 @@
 import { View, TextInput, StyleSheet, Keyboard, Alert, Text, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RefObject, useEffect, useState } from 'react';
-import { useCommentInputStore } from '@store';
 import { useCreateComment, useUpdateComment } from '@hooks';
-import { CommentCreateSchema } from '@schemas';
+import { CommentCreateSchema, CommentUpdateSchema } from '@schemas';
 import { useQueryClient } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons/';
+import { CommentMode } from '@types';
 
-export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => {
+type CommentInputProps = {
+  boardId: number;
+  ref?: RefObject<TextInput | null>;
+  mode: CommentMode;
+  value: string;
+  setValue: (value: string) => void;
+  targetCommentId: number | null;
+  headerText: string | null;
+  clear: () => void;
+};
+
+export const CommentInput = ({
+  boardId,
+  ref,
+  mode,
+  value,
+  setValue,
+  targetCommentId,
+  headerText,
+  clear,
+}: CommentInputProps) => {
   const queryClient = useQueryClient();
 
   const { bottom } = useSafeAreaInsets();
   const [bottomHeight, setBottomHeight] = useState(bottom);
-  const {
-    mode,
-    value,
-    setValue,
-    targetType,
-    targetId,
-    parentCommentId,
-    commentId,
-    headerText,
-    clear,
-  } = useCommentInputStore();
 
   // 버튼 타이틀 설정
   const title = mode === 'create' ? '작성' : mode === 'edit' ? '수정' : '작성';
@@ -35,7 +44,7 @@ export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => 
       // 댓글 등록
       const param = {
         content: value,
-        targetId,
+        boardId,
       };
       const { success, data, error } = CommentCreateSchema.safeParse(param);
       if (!success) {
@@ -48,7 +57,7 @@ export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => 
           text: '확인',
           onPress: async () => {
             await queryClient.invalidateQueries({
-              queryKey: ['commentList', { targetType, targetId }],
+              queryKey: ['commentList', { boardId }],
             });
             clear();
           },
@@ -56,22 +65,25 @@ export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => 
       ]);
     } else if (mode === 'edit') {
       // 댓글 수정
-      const { success, data, error } = CommentCreateSchema.shape.content.safeParse(value);
+      const { success, data, error } = CommentUpdateSchema.safeParse({
+        content: value,
+        targetCommentId,
+      });
       if (!success) {
         Alert.alert('댓글 수정 실패', error.issues[0].message);
         return;
       }
-      if (!commentId) {
+      if (!targetCommentId) {
         Alert.alert('댓글 수정 실패', '수정할 댓글이 선택되지 않았습니다.');
         return;
       }
-      await updateComment({ commentId: commentId, content: data });
+      await updateComment(data);
       Alert.alert('댓글 수정 성공', '댓글이 수정되었습니다.', [
         {
           text: '확인',
           onPress: async () => {
             await queryClient.invalidateQueries({
-              queryKey: ['commentList', { targetType, targetId }],
+              queryKey: ['commentList', { boardId }],
             });
             clear();
           },
@@ -81,9 +93,8 @@ export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => 
       // 대댓글 등록
       const param = {
         content: value,
-        targetType,
-        targetId,
-        parentCommentId,
+        boardId,
+        targetCommentId,
       };
       const { success, data, error } = CommentCreateSchema.safeParse(param);
       if (!success) {
@@ -96,7 +107,7 @@ export const CommentInput = ({ ref }: { ref?: RefObject<TextInput | null> }) => 
           text: '확인',
           onPress: async () => {
             await queryClient.invalidateQueries({
-              queryKey: ['commentList', { targetType, targetId }],
+              queryKey: ['commentList', { boardId }],
             });
             clear();
           },
@@ -150,6 +161,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     backgroundColor: '#fff',
+    zIndex: 100,
   },
   inputContainer: {
     width: '100%',

@@ -1,13 +1,12 @@
 import { FlatList, View, StyleSheet, Pressable, Text } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useGetBoardList, useGetChannelList } from '@hooks';
-import { BoardPreview } from './components/BoardPreview';
 import { EllipsisModal } from '@components';
 import { Category } from '@types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
 import { useQueryClient } from '@tanstack/react-query';
-import { BoardActionCancel } from '@screens/board/components/BoardActionCancel';
+import { BoardActionCancel, BoardPreview } from '@screens/board/components';
 
 export const BoardListScreen = () => {
   const queryClient = useQueryClient();
