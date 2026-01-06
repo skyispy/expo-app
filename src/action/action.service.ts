@@ -291,7 +291,7 @@ export class ActionService {
     const commentListWithExtraInfo = await Promise.all(
       commentList.map(async (comment) => {
         const commentActions = await this.getCommentActionSummary(comment.commentId, userId);
-        return { ...comment, ...commentActions, target: null };
+        return { ...comment, ...commentActions };
       }),
     );
     return { commentList: commentListWithExtraInfo, totalCount };

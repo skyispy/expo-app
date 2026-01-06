@@ -109,7 +109,7 @@ export class BoardService {
   // 게시판 추가 정보(댓글 수, 조회수, 좋아요 수 등) 조회
   async getBoardExtraInfo(boardId: number, userId: number): Promise<BoardExtraInfo> {
     // 댓글 개수 조회
-    const commentCount = await this.commentService.countCommentListByTarget(boardId);
+    const commentCount = await this.commentService.countActiveComments(boardId);
     const actions = await this.actionService.getBoardActionSummary(boardId, userId);
     return {
       ...actions,

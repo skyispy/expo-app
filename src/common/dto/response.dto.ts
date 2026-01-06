@@ -13,5 +13,6 @@ export class InfiniteQueryResponse<T> {
     public readonly itemList: T[],
     public readonly nextPage: number | null,
     public readonly totalCount: number,
+    private readonly totalPages?: number,
   ) {}
 }

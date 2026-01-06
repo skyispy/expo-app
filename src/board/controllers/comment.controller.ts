@@ -66,18 +66,30 @@ export class CommentController {
     query: InfiniteQueryRequestDto & { boardId: number },
   ): Promise<InfiniteQueryResponse<CommentResponseDto>> {
     const { userId } = req.user as UserPayload;
-    const { commentList, totalCount } = await this.commentService.getCommentListByTarget({
+    const { commentList, totalCount: commentCount } = await this.commentService.getCommentList({
       userId,
       boardId: query.boardId,
       page: query.page,
       limit: query.limit,
     });
+    // 총 페이지 수 계산
+    const totalPage = Math.ceil(commentCount / query.limit);
+    // 대댓글 포함 총 댓글 수 계산
+    const totalCount = await this.commentService.countActiveComments(query.boardId);
+    this.logger.log(
+      `댓글 목록 조회 - 게시판 ID: ${query.boardId}, ${query.page}/${totalPage}, 총 댓글 수: ${totalCount}`,
+    );
     const { success, data, error } = z.array(CommentResponseSchema).safeParse(commentList);
     if (!success) {
       throw new BadRequestException('댓글 목록 응답 데이터 검증 실패', error);
     }
     const hasNextPage = query.page * query.limit < totalCount;
-    return new InfiniteQueryResponse(data, hasNextPage ? query.page + 1 : null, totalCount);
+    return new InfiniteQueryResponse(
+      data,
+      hasNextPage ? query.page + 1 : null,
+      totalCount,
+      totalPage,
+    );
   }
 
   // 댓글 수정
@@ -89,12 +101,12 @@ export class CommentController {
     @Param('commentId') commentId: number,
   ): Promise<void> {
     const { userId } = req.user as UserPayload;
-    const validatedRequest = CommentCreateSchema.shape.content.safeParse(content);
-    if (!validatedRequest.success) {
-      this.logger.warn('댓글 수정 요청 데이터 검증 실패', validatedRequest.error);
-      throw new BadRequestException(validatedRequest.error.issues[0].message);
+    const { data, success, error } = CommentCreateSchema.shape.content.safeParse(content);
+    if (!success) {
+      this.logger.warn('댓글 수정 요청 데이터 검증 실패', error);
+      throw new BadRequestException(error.issues[0].message);
     }
-    await this.commentService.updateComment(validatedRequest.data, commentId, userId);
+    await this.commentService.updateComment({ content: data, commentId, userId });
   }
 
   // 댓글 삭제

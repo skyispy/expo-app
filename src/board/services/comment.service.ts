@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CommentEntity } from '../models';
+import { BoardEntity, CommentEntity } from '../models';
 import { IsNull, Repository } from 'typeorm';
 import { UserService } from '../../user/user.service';
 import { CommentCreateDto } from '../dto';
@@ -11,6 +11,7 @@ import { ActionService } from '../../action/action.service';
 export class CommentService {
   constructor(
     @InjectRepository(CommentEntity) private readonly commentRepository: Repository<CommentEntity>,
+    @InjectRepository(BoardEntity) private readonly boardRepository: Repository<BoardEntity>,
     private readonly userService: UserService,
     private readonly actionService: ActionService,
   ) {}
@@ -21,15 +22,22 @@ export class CommentService {
     if (!user) {
       throw new UnauthorizedException('존재하지 않는 사용자입니다.');
     }
+    const board = await this.boardRepository.findOne({
+      where: { boardId: commentCreateDto.boardId },
+    });
+    if (!board) {
+      throw new BadRequestException('존재하지 않는 게시판입니다.');
+    }
     const commentData: Partial<CommentEntity> = {
       ...commentCreateDto,
       status: 'active',
       user,
+      board,
     };
     // 부모 댓글이 존재하는지 확인
-    if (commentCreateDto.parentCommentId) {
+    if (commentCreateDto.targetCommentId) {
       const parentComment = await this.commentRepository.findOne({
-        where: { commentId: commentCreateDto.parentCommentId },
+        where: { commentId: commentCreateDto.targetCommentId },
       });
       if (!parentComment) {
         throw new BadRequestException('존재하지 않는 부모 댓글입니다.');
@@ -41,7 +49,7 @@ export class CommentService {
   }
 
   // 댓글 페이징 조회
-  async getCommentListByTarget({
+  async getCommentList({
     userId,
     boardId,
     page,
@@ -57,13 +65,19 @@ export class CommentService {
         board: { boardId },
         status: 'active',
         parent: IsNull(),
-        children: { status: 'active' },
       },
       relations: ['user', 'children', 'children.user', 'children.parent', 'children.parent.user'],
       order: { createDate: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
     });
+
+    // children에서 status가 active인 것만 남기기
+    for (const comment of commentList) {
+      if (comment.children) {
+        comment.children = comment.children.filter((child) => child.status === 'active');
+      }
+    }
 
     const commentExtraInfoList = await Promise.all(
       commentList.map(async (comment) => {
@@ -79,14 +93,22 @@ export class CommentService {
   }
 
   // 댓글 개수 조회
-  async countCommentListByTarget(boardId: number): Promise<number> {
+  async countActiveComments(boardId: number): Promise<number> {
     return await this.commentRepository.count({
       where: { board: { boardId }, status: 'active' },
     });
   }
 
   // 댓글 수정
-  async updateComment(content: string, commentId: number, userId: number): Promise<void> {
+  async updateComment({
+    content,
+    commentId,
+    userId,
+  }: {
+    content: string;
+    commentId: number;
+    userId: number;
+  }): Promise<void> {
     const comment = await this.commentRepository.findOne({
       where: { commentId, status: 'active' },
       relations: ['user'],

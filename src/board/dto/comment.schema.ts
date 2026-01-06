@@ -7,7 +7,7 @@ export const CommentResponseSchema: z.ZodObject = z.object({
   commentId: z.number(),
   board: BoardResponseSchema.optional(),
   user: UserResponseSchema,
-  content: z.string().max(500, '댓글은 500자 이내로 입력해주세요.'),
+  content: z.string().max(500),
   status: z.string(),
   children: z
     .array(
@@ -36,9 +36,9 @@ export type CommentResponseDto = z.infer<typeof CommentResponseSchema>;
 
 // 댓글 생성 요청 스키마
 export const CommentCreateSchema = z.object({
-  content: z.string().max(500, '댓글은 500자 이내로 입력해주세요.'),
+  content: z.string().max(500),
   boardId: z.number(),
-  parentCommentId: z.number().optional(),
+  targetCommentId: z.number().optional(),
 });
 
 export type CommentCreateDto = z.infer<typeof CommentCreateSchema>;
