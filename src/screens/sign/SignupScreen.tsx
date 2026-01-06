@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { useState } from 'react';
-import type { SignupRequest } from '@types';
+import type { SignupRequest } from '@schemas';
 import { useCheckDuplicateNickname, useSignupUser } from '@hooks';
 import { UserSignupSchema } from '@schemas';
 import type { UserSignupFields } from '@schemas';

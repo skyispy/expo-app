@@ -1,10 +1,11 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ApiResponse, SignStackScreenProps, SignupRequest, User } from '@types';
+import { ApiResponse, SignStackScreenProps, User } from '@types';
 import apiClient from '../api/config';
 import { Alert } from 'react-native';
 import { useAuthStore } from '@store';
 import { ApiError } from '../errors/ApiError';
 import { useNavigation } from '@react-navigation/native';
+import { SignupRequest } from '@schemas';
 
 // 회원가입
 export const useSignupUser = () => {

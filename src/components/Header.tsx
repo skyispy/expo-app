@@ -10,11 +10,7 @@ export const Header = ({ options }: StackHeaderProps | BottomTabHeaderProps) => 
     <View style={[styles.container, { marginTop: top }]}>
       {options?.headerLeft ? options.headerLeft({ canGoBack: true }) : <View style={styles.side} />}
       <Text style={styles.title}>{options?.headerTitle as string}</Text>
-      {options?.headerRight ? (
-        options.headerRight({ canGoBack: true })
-      ) : (
-        <View style={styles.side} />
-      )}
+      {options?.headerRight ? options.headerRight({ canGoBack: true }) : <View style={styles.side} />}
     </View>
   );
 };

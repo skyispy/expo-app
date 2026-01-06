@@ -20,6 +20,7 @@ export const UserSignupSchema = z
   .required();
 
 export type UserSignupFields = Partial<z.infer<typeof UserSignupSchema>>;
+export type SignupRequest = Omit<z.infer<typeof UserSignupSchema>, 'confirmPassword'>;
 
 // 로그인 스키마
 export const UserLoginSchema = z
@@ -36,6 +37,8 @@ export const UserLoginSchema = z
     keepLogin: z.boolean().optional().default(false),
   })
   .required();
+
+export type LoginRequest = z.infer<typeof UserLoginSchema>;
 
 // 프로필 수정 스키마
 export const UserProfileUpdateSchema = z

@@ -1,10 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
-import { ApiResponse, LoginRequest, LoginResponse, LogoutResponse } from '@types';
+import { ApiResponse, LoginResponse } from '@types';
 import * as SecureStore from 'expo-secure-store';
 import apiClient from '../api/config';
 import { ApiError } from '../errors/ApiError';
 import { useAuthStore } from '@store';
 import { Alert } from 'react-native';
+import { LoginRequest } from '@schemas';
 
 export const useLoginUser = () => {
   const setUser = useAuthStore((state) => state.setUser);
@@ -91,7 +92,7 @@ export const useLogoutUser = () => {
       const refreshToken = await SecureStore.getItemAsync('refreshToken');
       if (refreshToken) {
         // 로그아웃 API 호출
-        const response: ApiResponse<LogoutResponse> = await apiClient.post(
+        const response: ApiResponse<null> = await apiClient.post(
           '/auth/logout',
           {},
           {

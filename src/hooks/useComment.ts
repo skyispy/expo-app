@@ -1,10 +1,10 @@
 // 댓글 생성
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { ApiResponse, CommentCreateRequest, InfiniteQueryResponse, Comment } from '@types';
+import { ApiResponse, InfiniteQueryResponse, Comment } from '@types';
 import apiClient from '../api/config';
 import { ApiError } from '../errors/ApiError';
 import { Alert } from 'react-native';
-import { CommentUpdateRequest } from '@schemas';
+import { CommentCreateRequest, CommentUpdateRequest } from '@schemas';
 
 // 댓글 생성
 export const useCreateComment = () => {

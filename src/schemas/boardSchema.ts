@@ -17,6 +17,8 @@ export const CommentCreateSchema = z.object({
   targetCommentId: z.number().optional(),
 });
 
+export type CommentCreateRequest = z.infer<typeof CommentCreateSchema>;
+
 // 댓글 수정 스키마
 export const CommentUpdateSchema = CommentCreateSchema.omit({
   boardId: true,
